@@ -1,119 +1,92 @@
-"use client";
+// Home Page
+// Landing page with navigation to different views
 
-import Link from "next/link";
-import { motion } from "framer-motion";
+'use client';
 
-export default function Home() {
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+
+export default function HomePage() {
+    const links = [
+        {
+            title: 'Big Screen',
+            description: 'Projector display for live audience (1920×1080)',
+            href: '/big-screen',
+            icon: '📺',
+            color: 'from-blue-500 to-cyan-500',
+        },
+        {
+            title: 'Admin Panel',
+            description: 'Control dashboard for auctioneers',
+            href: '/admin',
+            icon: '🎛️',
+            color: 'from-purple-500 to-pink-500',
+        },
+        {
+            title: 'Team Dashboard',
+            description: 'Read-only view for team participants',
+            href: '/team/1',
+            icon: '👥',
+            color: 'from-green-500 to-emerald-500',
+        },
+    ];
+
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-8">
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="text-center max-w-5xl"
-            >
-                {/* IPL Logo Placeholder */}
+        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950 flex items-center justify-center p-8">
+            <div className="max-w-6xl w-full">
                 <motion.div
-                    initial={{ scale: 0.8 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="mb-12"
+                    initial={{ opacity: 0, y: -50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center mb-16"
                 >
-                    <h1 className="gradient-text font-display font-black text-7xl lg:text-8xl mb-4">
-                        IPL AUCTION
+                    <h1 className="text-8xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
+                        IPL AUCTION 2026
                     </h1>
-                    <div className="w-32 h-1 mx-auto bg-gradient-to-r from-accent-neon-blue via-accent-purple to-accent-gold rounded-full" />
+                    <p className="text-2xl text-white/70">Live Auction System</p>
                 </motion.div>
 
-                {/* Tagline */}
-                <motion.p
+                <div className="grid md:grid-cols-3 gap-8">
+                    {links.map((link, index) => (
+                        <motion.div
+                            key={link.href}
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                        >
+                            <Link href={link.href}>
+                                <div className="group relative bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 hover:bg-white/10 transition-all duration-300 cursor-pointer overflow-hidden">
+                                    {/* Gradient Background */}
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${link.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+
+                                    {/* Content */}
+                                    <div className="relative z-10">
+                                        <div className="text-6xl mb-4">{link.icon}</div>
+                                        <h2 className="text-3xl font-bold text-white mb-2">{link.title}</h2>
+                                        <p className="text-white/60">{link.description}</p>
+                                    </div>
+
+                                    {/* Arrow */}
+                                    <div className="absolute bottom-8 right-8 text-4xl text-white/30 group-hover:text-white/60 group-hover:translate-x-2 transition-all duration-300">
+                                        →
+                                    </div>
+                                </div>
+                            </Link>
+                        </motion.div>
+                    ))}
+                </div>
+
+                <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
-                    className="text-2xl md:text-3xl text-text-secondary mb-16 font-light"
+                    className="mt-16 text-center"
                 >
-                    Real-Time Auction Simulation Platform
-                </motion.p>
-
-                {/* Role Selection Cards */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
-                >
-                    {/* Super Admin */}
-                    <Link href="/auth?role=super-admin">
-                        <div className="glass-card-hover p-6 cursor-pointer group">
-                            <div className="text-4xl mb-4">🔴</div>
-                            <h3 className="text-xl font-bold mb-2 text-red-400">Super Admin</h3>
-                            <p className="text-sm text-text-secondary">
-                                Full Control & Emergency Override
-                            </p>
-                        </div>
-                    </Link>
-
-                    {/* Auctioneer */}
-                    <Link href="/auth?role=auctioneer">
-                        <div className="glass-card-hover p-6 cursor-pointer group">
-                            <div className="text-4xl mb-4">🟧</div>
-                            <h3 className="text-xl font-bold mb-2 text-orange-400">Auctioneer</h3>
-                            <p className="text-sm text-text-secondary">
-                                Control Auction Flow
-                            </p>
-                        </div>
-                    </Link>
-
-                    {/* Admin Operator */}
-                    <Link href="/auth?role=admin-operator">
-                        <div className="glass-card-hover p-6 cursor-pointer group">
-                            <div className="text-4xl mb-4">🟨</div>
-                            <h3 className="text-xl font-bold mb-2 text-yellow-400">Admin Operator</h3>
-                            <p className="text-sm text-text-secondary">
-                                Data Entry & Mutations
-                            </p>
-                        </div>
-                    </Link>
-
-                    {/* Team Participant */}
-                    <Link href="/auth?role=team">
-                        <div className="glass-card-hover p-6 cursor-pointer group">
-                            <div className="text-4xl mb-4">🟩</div>
-                            <h3 className="text-xl font-bold mb-2 text-green-400">Team</h3>
-                            <p className="text-sm text-text-secondary">
-                                View Dashboard (Read-Only)
-                            </p>
-                        </div>
-                    </Link>
+                    <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-sm rounded-full border border-white/10">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                        <span className="text-white/70">System Ready</span>
+                    </div>
                 </motion.div>
-
-                {/* Big Screen Display */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.9 }}
-                >
-                    <Link href="/display">
-                        <div className="glass-card-hover p-8 cursor-pointer neon-glow-blue max-w-md mx-auto">
-                            <div className="text-5xl mb-4">📺</div>
-                            <h3 className="text-2xl font-bold mb-2 gradient-text">Big Screen Display</h3>
-                            <p className="text-text-secondary">
-                                Live Auction Feed & Leaderboard
-                            </p>
-                        </div>
-                    </Link>
-                </motion.div>
-
-                {/* Footer */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1.1 }}
-                    className="mt-16 text-text-secondary text-sm"
-                >
-                    <p>IPL Auction 2026 • Offline Event Mode • Admin-Controlled System</p>
-                </motion.div>
-            </motion.div>
+            </div>
         </div>
     );
 }
