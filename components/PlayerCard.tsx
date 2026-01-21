@@ -1,6 +1,6 @@
 "use client";
 
-import { Player } from '@/lib/db/schema';
+import { Player } from '@/lib/mockData/players';
 import { motion } from 'framer-motion';
 
 interface PlayerCardProps {
@@ -22,7 +22,7 @@ export default function PlayerCard({ player, currentBid = 0, isRiddle = false, s
             ];
         } else if (player.pool === 'BOWL') {
             return [
-                { label: 'Wicket Taking', value: player.sub_wicket_taking || 0, color: '#00d9ff' },
+                { label: 'Wicket Taking', value: player.sub_wickettaking || 0, color: '#00d9ff' },
                 { label: 'Economy', value: player.sub_economy || 0, color: '#b537f2' },
                 { label: 'Efficiency', value: player.sub_efficiency || 0, color: '#ffd700' },
                 { label: 'Experience', value: player.sub_experience || 0, color: '#00ff88' },
@@ -67,7 +67,7 @@ export default function PlayerCard({ player, currentBid = 0, isRiddle = false, s
                             <div className="text-6xl">❓</div>
                         ) : (
                             <div className="text-7xl font-bold gradient-text">
-                                {player.name.charAt(0)}
+                                {player.player.charAt(0)}
                             </div>
                         )}
                     </div>
@@ -75,9 +75,9 @@ export default function PlayerCard({ player, currentBid = 0, isRiddle = false, s
                     {/* Player Name or Riddle */}
                     <h2 className="text-3xl font-bold mb-2 text-center">
                         {isRiddle && !showReveal ? (
-                            <span className="text-yellow-400">🧩 {player.riddle_text}</span>
+                            <span className="text-yellow-400">🧩 Mystery Player</span>
                         ) : (
-                            player.name
+                            player.player
                         )}
                     </h2>
 
@@ -97,7 +97,7 @@ export default function PlayerCard({ player, currentBid = 0, isRiddle = false, s
                     {/* Base Price */}
                     <div className="glass-card px-6 py-3 mb-2">
                         <p className="text-sm text-text-secondary">Base Price</p>
-                        <p className="text-2xl font-bold gradient-text">₹{player.base_price} CR</p>
+                        <p className="text-2xl font-bold gradient-text">₹2 CR</p>
                     </div>
 
                     {/* Current Bid */}

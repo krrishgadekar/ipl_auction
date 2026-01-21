@@ -1,23 +1,25 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import './globals.css';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import ToastProvider from '@/components/ToastProvider';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    title: "IPL Auction 2026 - Live Auction System",
-    description: "Real-time IPL Auction Simulation Platform for offline auction events",
-    icons: {
-        icon: "/favicon.ico",
-    },
+    title: 'IPL Auction 2026',
+    description: 'Live IPL Player Auction System',
 };
 
 export default function RootLayout({
     children,
-}: Readonly<{
+}: {
     children: React.ReactNode;
-}>) {
+}) {
     return (
         <html lang="en">
-            <body className="antialiased">
+            <body className={inter.className}>
                 {children}
+                <ToastProvider />
             </body>
         </html>
     );
