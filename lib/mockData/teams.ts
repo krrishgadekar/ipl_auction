@@ -46,9 +46,9 @@ export const mockTeams: Team[] = [
         logo: '🏏',
         color: '#0066cc',
         totalBudget: 100,
-        budgetRemaining: 100,
-        budgetUsed: 0,
-        squadCount: 0,
+        budgetRemaining: 55,
+        budgetUsed: 45,
+        squadCount: 3,
         squadLimit: 18,
         powerCards: {
             finalStrike: { name: 'Final Strike', cost: 7, available: true, used: false },
@@ -57,7 +57,7 @@ export const mockTeams: Team[] = [
             mulligan: { name: 'Mulligan', cost: 3, available: true, used: false },
             rtm: { name: 'RTM', cost: 0, available: true, used: false },
         },
-        players: [],
+        players: [1, 2, 3],
     },
     {
         id: 2,
