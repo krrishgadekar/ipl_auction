@@ -176,6 +176,25 @@ body {
   background-size: 1000px 100%;
 }
 
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%);
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 @keyframes pulse-glow {
 
   0%,
@@ -298,4 +317,490 @@ p {
   p {
     font-size: 1.125rem;
   }
+}
+
+/* ========================================
+   PREMIUM PLEY-STYLE ANIMATIONS
+   ======================================== */
+
+/* Animated Background Gradient */
+@keyframes gradient-shift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animated-gradient-bg {
+  background: linear-gradient(-45deg,
+      #0a0e27,
+      #1a1040,
+      #0d2847,
+      #1a0a30,
+      #0a0e27);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+/* Floating Particles Effect */
+@keyframes float-up {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.particle {
+  position: absolute;
+  pointer-events: none;
+  animation: float-up linear infinite;
+}
+
+/* Text Reveal Animation */
+@keyframes text-reveal {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.text-reveal {
+  animation: text-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Dramatic Entrance */
+@keyframes dramatic-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(50px);
+    filter: blur(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+.dramatic-entrance {
+  animation: dramatic-entrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Holographic Shimmer */
+@keyframes holo-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.holo-effect {
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 25%,
+      rgba(255, 215, 0, 0.2) 50%,
+      rgba(255, 255, 255, 0.1) 75%,
+      transparent 100%);
+  background-size: 200% 100%;
+  animation: holo-shimmer 3s linear infinite;
+}
+
+/* Rainbow Border Animation */
+@keyframes rainbow-border {
+  0% {
+    border-color: #ff0080;
+  }
+
+  25% {
+    border-color: #00d9ff;
+  }
+
+  50% {
+    border-color: #ffd700;
+  }
+
+  75% {
+    border-color: #b537f2;
+  }
+
+  100% {
+    border-color: #ff0080;
+  }
+}
+
+.rainbow-border {
+  animation: rainbow-border 4s linear infinite;
+}
+
+/* Glow Pulse */
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5),
+      0 0 40px rgba(0, 217, 255, 0.3),
+      0 0 60px rgba(0, 217, 255, 0.1);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(0, 217, 255, 0.8),
+      0 0 80px rgba(0, 217, 255, 0.5),
+      0 0 120px rgba(0, 217, 255, 0.3);
+  }
+}
+
+.glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Gold Glow for Legendary */
+@keyframes gold-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6),
+      0 0 60px rgba(255, 215, 0, 0.4),
+      0 0 100px rgba(255, 215, 0, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.9),
+      0 0 100px rgba(255, 215, 0, 0.6),
+      0 0 150px rgba(255, 215, 0, 0.3);
+  }
+}
+
+.legendary-glow {
+  animation: gold-glow 2.5s ease-in-out infinite;
+}
+
+/* Slide Up Stagger - for content revealing */
+@keyframes slide-up-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up-fade {
+  animation: slide-up-fade 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Number Counter Animation */
+@keyframes count-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+
+  50% {
+    transform: translateY(-5px) scale(1.1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.count-up {
+  animation: count-up 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Floating Animation */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.floating {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Rotate 3D */
+@keyframes rotate-y {
+  0% {
+    transform: perspective(1000px) rotateY(-15deg);
+  }
+
+  50% {
+    transform: perspective(1000px) rotateY(15deg);
+  }
+
+  100% {
+    transform: perspective(1000px) rotateY(-15deg);
+  }
+}
+
+.rotate-3d {
+  animation: rotate-y 6s ease-in-out infinite;
+}
+
+/* Big Screen Specific Styles */
+.big-screen-title {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* Marquee Text */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee {
+  display: flex;
+  animation: marquee 20s linear infinite;
+}
+
+.marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Status Pulse */
+@keyframes status-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+.status-pulse {
+  animation: status-pulse 1.5s ease-in-out infinite;
+}
+
+/* Spotlight Effect */
+.spotlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center,
+      rgba(255, 215, 0, 0.1) 0%,
+      transparent 50%);
+  animation: spotlight-move 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes spotlight-move {
+
+  0%,
+  100% {
+    transform: translate(-25%, -25%);
+  }
+
+  25% {
+    transform: translate(25%, -25%);
+  }
+
+  50% {
+    transform: translate(25%, 25%);
+  }
+
+  75% {
+    transform: translate(-25%, 25%);
+  }
+}
+
+/* Card Tilt Styles */
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+
+.tilt-card:hover {
+  transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.02);
+}
+
+/* Glitch Effect for SOLD */
+@keyframes glitch {
+
+  0%,
+  100% {
+    transform: translate(0);
+  }
+
+  20% {
+    transform: translate(-2px, 2px);
+  }
+
+  40% {
+    transform: translate(-2px, -2px);
+  }
+
+  60% {
+    transform: translate(2px, 2px);
+  }
+
+  80% {
+    transform: translate(2px, -2px);
+  }
+}
+
+.glitch {
+  animation: glitch 0.3s ease-in-out;
+}
+
+/* Typing Effect */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink-caret {
+
+  from,
+  to {
+    border-color: transparent;
+  }
+
+  50% {
+    border-color: var(--accent-neon-blue);
+  }
+}
+
+.typing-effect {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid var(--accent-neon-blue);
+  animation: typing 2s steps(30, end), blink-caret 0.75s step-end infinite;
+}
+
+/* Gradient Text Animated */
+@keyframes gradient-text-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-text-animated {
+  background: linear-gradient(90deg,
+      #00d9ff,
+      #b537f2,
+      #ffd700,
+      #00ff88,
+      #ff6b35,
+      #00d9ff);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-text-flow 5s ease infinite;
+}
+
+/* Scale In Animation */
+@keyframes scale-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.scale-in {
+  animation: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Bounce In */
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.bounce-in {
+  animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
