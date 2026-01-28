@@ -20,6 +20,7 @@ export interface Player {
     rating: number;            // 40-99 (PRIMARY)
     grade: PlayerGrade;        // A / B / C / D
     legacy: number;            // 0-10
+    imageUrl?: string;         // Optional player photo URL
 
     // Sub-Ratings (0-100, DISPLAY ONLY)
     // Shared across all pools
@@ -55,6 +56,7 @@ export const mockPlayers: Player[] = [
         rating: 95,
         grade: 'A',
         legacy: 10,
+        imageUrl: '/players/virat-kohli.png',
         sub_experience: 98,
         sub_scoring: 95,
         sub_impact: 92,
