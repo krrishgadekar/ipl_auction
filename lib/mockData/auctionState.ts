@@ -2,11 +2,21 @@
 // Auction dynamic state (separate from player master data)
 // TODO: Replace with real-time WebSocket updates from backend
 
-import { Player, mockPlayers } from './players';
+import { Player, mockPlayers, GRADE_BASE_PRICE } from './players';
 
-export type AuctionStatus = 'IDLE' | 'ANNOUNCING' | 'BIDDING' | 'CLOSED_BIDDING' | 'RTM_DECISION' | 'SOLD' | 'UNSOLD';
+// Auction phases (§8 state machine)
+export type AuctionStatus =
+    | 'IDLE'
+    | 'ANNOUNCING'
+    | 'BIDDING'
+    | 'CLOSED_BIDDING'   // triggered when bid hits MAX_BID (25 CR)
+    | 'SOLD'
+    | 'UNSOLD';
+
 export type PlayerStatus = 'AVAILABLE' | 'SOLD' | 'UNSOLD';
 export type AuctionDay = 'Day 1' | 'Day 2';
+
+export const MAX_BID = 25; // Rulebook §4: max open bid before closed bidding
 
 export interface Bid {
     teamId: number;
@@ -42,7 +52,12 @@ export interface AuctionState {
 
     // Power Cards
     activePowerCard: string | null;
-    rtmTeamDeciding: string | null;
+    activePowerCardTeam: string | null;
+    bidFreezerTargetTeam: string | null; // which team is blocked by Bid Freezer
+
+    // Closed Bidding (triggered at MAX_BID = 25 CR)
+    sealedBids: Record<number, number>; // teamId -> sealed bid amount
+    godsEyeRevealed: boolean;
 }
 
 // Initial mock auction state
@@ -54,23 +69,26 @@ export const mockAuctionState: AuctionState = {
     currentPlayerRank: 1,
     playerStatus: 'AVAILABLE',
 
-    currentBid: 2.0,
-    baseBid: 2.0,
-    highestBidder: 'Mumbai Mavericks',
+    currentBid: mockPlayers[0]?.basePrice ?? 2.0,
+    baseBid: mockPlayers[0]?.basePrice ?? 2.0,
+    highestBidder: 'Mumbai Indians',
     bidHistory: [
         {
             teamId: 1,
-            teamName: 'Mumbai Mavericks',
-            amount: 2.0,
+            teamName: 'Mumbai Indians',
+            amount: mockPlayers[0]?.basePrice ?? 2.0,
             timestamp: Date.now() - 5000,
         },
     ],
 
     timerSeconds: 30,
-    timerActive: true,
+    timerActive: false,
 
     activePowerCard: null,
-    rtmTeamDeciding: null,
+    activePowerCardTeam: null,
+    bidFreezerTargetTeam: null,
+    sealedBids: {},
+    godsEyeRevealed: false,
 };
 
 // Helper to update auction state (for mock purposes)

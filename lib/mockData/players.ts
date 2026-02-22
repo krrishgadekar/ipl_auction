@@ -5,6 +5,15 @@
 export type PlayerPool = 'BAT_WK' | 'BOWL' | 'AR';
 export type PlayerGrade = 'A' | 'B' | 'C' | 'D';
 export type PlayerCategory = 'Batsmen' | 'Bowlers' | 'All-rounders' | 'Wicketkeepers';
+export type PlayerNationality = 'Indian' | 'Overseas';
+
+// Base prices by grade (rulebook §3)
+export const GRADE_BASE_PRICE: Record<PlayerGrade, number> = {
+    A: 2.0,
+    B: 1.0,
+    C: 0.5,
+    D: 0.2,
+};
 
 export interface Player {
     // Core Fields
@@ -15,10 +24,13 @@ export interface Player {
     category: PlayerCategory;  // categorized role
     pool: PlayerPool;          // BAT_WK / BOWL / AR
     url: string;               // profile link
+    nationality: PlayerNationality; // Indian / Overseas
+    isRiddle?: boolean;        // riddle player - identity hidden on big screen
 
     // Rating System (FC25-Style)
     rating: number;            // 40-99 (PRIMARY)
     grade: PlayerGrade;        // A / B / C / D
+    basePrice: number;         // Starting bid in CR (from grade)
     legacy: number;            // 0-10
     imageUrl?: string;         // Optional player photo URL
 
@@ -42,141 +54,89 @@ export interface Player {
     sub_versatility?: number;
 }
 
-// Mock Players (5-10 samples covering all 3 pools)
 export const mockPlayers: Player[] = [
-    // BAT_WK Pool Players
+    // ── GRADE A — Gold / Legendary ──
     {
         rank: 1,
         player: 'Virat Kohli',
-        team: 'Royal Challengers Bangalore',
+        team: 'Royal Challengers Bengaluru',
         role: 'Batsman',
         category: 'Batsmen',
         pool: 'BAT_WK',
-        url: 'https://www.iplt20.com/players/virat-kohli',
-        rating: 95,
+        url: 'https://www.cricbuzz.com/profiles/1413/virat-kohli',
+        imageUrl: '/players/virat-kohli.png', // drop file in public/players/
+        nationality: 'Indian',
+        rating: 99,
         grade: 'A',
+        basePrice: 2.0,
         legacy: 10,
-        imageUrl: '/players/virat-kohli.png',
-        sub_experience: 98,
-        sub_scoring: 95,
-        sub_impact: 92,
-        sub_consistency: 96,
-    },
-    {
-        rank: 2,
-        player: 'MS Dhoni',
-        team: 'Chennai Super Kings',
-        role: 'Wicketkeeper-Batsman',
-        category: 'Wicketkeepers',
-        pool: 'BAT_WK',
-        url: 'https://www.iplt20.com/players/ms-dhoni',
-        rating: 92,
-        grade: 'A',
-        legacy: 10,
-        sub_experience: 100,
-        sub_scoring: 87,
-        sub_impact: 95,
-        sub_consistency: 90,
-    },
-    {
-        rank: 5,
-        player: 'KL Rahul',
-        team: 'Lucknow Super Giants',
-        role: 'Wicketkeeper-Batsman',
-        category: 'Wicketkeepers',
-        pool: 'BAT_WK',
-        url: 'https://www.iplt20.com/players/kl-rahul',
-        rating: 91,
-        grade: 'A',
-        legacy: 7,
-        sub_experience: 85,
-        sub_scoring: 93,
-        sub_impact: 88,
-        sub_consistency: 91,
+        sub_experience: 99,
+        sub_scoring: 99,
+        sub_impact: 67,
+        sub_consistency: 98,
     },
 
-    // BOWL Pool Players
+    // ── GRADE B — Teal / Elite ──
     {
-        rank: 3,
-        player: 'Jasprit Bumrah',
+        rank: 14,
+        player: 'Shubman Gill',
+        team: 'Gujarat Titans',
+        role: 'Batsman',
+        category: 'Batsmen',
+        pool: 'BAT_WK',
+        url: 'https://www.cricbuzz.com/profiles/15107/shubman-gill',
+        imageUrl: '/players/shubman-gill.png',
+        nationality: 'Indian',
+        rating: 82,
+        grade: 'B',
+        basePrice: 1.0,
+        legacy: 5,
+        sub_experience: 65,
+        sub_scoring: 88,
+        sub_impact: 78,
+        sub_consistency: 80,
+    },
+
+    // ── GRADE C — Steel Blue / Skilled ──
+    {
+        rank: 35,
+        player: 'Deepak Hooda',
+        team: 'Lucknow Super Giants',
+        role: 'Batting Allrounder',
+        category: 'All-rounders',
+        pool: 'AR',
+        url: 'https://www.cricbuzz.com/profiles/7592/deepak-hooda',
+        imageUrl: '/players/deepak-hooda.png',
+        nationality: 'Indian',
+        rating: 68,
+        grade: 'C',
+        basePrice: 0.5,
+        legacy: 3,
+        sub_experience: 60,
+        sub_batting: 70,
+        sub_bowling: 55,
+        sub_versatility: 62,
+    },
+
+    // ── GRADE D — Slate / Prospect ──
+    {
+        rank: 72,
+        player: 'Arjun Tendulkar',
         team: 'Mumbai Indians',
         role: 'Bowler',
         category: 'Bowlers',
         pool: 'BOWL',
-        url: 'https://www.iplt20.com/players/jasprit-bumrah',
-        rating: 96,
-        grade: 'A',
-        legacy: 8,
-        sub_experience: 88,
-        sub_wickettaking: 97,
-        sub_economy: 94,
-        sub_efficiency: 95,
-    },
-    {
-        rank: 6,
-        player: 'Rashid Khan',
-        team: 'Gujarat Titans',
-        role: 'Bowler',
-        category: 'Bowlers',
-        pool: 'BOWL',
-        url: 'https://www.iplt20.com/players/rashid-khan',
-        rating: 93,
-        grade: 'A',
-        legacy: 8,
-        sub_experience: 86,
-        sub_wickettaking: 94,
-        sub_economy: 96,
-        sub_efficiency: 92,
-    },
-
-    // AR Pool Players
-    {
-        rank: 4,
-        player: 'Hardik Pandya',
-        team: 'Gujarat Titans',
-        role: 'All-rounder',
-        category: 'All-rounders',
-        pool: 'AR',
-        url: 'https://www.iplt20.com/players/hardik-pandya',
-        rating: 94,
-        grade: 'A',
-        legacy: 7,
-        sub_experience: 82,
-        sub_batting: 89,
-        sub_bowling: 85,
-        sub_versatility: 93,
-    },
-    {
-        rank: 7,
-        player: 'Ravindra Jadeja',
-        team: 'Chennai Super Kings',
-        role: 'All-rounder',
-        category: 'All-rounders',
-        pool: 'AR',
-        url: 'https://www.iplt20.com/players/ravindra-jadeja',
-        rating: 92,
-        grade: 'A',
-        legacy: 9,
-        sub_experience: 90,
-        sub_batting: 84,
-        sub_bowling: 88,
-        sub_versatility: 91,
-    },
-    {
-        rank: 8,
-        player: 'Andre Russell',
-        team: 'Kolkata Knight Riders',
-        role: 'All-rounder',
-        category: 'All-rounders',
-        pool: 'AR',
-        url: 'https://www.iplt20.com/players/andre-russell',
-        rating: 90,
-        grade: 'A',
-        legacy: 8,
-        sub_experience: 87,
-        sub_batting: 92,
-        sub_bowling: 86,
-        sub_versatility: 89,
+        url: 'https://www.cricbuzz.com/profiles/19893/arjun-tendulkar',
+        imageUrl: '/players/arjun-tendulkar.png',
+        nationality: 'Indian',
+        rating: 48,
+        grade: 'D',
+        basePrice: 0.2,
+        legacy: 1,
+        sub_experience: 20,
+        sub_wickettaking: 45,
+        sub_economy: 50,
+        sub_efficiency: 42,
     },
 ];
 

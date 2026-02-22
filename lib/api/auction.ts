@@ -157,9 +157,13 @@ export async function markPlayerUnsold(): Promise<void> {
  * Trigger power card (admin only)
  * TODO: Replace with real API call: POST /api/auction/power-card
  */
-export async function triggerPowerCard(teamId: number, cardName: string): Promise<void> {
+export async function triggerPowerCard(teamId: number, cardName: string, targetTeamId?: number): Promise<void> {
     if (USE_MOCK_DATA) {
-        updateMockAuctionState({ activePowerCard: cardName });
+        updateMockAuctionState({
+            activePowerCard: cardName,
+            activePowerCardTeam: String(teamId),
+            bidFreezerTargetTeam: targetTeamId ? String(targetTeamId) : null,
+        });
         return;
     }
 
@@ -167,7 +171,8 @@ export async function triggerPowerCard(teamId: number, cardName: string): Promis
     const response = await fetch('/api/auction/power-card', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamId, cardName }),
+        body: JSON.stringify({ teamId, cardName, targetTeamId }),
     });
     if (!response.ok) throw new Error('Failed to trigger power card');
 }
+

@@ -1,5 +1,5 @@
 // MOCK DATA - TEMPORARY
-// Team data for auction
+// Team data for auction - 10 real IPL 2026 teams
 // TODO: Replace with real API calls to backend
 
 export interface PowerCard {
@@ -15,149 +15,202 @@ export interface Team {
     shortName: string;
     logo: string;
     color: string;
+    primaryColor: string;
 
-    // Budget
+    // Budget (120 CR per rulebook)
     totalBudget: number;
     budgetRemaining: number;
     budgetUsed: number;
 
-    // Squad
+    // Squad (15 players per rulebook)
     squadCount: number;
     squadLimit: number;
 
-    // Power Cards
+    // Power Cards (4 cards, 1 CR each, per rulebook §7)
     powerCards: {
         finalStrike: PowerCard;
         bidFreezer: PowerCard;
         godsEye: PowerCard;
         mulligan: PowerCard;
-        rtm: PowerCard;
     };
 
-    // Players
-    players: number[]; // Player ranks
+    // Players (by rank)
+    players: number[];
+
+    // Overseas count
+    overseasCount: number;
+
+    // IPL Franchise name (bought pre-auction)
+    franchiseName?: string;
 }
+
+const defaultPowerCards = () => ({
+    finalStrike: { name: 'Final Strike', cost: 1, available: true, used: false },
+    bidFreezer: { name: 'Bid Freezer', cost: 1, available: true, used: false },
+    godsEye: { name: "God's Eye", cost: 1, available: true, used: false },
+    mulligan: { name: 'Mulligan', cost: 1, available: true, used: false },
+});
 
 export const mockTeams: Team[] = [
     {
         id: 1,
-        name: 'Mumbai Mavericks',
-        shortName: 'MM',
-        logo: '🏏',
-        color: '#0066cc',
-        totalBudget: 100,
-        budgetRemaining: 55,
-        budgetUsed: 45,
-        squadCount: 3,
-        squadLimit: 18,
-        powerCards: {
-            finalStrike: { name: 'Final Strike', cost: 7, available: true, used: false },
-            bidFreezer: { name: 'Bid Freezer', cost: 5, available: true, used: false },
-            godsEye: { name: "God's Eye", cost: 4, available: true, used: false },
-            mulligan: { name: 'Mulligan', cost: 3, available: true, used: false },
-            rtm: { name: 'RTM', cost: 0, available: true, used: false },
-        },
-        players: [1, 2, 3],
+        name: 'Mumbai Indians',
+        shortName: 'MI',
+        logo: '🔵',
+        color: 'from-blue-700 to-blue-900',
+        primaryColor: '#004BA0',
+        totalBudget: 120,
+        budgetRemaining: 120,
+        budgetUsed: 0,
+        squadCount: 0,
+        squadLimit: 15,
+        powerCards: defaultPowerCards(),
+        players: [],
+        overseasCount: 0,
     },
     {
         id: 2,
-        name: 'Chennai Champions',
-        shortName: 'CC',
+        name: 'Chennai Super Kings',
+        shortName: 'CSK',
         logo: '🦁',
-        color: '#ffcc00',
-        totalBudget: 100,
-        budgetRemaining: 100,
+        color: 'from-yellow-400 to-yellow-600',
+        primaryColor: '#FCBD02',
+        totalBudget: 120,
+        budgetRemaining: 120,
         budgetUsed: 0,
         squadCount: 0,
-        squadLimit: 18,
-        powerCards: {
-            finalStrike: { name: 'Final Strike', cost: 7, available: true, used: false },
-            bidFreezer: { name: 'Bid Freezer', cost: 5, available: true, used: false },
-            godsEye: { name: "God's Eye", cost: 4, available: true, used: false },
-            mulligan: { name: 'Mulligan', cost: 3, available: true, used: false },
-            rtm: { name: 'RTM', cost: 0, available: true, used: false },
-        },
+        squadLimit: 15,
+        powerCards: defaultPowerCards(),
         players: [],
+        overseasCount: 0,
     },
     {
         id: 3,
-        name: 'Kolkata Knights',
-        shortName: 'KK',
-        logo: '⚔️',
-        color: '#6600cc',
-        totalBudget: 100,
-        budgetRemaining: 100,
-        budgetUsed: 0,
-        squadCount: 0,
-        squadLimit: 18,
-        powerCards: {
-            finalStrike: { name: 'Final Strike', cost: 7, available: true, used: false },
-            bidFreezer: { name: 'Bid Freezer', cost: 5, available: true, used: false },
-            godsEye: { name: "God's Eye", cost: 4, available: true, used: false },
-            mulligan: { name: 'Mulligan', cost: 3, available: true, used: false },
-            rtm: { name: 'RTM', cost: 0, available: true, used: false },
-        },
-        players: [],
+        name: 'Royal Challengers Bengaluru',
+        shortName: 'RCB',
+        logo: '🔴',
+        color: 'from-red-600 to-red-900',
+        primaryColor: '#EC1C24',
+        totalBudget: 120,
+        budgetRemaining: 76,
+        budgetUsed: 44,
+        squadCount: 3,
+        squadLimit: 15,
+        powerCards: defaultPowerCards(),
+        players: [1, 6, 19],
+        overseasCount: 1,
     },
     {
         id: 4,
-        name: 'Bangalore Bulls',
-        shortName: 'BB',
-        logo: '🐂',
-        color: '#cc0000',
-        totalBudget: 100,
-        budgetRemaining: 100,
+        name: 'Kolkata Knight Riders',
+        shortName: 'KKR',
+        logo: '⚔️',
+        color: 'from-purple-700 to-purple-900',
+        primaryColor: '#3A225D',
+        totalBudget: 120,
+        budgetRemaining: 120,
         budgetUsed: 0,
         squadCount: 0,
-        squadLimit: 18,
-        powerCards: {
-            finalStrike: { name: 'Final Strike', cost: 7, available: true, used: false },
-            bidFreezer: { name: 'Bid Freezer', cost: 5, available: true, used: false },
-            godsEye: { name: "God's Eye", cost: 4, available: true, used: false },
-            mulligan: { name: 'Mulligan', cost: 3, available: true, used: false },
-            rtm: { name: 'RTM', cost: 0, available: true, used: false },
-        },
+        squadLimit: 15,
+        powerCards: defaultPowerCards(),
         players: [],
+        overseasCount: 0,
     },
     {
         id: 5,
-        name: 'Delhi Dragons',
-        shortName: 'DD',
-        logo: '🐉',
-        color: '#0099cc',
-        totalBudget: 100,
-        budgetRemaining: 100,
+        name: 'Delhi Capitals',
+        shortName: 'DC',
+        logo: '💙',
+        color: 'from-sky-500 to-sky-700',
+        primaryColor: '#0078BC',
+        totalBudget: 120,
+        budgetRemaining: 120,
         budgetUsed: 0,
         squadCount: 0,
-        squadLimit: 18,
-        powerCards: {
-            finalStrike: { name: 'Final Strike', cost: 7, available: true, used: false },
-            bidFreezer: { name: 'Bid Freezer', cost: 5, available: true, used: false },
-            godsEye: { name: "God's Eye", cost: 4, available: true, used: false },
-            mulligan: { name: 'Mulligan', cost: 3, available: true, used: false },
-            rtm: { name: 'RTM', cost: 0, available: true, used: false },
-        },
+        squadLimit: 15,
+        powerCards: defaultPowerCards(),
         players: [],
+        overseasCount: 0,
     },
     {
         id: 6,
-        name: 'Punjab Panthers',
-        shortName: 'PP',
-        logo: '🐆',
-        color: '#cc3300',
-        totalBudget: 100,
-        budgetRemaining: 100,
+        name: 'Punjab Kings',
+        shortName: 'PBKS',
+        logo: '🦅',
+        color: 'from-red-500 to-red-700',
+        primaryColor: '#ED1B24',
+        totalBudget: 120,
+        budgetRemaining: 120,
         budgetUsed: 0,
         squadCount: 0,
-        squadLimit: 18,
-        powerCards: {
-            finalStrike: { name: 'Final Strike', cost: 7, available: true, used: false },
-            bidFreezer: { name: 'Bid Freezer', cost: 5, available: true, used: false },
-            godsEye: { name: "God's Eye", cost: 4, available: true, used: false },
-            mulligan: { name: 'Mulligan', cost: 3, available: true, used: false },
-            rtm: { name: 'RTM', cost: 0, available: true, used: false },
-        },
+        squadLimit: 15,
+        powerCards: defaultPowerCards(),
         players: [],
+        overseasCount: 0,
+    },
+    {
+        id: 7,
+        name: 'Rajasthan Royals',
+        shortName: 'RR',
+        logo: '💗',
+        color: 'from-pink-500 to-pink-700',
+        primaryColor: '#254AA5',
+        totalBudget: 120,
+        budgetRemaining: 120,
+        budgetUsed: 0,
+        squadCount: 0,
+        squadLimit: 15,
+        powerCards: defaultPowerCards(),
+        players: [],
+        overseasCount: 0,
+    },
+    {
+        id: 8,
+        name: 'Gujarat Titans',
+        shortName: 'GT',
+        logo: '💎',
+        color: 'from-teal-500 to-teal-700',
+        primaryColor: '#1D5E84',
+        totalBudget: 120,
+        budgetRemaining: 120,
+        budgetUsed: 0,
+        squadCount: 0,
+        squadLimit: 15,
+        powerCards: defaultPowerCards(),
+        players: [],
+        overseasCount: 0,
+    },
+    {
+        id: 9,
+        name: 'Sunrisers Hyderabad',
+        shortName: 'SRH',
+        logo: '🧡',
+        color: 'from-orange-500 to-orange-700',
+        primaryColor: '#F7A721',
+        totalBudget: 120,
+        budgetRemaining: 120,
+        budgetUsed: 0,
+        squadCount: 0,
+        squadLimit: 15,
+        powerCards: defaultPowerCards(),
+        players: [],
+        overseasCount: 0,
+    },
+    {
+        id: 10,
+        name: 'Lucknow Super Giants',
+        shortName: 'LSG',
+        logo: '🦊',
+        color: 'from-teal-600 to-cyan-800',
+        primaryColor: '#A72056',
+        totalBudget: 120,
+        budgetRemaining: 120,
+        budgetUsed: 0,
+        squadCount: 0,
+        squadLimit: 15,
+        powerCards: defaultPowerCards(),
+        players: [],
+        overseasCount: 0,
     },
 ];
 
