@@ -170,16 +170,23 @@ function FIFACard({ player, showPrice, price }: {
         'Wicketkeepers': 'WK',
     };
 
+    // Seeded random for deterministic stats (avoid re-randomizing each render)
+    const seed = player.rank;
+    const seededRand = (i: number) => {
+        const x = Math.sin(seed * 100 + i) * 10000;
+        return Math.floor((x - Math.floor(x)) * 100);
+    };
+
     // Cricket stats (BAT, RUN, BOW, CAT, FIE, PHY like the reference)
     const stats = {
-        BAT: Math.min(99, player.rating - 5 + Math.floor(Math.random() * 10)),
-        RUN: Math.min(99, player.rating + Math.floor(Math.random() * 5)),
+        BAT: Math.min(99, Math.max(40, player.rating - 5 + (seededRand(1) % 10))),
+        RUN: Math.min(99, Math.max(40, player.rating + (seededRand(2) % 5))),
         BOW: player.category === 'Bowlers' || player.category === 'All-rounders'
-            ? Math.min(99, 70 + Math.floor(Math.random() * 25))
-            : Math.min(99, 30 + Math.floor(Math.random() * 20)),
-        CAT: Math.min(99, 75 + Math.floor(Math.random() * 20)),
-        FIE: Math.min(99, 70 + Math.floor(Math.random() * 25)),
-        PHY: Math.min(99, 75 + Math.floor(Math.random() * 20)),
+            ? Math.min(99, 70 + (seededRand(3) % 25))
+            : Math.min(99, 30 + (seededRand(3) % 20)),
+        CAT: Math.min(99, 75 + (seededRand(4) % 20)),
+        FIE: Math.min(99, 70 + (seededRand(5) % 25)),
+        PHY: Math.min(99, 75 + (seededRand(6) % 20)),
     };
 
     // Player image URL
@@ -203,181 +210,184 @@ function FIFACard({ player, showPrice, price }: {
         >
             {/* Glow effect on hover */}
             {isHovered && (
-                <div className="absolute -inset-4 rounded-3xl blur-2xl opacity-60 bg-gradient-radial from-yellow-400/50 to-transparent" />
+                <div
+                    className="absolute -inset-4 rounded-3xl blur-2xl opacity-60"
+                    style={{
+                        background: {
+                            A: 'radial-gradient(circle, rgba(255,215,0,0.5) 0%, transparent 70%)',
+                            B: 'radial-gradient(circle, rgba(192,192,210,0.5) 0%, transparent 70%)',
+                            C: 'radial-gradient(circle, rgba(168,85,247,0.4) 0%, transparent 70%)',
+                            D: 'radial-gradient(circle, rgba(205,150,100,0.4) 0%, transparent 70%)',
+                        }[player.grade],
+                    }}
+                />
             )}
 
-            {/* STATIC OVERRIDE - User Request */}
-            <div className="relative w-full h-[360px]">
+            {/* Dynamic Card with Grade-Specific Template */}
+            <div className="relative w-full h-[360px] rounded-2xl overflow-hidden shadow-2xl">
+                <div className={`absolute inset-0 bg-gradient-to-b ${config.bgGradient}`} />
+
+                {/* Background Template Image */}
                 <Image
-                    src="/cards/full_card_kohli.png"
-                    alt="Static Card"
+                    src={config.template}
+                    alt={`${config.name} card background`}
                     fill
-                    className="object-contain drop-shadow-2xl"
+                    className="object-cover relative z-10"
                     priority
                 />
-            </div>
 
-            {/* Original Content Disabled */}
-            {false && (
-                <div className="relative w-full h-[360px] rounded-2xl overflow-hidden shadow-2xl">
-                    <div className={`absolute inset-0 bg-gradient-to-b ${config.bgGradient}`} />
+                {/* Gradient overlay to blend template with content */}
+                <div
+                    className={`absolute inset-x-5 top-14 bottom-28 rounded-3xl opacity-90 blur-sm bg-gradient-to-b ${config.bgGradient}`}
+                    style={{ zIndex: 15 }}
+                />
 
-                    {/* Background Template Image */}
-                    <Image
-                        src={config.template}
-                        alt={`${config.name} card background`}
-                        fill
-                        className="object-cover relative z-10"
-                        priority
-                    />
+                {/* Overlay Content */}
+                <div className="absolute inset-0 z-20">
+                    {/* Rating & Position (Top Left) */}
+                    <div className="absolute top-6 left-6">
+                        <div
+                            className="text-5xl font-black leading-none"
+                            style={{
+                                color: config.ratingColor,
+                                fontFamily: 'Arial Black, sans-serif',
+                                textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+                            }}
+                        >
+                            {player.rating}
+                        </div>
+                        <div
+                            className="text-base font-bold mt-1"
+                            style={{ color: config.ratingColor }}
+                        >
+                            {positionMap[player.category] || 'PLR'}
+                        </div>
+                    </div>
 
-                    {/* 0.5. CHECKERBOARD FIX - Overlay on top of template, behind content */}
+                    {/* Player Image Area - Center */}
                     <div
-                        className={`absolute inset-x-5 top-14 bottom-28 rounded-3xl opacity-90 blur-sm bg-gradient-to-b ${config.bgGradient}`}
-                        style={{ zIndex: 15 }}
-                    />
-
-                    {/* Overlay Content */}
-                    <div className="absolute inset-0 z-20">
-                        {/* Rating & Position (Top Left) */}
-                        <div className="absolute top-6 left-6">
-                            <div
-                                className="text-5xl font-black leading-none"
-                                style={{
-                                    color: config.ratingColor,
-                                    fontFamily: 'Arial Black, sans-serif',
-                                    textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
-                                }}
-                            >
-                                {player.rating}
-                            </div>
-                            <div
-                                className="text-base font-bold mt-1"
-                                style={{ color: config.ratingColor }}
-                            >
-                                {positionMap[player.category] || 'PLR'}
-                            </div>
-                        </div>
-
-                        {/* Player Image Area - Center */}
-                        <div
-                            className="absolute top-12 left-1/2 -translate-x-1/2 w-44 h-48 flex items-center justify-center overflow-hidden"
-                            style={{ maskImage: 'radial-gradient(ellipse at center 40%, black 60%, transparent 100%)', WebkitMaskImage: 'radial-gradient(ellipse at center 40%, black 60%, transparent 100%)' }}
-                        >
-                            {playerImageUrl ? (
-                                <Image
-                                    src={playerImageUrl}
-                                    alt={player.player}
-                                    width={200}
-                                    height={220}
-                                    className="object-cover object-top scale-110"
-                                    style={{ objectPosition: 'center 10%' }}
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                    <span
-                                        className="text-7xl font-black opacity-60"
-                                        style={{ color: config.ratingColor }}
-                                    >
-                                        {player.player.charAt(0)}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Player Name */}
-                        <div
-                            className="absolute top-[240px] left-1/2 -translate-x-1/2 w-full text-center px-4"
-                        >
-                            <h3
-                                className="text-xl font-black tracking-tight"
-                                style={{
-                                    color: config.nameColor,
-                                    fontFamily: 'Arial Black, sans-serif',
-                                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
-                                }}
-                            >
-                                {player.player.split(' ').slice(-1)[0]}
-                            </h3>
-                        </div>
-
-                        {/* Stats Row - 6 stats in a row */}
-                        <div className="absolute top-[270px] left-1/2 -translate-x-1/2 w-[220px]">
-                            {/* Stats Labels */}
-                            <div className="flex justify-between text-[9px] font-bold mb-1 px-2">
-                                {Object.keys(stats).map(stat => (
-                                    <span key={stat} style={{ color: config.statColor }}>{stat}</span>
-                                ))}
-                            </div>
-                            {/* Stats Values */}
-                            <div className="flex justify-between text-lg font-black px-2">
-                                {Object.values(stats).map((value, i) => (
-                                    <span
-                                        key={i}
-                                        style={{
-                                            color: config.statColor,
-                                            fontFamily: 'Arial Black, sans-serif',
-                                        }}
-                                    >
-                                        {value}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Bottom Icons - Flag & Badge */}
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3">
-                            {/* Indian Flag */}
-                            <div className="w-6 h-4 rounded-sm overflow-hidden bg-white flex items-center justify-center text-xs">
-                                🇮🇳
-                            </div>
-
-                            {/* Team Badge */}
-                            <div
-                                className="w-5 h-6 rounded flex items-center justify-center text-xs font-bold"
-                                style={{
-                                    background: 'rgba(255,255,255,0.3)',
-                                    color: config.ratingColor,
-                                }}
-                            >
-                                {player.team.charAt(0)}
-                            </div>
-
-                            {/* Team Logo/Trophy */}
-                            <div className="text-sm">🏆</div>
-                        </div>
-
-                        {/* Grade Badge (Top Left badge area) */}
-                        <div className="absolute top-2 left-2">
-                            <div
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border-2"
-                                style={{
-                                    background: 'rgba(0,0,0,0.5)',
-                                    color: '#ffffff',
-                                    borderColor: 'rgba(255,255,255,0.3)',
-                                }}
-                            >
-                                {player.grade}
-                            </div>
-                        </div>
-
-                        {/* Price Tag (if shown) */}
-                        {showPrice && price && (
-                            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2">
-                                <div
-                                    className="px-4 py-1 rounded-full text-sm font-black"
-                                    style={{
-                                        background: 'rgba(0,0,0,0.7)',
-                                        color: '#ffd700',
-                                    }}
+                        className="absolute top-12 left-1/2 -translate-x-1/2 w-44 h-48 flex items-center justify-center overflow-hidden"
+                        style={{ maskImage: 'radial-gradient(ellipse at center 40%, black 60%, transparent 100%)', WebkitMaskImage: 'radial-gradient(ellipse at center 40%, black 60%, transparent 100%)' }}
+                    >
+                        {playerImageUrl ? (
+                            <Image
+                                src={playerImageUrl}
+                                alt={player.player}
+                                width={200}
+                                height={220}
+                                className="object-cover object-top scale-110"
+                                style={{ objectPosition: 'center 10%' }}
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                                <span
+                                    className="text-7xl font-black opacity-60"
+                                    style={{ color: config.ratingColor }}
                                 >
-                                    ₹{price} CR
-                                </div>
+                                    {player.player.charAt(0)}
+                                </span>
                             </div>
                         )}
                     </div>
+
+                    {/* Player Name */}
+                    <div
+                        className="absolute top-[240px] left-1/2 -translate-x-1/2 w-full text-center px-4"
+                    >
+                        <h3
+                            className="text-xl font-black tracking-tight"
+                            style={{
+                                color: config.nameColor,
+                                fontFamily: 'Arial Black, sans-serif',
+                                textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+                            }}
+                        >
+                            {player.player.split(' ').slice(-1)[0]}
+                        </h3>
+                    </div>
+
+                    {/* Stats Row - 6 stats in a row */}
+                    <div className="absolute top-[270px] left-1/2 -translate-x-1/2 w-[220px]">
+                        {/* Stats Labels */}
+                        <div className="flex justify-between text-[9px] font-bold mb-1 px-2">
+                            {Object.keys(stats).map(stat => (
+                                <span key={stat} style={{ color: config.statColor }}>{stat}</span>
+                            ))}
+                        </div>
+                        {/* Stats Values */}
+                        <div className="flex justify-between text-lg font-black px-2">
+                            {Object.values(stats).map((value, i) => (
+                                <span
+                                    key={i}
+                                    style={{
+                                        color: config.statColor,
+                                        fontFamily: 'Arial Black, sans-serif',
+                                    }}
+                                >
+                                    {value}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Bottom Icons - Flag & Badge */}
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3">
+                        {/* Nationality Flag */}
+                        <div className="w-6 h-4 rounded-sm overflow-hidden bg-white flex items-center justify-center text-xs">
+                            {player.nationality === 'Overseas' ? '🌍' : '🇮🇳'}
+                        </div>
+
+                        {/* Team Badge */}
+                        <div
+                            className="w-5 h-6 rounded flex items-center justify-center text-xs font-bold"
+                            style={{
+                                background: 'rgba(255,255,255,0.3)',
+                                color: config.ratingColor,
+                            }}
+                        >
+                            {player.team.charAt(0)}
+                        </div>
+
+                        {/* Legacy Stars */}
+                        <div className="text-sm" title={`Legacy: ${player.legacy}`}>{'⭐'.repeat(Math.min(3, Math.ceil(player.legacy / 3)))}</div>
+                    </div>
+
+                    {/* Grade Badge (Top Right) */}
+                    <div className="absolute top-3 right-3">
+                        <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border-2"
+                            style={{
+                                background: {
+                                    A: 'rgba(212,175,55,0.6)',
+                                    B: 'rgba(192,192,210,0.6)',
+                                    C: 'rgba(168,85,247,0.6)',
+                                    D: 'rgba(180,120,70,0.6)',
+                                }[player.grade],
+                                color: '#ffffff',
+                                borderColor: 'rgba(255,255,255,0.4)',
+                                backdropFilter: 'blur(4px)',
+                            }}
+                        >
+                            {player.grade}
+                        </div>
+                    </div>
+
+                    {/* Price Tag (if shown) */}
+                    {showPrice && price && (
+                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2">
+                            <div
+                                className="px-4 py-1 rounded-full text-sm font-black"
+                                style={{
+                                    background: 'rgba(0,0,0,0.7)',
+                                    color: '#ffd700',
+                                }}
+                            >
+                                ₹{price} CR
+                            </div>
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
         </motion.div>
     );
 }
