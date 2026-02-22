@@ -14,6 +14,7 @@ import BidControls from '@/components/admin/BidControls';
 import PlayerActions from '@/components/admin/PlayerActions';
 import TeamBudgets from '@/components/admin/TeamBudgets';
 import PowerCardPanel from '@/components/admin/PowerCardPanel';
+import FinalTeamPanel from '@/components/admin/FinalTeamPanel';
 import AuctionTimer from '@/components/AuctionTimer';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -101,6 +102,13 @@ export default function AdminPage() {
                                 className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white transition-all"
                             >
                                 🖥️ Open Display
+                            </Link>
+                            <Link
+                                href="/leaderboard"
+                                target="_blank"
+                                className="px-4 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 rounded-xl text-yellow-400 transition-all font-bold"
+                            >
+                                🏆 Leaderboard
                             </Link>
                             <div className="flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/50 rounded-xl">
                                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
@@ -218,6 +226,16 @@ export default function AdminPage() {
                         </div>
                     </motion.div>
                 )}
+
+                {/* Final Team Submission */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="mt-6"
+                >
+                    <FinalTeamPanel teams={teams} />
+                </motion.div>
             </div>
         </div>
     );

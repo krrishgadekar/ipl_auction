@@ -152,6 +152,16 @@ const NAV_LINKS = [
         borderColor: 'rgba(45,212,160,0.25)',
         badge: 'Live',
     },
+    {
+        title: 'Final Standings',
+        description: 'Leaderboard with scores & winner declaration',
+        href: '/leaderboard',
+        icon: '🏅',
+        gradient: 'linear-gradient(135deg, #5a3d00, #a67c2e)',
+        glow: 'linear-gradient(135deg, #d4af37, #f5d569)',
+        borderColor: 'rgba(212,175,55,0.35)',
+        badge: 'V3.1',
+    },
 ];
 
 const TEAMS = [
