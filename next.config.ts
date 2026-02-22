@@ -3,7 +3,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
     reactStrictMode: true,
     images: {
-        domains: [],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'img1.hscicdn.com',
+                pathname: '/**',
+            },
+        ],
     },
 };
 
