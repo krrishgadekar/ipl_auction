@@ -161,12 +161,15 @@ export default function AdminPage() {
                             teams={teams}
                             currentBid={auctionState.currentBid}
                             baseBid={auctionState.baseBid}
+                            status={auctionState.status}
                         />
                         <PowerCardPanel teams={teams} />
                         <PlayerActions
                             currentPlayerRank={auctionState.currentPlayerRank}
+                            currentPlayer={auctionState.currentPlayer}
                             teams={teams}
                             highestBidder={auctionState.highestBidder}
+                            highestBidderId={auctionState.boughtByTeamId ?? null}
                             totalPlayers={totalPlayers}
                         />
                     </div>
