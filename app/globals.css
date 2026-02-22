@@ -1,21 +1,46 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ════════════════════════════════════════════════
+   IPL AUCTION 2026 — OCEAN / WATER THEME
+   Deep Navy • Ocean Teal • Champagne Gold
+   ════════════════════════════════════════════════ */
+
 :root {
-  --bg-primary: #0a0e27;
-  --bg-secondary: #151a33;
-  --bg-tertiary: #1a1f3a;
-  --accent-neon-blue: #00d9ff;
-  --accent-neon-purple: #b537f2;
-  --accent-gold: #ffd700;
-  --accent-orange: #ff6b35;
-  --accent-green: #00ff88;
-  --text-primary: #ffffff;
-  --text-secondary: #a0aec0;
-  --border-glass: rgba(255, 255, 255, 0.1);
+  /* Ocean Depths */
+  --bg-primary: #040b14;
+  --bg-secondary: #0a1628;
+  --bg-tertiary: #0f1d32;
+  --bg-surface: #132d4a;
+
+  /* Teal Waves */
+  --accent-teal: #1a8a9e;
+  --accent-teal-bright: #2bb5cc;
+  --accent-teal-deep: #0e4d5e;
+  --accent-teal-light: #5ccfdf;
+  --accent-teal-glow: #7eeaf5;
+
+  /* Champagne Gold */
+  --accent-gold: #c9a84c;
+  --accent-gold-bright: #d4af37;
+  --accent-gold-light: #f5d569;
+  --accent-gold-shimmer: #ffe599;
+
+  /* Functional */
+  --accent-green: #2dd4a0;
+  --accent-red: #e74c5e;
+
+  /* Text */
+  --text-primary: #e8ecf1;
+  --text-secondary: #7a94b0;
+  --text-muted: #4a6480;
+
+  /* Borders */
+  --border-glass: rgba(43, 181, 204, 0.12);
+  --border-gold: rgba(212, 175, 55, 0.25);
 }
 
 * {
@@ -30,40 +55,75 @@ html {
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+  background: var(--bg-primary);
   background-attachment: fixed;
   color: var(--text-primary);
   overflow-x: hidden;
   min-height: 100vh;
 }
 
-/* Glassmorphism Utility Classes */
+/* ════════════════════════════════════════
+   OCEAN GLASSMORPHISM
+   ════════════════════════════════════════ */
+
 @layer components {
   .glass-card {
-    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl;
+    @apply backdrop-blur-md rounded-2xl shadow-xl;
+    background: rgba(10, 22, 40, 0.6);
+    border: 1px solid rgba(43, 181, 204, 0.12);
   }
 
   .glass-card-hover {
-    @apply glass-card transition-all duration-300 hover:bg-white/10 hover:border-white/20 hover:shadow-2xl;
+    @apply glass-card transition-all duration-300;
   }
 
+  .glass-card-hover:hover {
+    background: rgba(14, 77, 94, 0.15);
+    border-color: rgba(43, 181, 204, 0.25);
+    box-shadow: 0 8px 32px rgba(43, 181, 204, 0.1), 0 0 60px rgba(43, 181, 204, 0.05);
+  }
+
+  /* Ocean Teal Glow */
+  .ocean-glow {
+    box-shadow: 0 0 20px rgba(43, 181, 204, 0.3),
+      0 0 40px rgba(43, 181, 204, 0.15),
+      0 0 60px rgba(43, 181, 204, 0.05);
+  }
+
+  /* Gold Glow */
+  .gold-glow {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3),
+      0 0 40px rgba(212, 175, 55, 0.15),
+      0 0 60px rgba(212, 175, 55, 0.05);
+  }
+
+  /* Teal Glow (same as neon-glow-blue compat) */
   .neon-glow-blue {
-    box-shadow: 0 0 20px rgba(0, 217, 255, 0.4),
-      0 0 40px rgba(0, 217, 255, 0.2);
+    box-shadow: 0 0 20px rgba(43, 181, 204, 0.4),
+      0 0 40px rgba(43, 181, 204, 0.2);
   }
 
   .neon-glow-purple {
-    box-shadow: 0 0 20px rgba(181, 55, 242, 0.4),
-      0 0 40px rgba(181, 55, 242, 0.2);
+    box-shadow: 0 0 20px rgba(26, 138, 158, 0.4),
+      0 0 40px rgba(26, 138, 158, 0.2);
   }
 
   .neon-glow-gold {
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4),
-      0 0 40px rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4),
+      0 0 40px rgba(212, 175, 55, 0.2);
   }
 
+  /* Ocean Gradient Text */
   .gradient-text {
-    background: linear-gradient(to right, var(--accent-neon-blue), var(--accent-neon-purple), var(--accent-gold));
+    background: linear-gradient(135deg, var(--accent-teal-bright), var(--accent-gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Gold Gradient Text */
+  .gradient-text-gold {
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light), var(--accent-gold));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -72,72 +132,91 @@ body {
   .gradient-border {
     position: relative;
     background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
-      linear-gradient(135deg, var(--accent-neon-blue), var(--accent-neon-purple)) border-box;
+      linear-gradient(135deg, var(--accent-teal), var(--accent-gold)) border-box;
     border: 2px solid transparent;
     border-radius: 1rem;
   }
 
-  /* Premium Button Styles */
+  /* Premium Ocean Buttons */
   .btn-primary {
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
     font-weight: 600;
-    background: linear-gradient(to right, var(--accent-neon-blue), var(--accent-neon-purple));
+    background: linear-gradient(135deg, var(--accent-teal-deep), var(--accent-teal));
     color: white;
     transition: all 0.3s;
+    border: 1px solid rgba(43, 181, 204, 0.3);
   }
 
   .btn-primary:hover {
-    transform: scale(1.05);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: scale(1.03);
+    box-shadow: 0 8px 25px rgba(43, 181, 204, 0.3);
+    border-color: rgba(43, 181, 204, 0.5);
+  }
+
+  .btn-gold {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-bright));
+    color: #0a1628;
+    transition: all 0.3s;
+  }
+
+  .btn-gold:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
   }
 
   .btn-secondary {
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
     font-weight: 600;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(43, 181, 204, 0.08);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
+    border: 1px solid rgba(43, 181, 204, 0.15);
+    color: var(--text-primary);
     transition: all 0.3s;
   }
 
   .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(43, 181, 204, 0.15);
+    border-color: rgba(43, 181, 204, 0.3);
   }
 
   .btn-danger {
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
     font-weight: 600;
-    background: linear-gradient(to right, #ef4444, #dc2626);
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
     color: white;
     transition: all 0.3s;
   }
 
   .btn-danger:hover {
-    transform: scale(1.05);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: scale(1.03);
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.2);
   }
 
   .btn-success {
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
     font-weight: 600;
-    background: linear-gradient(to right, #10b981, var(--accent-green));
+    background: linear-gradient(135deg, #1a8a6e, var(--accent-green));
     color: white;
     transition: all 0.3s;
   }
 
   .btn-success:hover {
-    transform: scale(1.05);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: scale(1.03);
+    box-shadow: 0 8px 25px rgba(45, 212, 160, 0.2);
   }
 }
 
-/* Scrollbar Styling */
+/* ════════════════════════════════════════
+   SCROLLBAR — OCEAN TEAL
+   ════════════════════════════════════════ */
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -148,115 +227,23 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--accent-neon-blue), var(--accent-purple));
+  background: linear-gradient(180deg, var(--accent-teal-deep), var(--accent-teal));
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--accent-purple), var(--accent-neon-blue));
+  background: linear-gradient(180deg, var(--accent-teal), var(--accent-teal-bright));
 }
 
-/* Premium Animations */
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
+/* ════════════════════════════════════════
+   TYPOGRAPHY — PREMIUM OCEAN
+   ════════════════════════════════════════ */
 
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
-.shimmer {
-  animation: shimmer 3s infinite;
-  background: linear-gradient(to right,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.1) 50%,
-      rgba(255, 255, 255, 0) 100%);
-  background-size: 1000px 100%;
-}
-
-.animate-shimmer {
-  animation: shimmer 2s infinite linear;
-  background: linear-gradient(to right,
-      transparent 0%,
-      rgba(255, 255, 255, 0.3) 50%,
-      transparent 100%);
-  background-size: 200% 100%;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-@keyframes pulse-glow {
-
-  0%,
-  100% {
-    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
-  }
-
-  50% {
-    box-shadow: 0 0 40px rgba(0, 217, 255, 0.8), 0 0 60px rgba(181, 55, 242, 0.6);
-  }
-}
-
-.pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* Sold Animation */
-@keyframes sold-flash {
-
-  0%,
-  100% {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes confetti-fall {
-  0% {
-    transform: translateY(-100vh) rotate(0deg);
-    opacity: 1;
-  }
-
-  100% {
-    transform: translateY(100vh) rotate(720deg);
-    opacity: 0;
-  }
-}
-
-/* Loading Spinner */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.spinner {
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top-color: var(--accent-neon-blue);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 0.8s linear infinite;
-}
-
-/* Responsive Typography */
 h1 {
   font-size: 3rem;
-  font-family: 'Poppins', system-ui, sans-serif;
+  font-family: 'Cinzel', 'Poppins', system-ui, serif;
   font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 @media (min-width: 768px) {
@@ -273,7 +260,7 @@ h1 {
 
 h2 {
   font-size: 2.25rem;
-  font-family: 'Poppins', system-ui, sans-serif;
+  font-family: 'Cinzel', 'Poppins', system-ui, serif;
   font-weight: 700;
 }
 
@@ -319,12 +306,12 @@ p {
   }
 }
 
-/* ========================================
-   PREMIUM PLEY-STYLE ANIMATIONS
-   ======================================== */
+/* ════════════════════════════════════════
+   OCEAN ANIMATIONS
+   ════════════════════════════════════════ */
 
-/* Animated Background Gradient */
-@keyframes gradient-shift {
+/* Animated Ocean Background */
+@keyframes ocean-gradient-shift {
 
   0%,
   100% {
@@ -338,32 +325,109 @@ p {
 
 .animated-gradient-bg {
   background: linear-gradient(-45deg,
-      #0a0e27,
-      #1a1040,
-      #0d2847,
-      #1a0a30,
-      #0a0e27);
+      #040b14,
+      #0a1628,
+      #0e4d5e,
+      #0d2137,
+      #040b14);
   background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
+  animation: ocean-gradient-shift 15s ease infinite;
 }
 
-/* Floating Particles Effect */
-@keyframes float-up {
+/* Gold Shimmer */
+@keyframes shimmer {
   0% {
-    transform: translateY(100vh) rotate(0deg);
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.shimmer {
+  animation: shimmer 3s infinite;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(212, 175, 55, 0.15) 50%,
+      transparent 100%);
+  background-size: 200% 100%;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(212, 175, 55, 0.2) 50%,
+      transparent 100%);
+  background-size: 200% 100%;
+}
+
+/* Teal Pulse Glow */
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(43, 181, 204, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(43, 181, 204, 0.6), 0 0 60px rgba(212, 175, 55, 0.3);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Sold Flash */
+@keyframes sold-flash {
+
+  0%,
+  100% {
     opacity: 0;
   }
 
-  10% {
+  50% {
     opacity: 1;
   }
+}
 
-  90% {
+/* Confetti with ocean/gold colors */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
     opacity: 1;
   }
 
   100% {
-    transform: translateY(-100vh) rotate(720deg);
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Bubble Particles (replacing rainbow particles) */
+@keyframes float-up {
+  0% {
+    transform: translateY(100vh) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.5;
+    transform: translateY(80vh) scale(0.5);
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+
+  90% {
+    opacity: 0.1;
+  }
+
+  100% {
+    transform: translateY(-10vh) rotate(360deg) scale(1);
     opacity: 0;
   }
 }
@@ -374,23 +438,66 @@ p {
   animation: float-up linear infinite;
 }
 
-/* Text Reveal Animation */
-@keyframes text-reveal {
-  0% {
-    clip-path: inset(0 100% 0 0);
-    opacity: 0;
-    transform: translateX(-20px);
+/* Water Wave Animation */
+@keyframes wave-drift {
+
+  0%,
+  100% {
+    transform: translateX(0) translateY(0) scaleY(1);
   }
 
-  100% {
-    clip-path: inset(0 0 0 0);
-    opacity: 1;
-    transform: translateX(0);
+  25% {
+    transform: translateX(-15px) translateY(-5px) scaleY(0.95);
+  }
+
+  50% {
+    transform: translateX(0) translateY(-10px) scaleY(1.05);
+  }
+
+  75% {
+    transform: translateX(15px) translateY(-5px) scaleY(0.95);
   }
 }
 
-.text-reveal {
-  animation: text-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+.wave-drift {
+  animation: wave-drift 8s ease-in-out infinite;
+}
+
+/* Water Ripple Effect */
+@keyframes water-ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+    border-color: rgba(43, 181, 204, 0.5);
+  }
+
+  100% {
+    transform: scale(3);
+    opacity: 0;
+    border-color: rgba(43, 181, 204, 0);
+  }
+}
+
+.water-ripple {
+  animation: water-ripple 1.5s ease-out;
+  border-radius: 50%;
+  border: 2px solid rgba(43, 181, 204, 0.5);
+}
+
+/* Spinner with ocean teal */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  border: 3px solid rgba(43, 181, 204, 0.1);
+  border-top-color: var(--accent-teal);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 0.8s linear infinite;
 }
 
 /* Dramatic Entrance */
@@ -412,7 +519,7 @@ p {
   animation: dramatic-entrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-/* Holographic Shimmer */
+/* Gold Holographic Shimmer */
 @keyframes holo-shimmer {
   0% {
     background-position: -200% center;
@@ -426,55 +533,45 @@ p {
 .holo-effect {
   background: linear-gradient(90deg,
       transparent 0%,
-      rgba(255, 255, 255, 0.1) 25%,
-      rgba(255, 215, 0, 0.2) 50%,
-      rgba(255, 255, 255, 0.1) 75%,
+      rgba(212, 175, 55, 0.08) 25%,
+      rgba(212, 175, 55, 0.2) 50%,
+      rgba(212, 175, 55, 0.08) 75%,
       transparent 100%);
   background-size: 200% 100%;
   animation: holo-shimmer 3s linear infinite;
 }
 
-/* Rainbow Border Animation */
-@keyframes rainbow-border {
-  0% {
-    border-color: #ff0080;
-  }
+/* Teal Border Glow Animation */
+@keyframes teal-border-glow {
 
-  25% {
-    border-color: #00d9ff;
+  0%,
+  100% {
+    border-color: rgba(43, 181, 204, 0.2);
   }
 
   50% {
-    border-color: #ffd700;
-  }
-
-  75% {
-    border-color: #b537f2;
-  }
-
-  100% {
-    border-color: #ff0080;
+    border-color: rgba(43, 181, 204, 0.5);
   }
 }
 
-.rainbow-border {
-  animation: rainbow-border 4s linear infinite;
+.teal-border-glow {
+  animation: teal-border-glow 3s ease-in-out infinite;
 }
 
-/* Glow Pulse */
+/* Teal Glow Pulse */
 @keyframes glow-pulse {
 
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5),
-      0 0 40px rgba(0, 217, 255, 0.3),
-      0 0 60px rgba(0, 217, 255, 0.1);
+    box-shadow: 0 0 20px rgba(43, 181, 204, 0.4),
+      0 0 40px rgba(43, 181, 204, 0.2),
+      0 0 60px rgba(43, 181, 204, 0.1);
   }
 
   50% {
-    box-shadow: 0 0 40px rgba(0, 217, 255, 0.8),
-      0 0 80px rgba(0, 217, 255, 0.5),
-      0 0 120px rgba(0, 217, 255, 0.3);
+    box-shadow: 0 0 40px rgba(43, 181, 204, 0.6),
+      0 0 80px rgba(43, 181, 204, 0.4),
+      0 0 120px rgba(43, 181, 204, 0.2);
   }
 }
 
@@ -487,15 +584,15 @@ p {
 
   0%,
   100% {
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6),
-      0 0 60px rgba(255, 215, 0, 0.4),
-      0 0 100px rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.5),
+      0 0 60px rgba(212, 175, 55, 0.3),
+      0 0 100px rgba(212, 175, 55, 0.15);
   }
 
   50% {
-    box-shadow: 0 0 50px rgba(255, 215, 0, 0.9),
-      0 0 100px rgba(255, 215, 0, 0.6),
-      0 0 150px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 50px rgba(212, 175, 55, 0.7),
+      0 0 100px rgba(212, 175, 55, 0.5),
+      0 0 150px rgba(212, 175, 55, 0.25);
   }
 }
 
@@ -503,7 +600,7 @@ p {
   animation: gold-glow 2.5s ease-in-out infinite;
 }
 
-/* Slide Up Stagger - for content revealing */
+/* Slide Up */
 @keyframes slide-up-fade {
   0% {
     opacity: 0;
@@ -520,7 +617,7 @@ p {
   animation: slide-up-fade 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* Number Counter Animation */
+/* Number Counter */
 @keyframes count-up {
   0% {
     opacity: 0;
@@ -541,7 +638,7 @@ p {
   animation: count-up 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-/* Floating Animation */
+/* Floating */
 @keyframes float {
 
   0%,
@@ -558,7 +655,7 @@ p {
   animation: float 3s ease-in-out infinite;
 }
 
-/* Rotate 3D */
+/* 3D Rotate */
 @keyframes rotate-y {
   0% {
     transform: perspective(1000px) rotateY(-15deg);
@@ -577,15 +674,16 @@ p {
   animation: rotate-y 6s ease-in-out infinite;
 }
 
-/* Big Screen Specific Styles */
+/* Big Screen Title */
 .big-screen-title {
+  font-family: 'Cinzel', 'Poppins', serif;
   font-size: clamp(3rem, 8vw, 6rem);
   font-weight: 900;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-/* Marquee Text */
+/* Marquee */
 @keyframes marquee {
   0% {
     transform: translateX(0);
@@ -624,7 +722,7 @@ p {
   animation: status-pulse 1.5s ease-in-out infinite;
 }
 
-/* Spotlight Effect */
+/* Spotlight Effect — Ocean */
 .spotlight {
   position: relative;
   overflow: hidden;
@@ -638,7 +736,7 @@ p {
   width: 200%;
   height: 200%;
   background: radial-gradient(circle at center,
-      rgba(255, 215, 0, 0.1) 0%,
+      rgba(43, 181, 204, 0.06) 0%,
       transparent 50%);
   animation: spotlight-move 8s ease-in-out infinite;
   pointer-events: none;
@@ -664,7 +762,7 @@ p {
   }
 }
 
-/* Card Tilt Styles */
+/* 3D Tilt Card */
 .tilt-card {
   transform-style: preserve-3d;
   transition: transform 0.3s ease;
@@ -674,7 +772,7 @@ p {
   transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.02);
 }
 
-/* Glitch Effect for SOLD */
+/* Glitch Effect */
 @keyframes glitch {
 
   0%,
@@ -703,6 +801,25 @@ p {
   animation: glitch 0.3s ease-in-out;
 }
 
+/* Text Reveal */
+@keyframes text-reveal {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.text-reveal {
+  animation: text-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
 /* Typing Effect */
 @keyframes typing {
   from {
@@ -722,18 +839,18 @@ p {
   }
 
   50% {
-    border-color: var(--accent-neon-blue);
+    border-color: var(--accent-teal);
   }
 }
 
 .typing-effect {
   overflow: hidden;
   white-space: nowrap;
-  border-right: 3px solid var(--accent-neon-blue);
+  border-right: 3px solid var(--accent-teal);
   animation: typing 2s steps(30, end), blink-caret 0.75s step-end infinite;
 }
 
-/* Gradient Text Animated */
+/* Animated Gradient Text — Ocean Flow */
 @keyframes gradient-text-flow {
   0% {
     background-position: 0% 50%;
@@ -750,12 +867,12 @@ p {
 
 .gradient-text-animated {
   background: linear-gradient(90deg,
-      #00d9ff,
-      #b537f2,
-      #ffd700,
-      #00ff88,
-      #ff6b35,
-      #00d9ff);
+      #2bb5cc,
+      #d4af37,
+      #5ccfdf,
+      #f5d569,
+      #1a8a9e,
+      #2bb5cc);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -763,7 +880,7 @@ p {
   animation: gradient-text-flow 5s ease infinite;
 }
 
-/* Scale In Animation */
+/* Scale In */
 @keyframes scale-in {
   0% {
     transform: scale(0);
@@ -802,5 +919,99 @@ p {
 }
 
 .bounce-in {
-  animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+  animation: bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ════════════════════════════════════════
+   WAVE SVG BACKGROUND — REUSABLE
+   ════════════════════════════════════════ */
+
+.ocean-waves {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ocean-waves svg {
+  position: absolute;
+  bottom: 0;
+  width: 200%;
+  height: 100%;
+}
+
+@keyframes wave-anim-1 {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(-25%);
+  }
+}
+
+@keyframes wave-anim-2 {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(25%);
+  }
+}
+
+.wave-layer-1 {
+  animation: wave-anim-1 12s ease-in-out infinite;
+  opacity: 0.15;
+}
+
+.wave-layer-2 {
+  animation: wave-anim-2 8s ease-in-out infinite;
+  opacity: 0.08;
+}
+
+/* ════════════════════════════════════════
+   UTILITY ADDITIONS
+   ════════════════════════════════════════ */
+
+/* Ocean surface shimmer on hover */
+.ocean-surface-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.ocean-surface-hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(43, 181, 204, 0.06),
+      transparent);
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.ocean-surface-hover:hover::after {
+  left: 100%;
+}
+
+/* Gold border accent */
+.border-gold-accent {
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.border-gold-accent:hover {
+  border-color: rgba(212, 175, 55, 0.4);
 }
