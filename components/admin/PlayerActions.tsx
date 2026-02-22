@@ -1,31 +1,46 @@
 // Player Actions Component
 // Controls for managing player status and navigation
+// Enhanced: overseas limit check + squad composition warning before SOLD
 
 'use client';
 
 import { useState } from 'react';
 import { Team } from '@/lib/mockData/teams';
-import { markPlayerSold, markPlayerUnsold, setCurrentPlayer } from '@/lib/api/auction';
 import { Player } from '@/lib/mockData/players';
+import { markPlayerSold, markPlayerUnsold, setCurrentPlayer } from '@/lib/api/auction';
+import { getAllPlayers } from '@/lib/api/players';
+
+// Composition rules from rulebook §5
+const COMPOSITION_MAX: Record<string, number> = {
+    Batsmen: 5,
+    Bowlers: 8,
+    'All-rounders': 5,
+    Wicketkeepers: 4,
+};
+
+const OVERSEAS_MAX = 5;
 
 interface PlayerActionsProps {
     currentPlayerRank: number | null;
+    currentPlayer?: Player | null;
     teams: Team[];
     highestBidder: string | null;
+    highestBidderId?: number | null;
     totalPlayers: number;
 }
 
 export default function PlayerActions({
     currentPlayerRank,
+    currentPlayer,
     teams,
     highestBidder,
-    totalPlayers = 8
+    highestBidderId,
+    totalPlayers = 246
 }: PlayerActionsProps) {
     const [processing, setProcessing] = useState(false);
 
     const handleNextPlayer = async () => {
         if (!currentPlayerRank) return;
-
         setProcessing(true);
         try {
             const nextRank = currentPlayerRank < totalPlayers ? currentPlayerRank + 1 : 1;
@@ -43,11 +58,45 @@ export default function PlayerActions({
             return;
         }
 
-        const team = teams.find(t => t.name === highestBidder);
+        const team = teams.find(t => t.name === highestBidder || t.id === highestBidderId);
         if (!team) return;
 
+        // ── Overseas check ──────────────────────────────────────────
+        const warnings: string[] = [];
+
+        if (currentPlayer?.nationality === 'Overseas') {
+            if (team.overseasCount >= OVERSEAS_MAX) {
+                warnings.push(`⚠️ OVERSEAS LIMIT VIOLATION\n${team.shortName} already has ${team.overseasCount}/${OVERSEAS_MAX} overseas players. Selling this player will violate the rule!`);
+            } else {
+                warnings.push(`ℹ️ Overseas player — ${team.shortName} will have ${team.overseasCount + 1}/${OVERSEAS_MAX} overseas players after this.`);
+            }
+        }
+
+        // ── Squad composition check ─────────────────────────────────
+        if (currentPlayer?.category) {
+            const cat = currentPlayer.category;
+            const max = COMPOSITION_MAX[cat];
+            if (max !== undefined) {
+                // Count how many the team already has in this category
+                // We need to fetch player details for this team's players
+                // For now, use a best-effort count using players array we get
+                // The team.players array has player ranks - we count category from mock data
+                const allPlayers = await (async () => {
+                    try { return await getAllPlayers(); } catch { return []; }
+                })();
+                const teamPlayers = allPlayers.filter((p: Player) => team.players.includes(p.rank));
+                const categoryCount = teamPlayers.filter((p: Player) => p.category === cat).length;
+
+                if (categoryCount >= max) {
+                    warnings.push(`⚠️ COMPOSITION VIOLATION\n${team.shortName} already has ${categoryCount}/${max} ${cat}. This purchase would exceed the maximum!`);
+                }
+            }
+        }
+
+        // Build confirm message
+        const warningText = warnings.length > 0 ? `\n\n${warnings.join('\n\n')}` : '';
         const confirmed = window.confirm(
-            `Mark player as SOLD to ${team.name}?\n\nThis action will update budgets and move to next player.`
+            `Mark ${currentPlayer?.player ?? 'player'} as SOLD to ${team.name}?${warningText}\n\nThis action will update budgets and move to next player.`
         );
 
         if (!confirmed) return;
@@ -68,7 +117,6 @@ export default function PlayerActions({
         const confirmed = window.confirm(
             'Mark player as UNSOLD?\n\nPlayer will be added to unsold pool.'
         );
-
         if (!confirmed) return;
 
         setProcessing(true);
@@ -83,19 +131,40 @@ export default function PlayerActions({
         }
     };
 
+    const team = highestBidder ? teams.find(t => t.name === highestBidder) : null;
+
     return (
-        <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-            <h2 className="text-2xl font-bold text-white mb-4">Player Actions</h2>
+        <div className="backdrop-blur-md rounded-2xl p-6" style={{ background: 'rgba(10,22,40,0.7)', border: '1px solid rgba(43,181,204,0.15)' }}>
+            <h2 className="text-2xl font-bold mb-4 gradient-text" style={{ fontFamily: "'Cinzel', serif" }}>Player Actions</h2>
+
+            {/* Overseas indicator */}
+            {currentPlayer?.nationality === 'Overseas' && (
+                <div className="mb-3 px-3 py-2 rounded-xl" style={{ background: 'rgba(14,77,94,0.15)', border: '1px solid rgba(43,181,204,0.25)' }}>
+                    <span className="text-xs font-bold" style={{ color: '#2bb5cc' }}>🌍 OVERSEAS PLAYER</span>
+                    {team && (
+                        <span className="text-xs ml-2" style={{ color: 'rgba(122,148,176,0.6)' }}>
+                            {team.shortName}: {team.overseasCount}/{OVERSEAS_MAX} overseas
+                            {team.overseasCount >= OVERSEAS_MAX && (
+                                <span className="font-bold ml-1" style={{ color: '#e74c5e' }}>— LIMIT REACHED!</span>
+                            )}
+                        </span>
+                    )}
+                </div>
+            )}
 
             <div className="space-y-3">
                 {/* Mark as SOLD */}
                 <button
                     onClick={handleMarkSold}
                     disabled={processing || !highestBidder}
-                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${highestBidder && !processing
-                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white'
-                            : 'bg-white/10 text-white/50 cursor-not-allowed'
-                        }`}
+                    className="w-full py-4 rounded-xl font-bold text-lg transition-all"
+                    style={{
+                        background: highestBidder && !processing ? 'linear-gradient(135deg, #1a6a52, #2dd4a0)' : 'rgba(43,181,204,0.05)',
+                        color: highestBidder && !processing ? '#fff' : 'rgba(122,148,176,0.4)',
+                        cursor: !highestBidder || processing ? 'not-allowed' : 'pointer',
+                        boxShadow: highestBidder && !processing ? '0 4px 20px rgba(45,212,160,0.2)' : 'none',
+                        fontFamily: "'Cinzel', serif",
+                    }}
                 >
                     ✓ Mark as SOLD
                     {highestBidder && ` to ${highestBidder}`}
@@ -105,7 +174,8 @@ export default function PlayerActions({
                 <button
                     onClick={handleMarkUnsold}
                     disabled={processing}
-                    className="w-full py-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ background: 'linear-gradient(135deg, #6b0a1a, #e74c5e)', color: '#fff', boxShadow: '0 4px 20px rgba(231,76,94,0.2)', fontFamily: "'Cinzel', serif" }}
                 >
                     ✗ Mark as UNSOLD
                 </button>
@@ -114,7 +184,8 @@ export default function PlayerActions({
                 <button
                     onClick={handleNextPlayer}
                     disabled={processing}
-                    className="w-full py-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ background: 'linear-gradient(135deg, #0e4d5e, #1a8a9e)', color: '#fff', boxShadow: '0 4px 20px rgba(43,181,204,0.2)', fontFamily: "'Cinzel', serif" }}
                 >
                     → Next Player
                 </button>
@@ -122,9 +193,9 @@ export default function PlayerActions({
 
             {/* Player Counter */}
             {currentPlayerRank && (
-                <div className="mt-4 p-3 bg-white/5 rounded-xl text-center">
-                    <div className="text-white/60 text-sm">Current Player</div>
-                    <div className="text-2xl font-bold text-white">
+                <div className="mt-4 p-3 rounded-xl text-center" style={{ background: 'rgba(14,77,94,0.15)', border: '1px solid rgba(43,181,204,0.15)' }}>
+                    <div className="text-sm" style={{ color: 'rgba(122,148,176,0.7)' }}>Current Player</div>
+                    <div className="text-2xl font-bold text-white" style={{ fontFamily: "'Cinzel', serif" }}>
                         #{currentPlayerRank} / {totalPlayers}
                     </div>
                 </div>
