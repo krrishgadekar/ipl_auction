@@ -140,6 +140,7 @@ function PowerCardDetail({ cardKey, card, teams }: {
     // Find teams that have used/available this card
     const cardStats = teams.reduce((acc, team) => {
         const teamCard = team.powerCards[cardKey as keyof typeof team.powerCards];
+        if (!teamCard) return acc;
         if (teamCard.used) acc.used.push(team);
         else if (teamCard.available) acc.available.push(team);
         return acc;
@@ -370,8 +371,8 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
                                     <div
                                         key={key}
                                         className={`p-3 rounded-xl text-center border ${card.used
-                                                ? 'bg-red-500/10 border-red-500/30'
-                                                : 'bg-green-500/10 border-green-500/30'
+                                            ? 'bg-red-500/10 border-red-500/30'
+                                            : 'bg-green-500/10 border-green-500/30'
                                             }`}
                                     >
                                         <div className="text-2xl mb-1">{def.icon}</div>
@@ -443,13 +444,16 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
                                         </td>
                                         {Object.keys(powerCardDefinitions).map(key => {
                                             const card = team.powerCards[key as keyof typeof team.powerCards];
+                                            const isUsed = card?.used ?? false;
                                             return (
                                                 <td key={key} className="text-center py-3 px-2">
-                                                    <span className={`inline-block w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center ${card.used
-                                                            ? 'bg-red-500/20 text-red-400'
-                                                            : 'bg-green-500/20 text-green-400'
+                                                    <span className={`inline-flex w-6 h-6 rounded-full text-xs font-bold items-center justify-center ${isUsed
+                                                        ? 'bg-red-500/20 text-red-400'
+                                                        : card
+                                                            ? 'bg-green-500/20 text-green-400'
+                                                            : 'bg-white/5 text-white/20'
                                                         }`}>
-                                                        {card.used ? '✗' : '✓'}
+                                                        {isUsed ? '✗' : card ? '✓' : '–'}
                                                     </span>
                                                 </td>
                                             );
