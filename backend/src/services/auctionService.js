@@ -7,11 +7,9 @@ import prisma from '../config/db.js';
 async function sellPlayer(playerId, teamId, pricePaid) {
     return await prisma.$transaction(async (tx) => {
         // 1. Lock auction_state row
-        // Note: Prisma doesn't have a direct "SELECT FOR UPDATE" yet, 
-        // but updating the state row acts as a lock.
         const auctionState = await tx.auctionState.update({
             where: { id: 1 },
-            data: {} // Just to lock the row
+            data: {} // Acts as a row lock
         });
 
         // 2. Validate auction_status == LIVE
@@ -21,7 +19,7 @@ async function sellPlayer(playerId, teamId, pricePaid) {
 
         // 3. Validate player not already SOLD
         const auctionPlayer = await tx.auctionPlayer.findFirst({
-            where: { playerId, status: 'UNSOLD' }
+            where: { player_id: playerId, status: 'UNSOLD' }
         });
         if (!auctionPlayer) {
             throw new Error('Player is either already sold or not in this auction');
@@ -31,7 +29,7 @@ async function sellPlayer(playerId, teamId, pricePaid) {
         const team = await tx.team.findUnique({
             where: { id: teamId }
         });
-        if (!team || team.purseRemaining < pricePaid) {
+        if (!team || team.purse_remaining < pricePaid) {
             throw new Error('Insufficient purse for this team');
         }
 
@@ -39,7 +37,7 @@ async function sellPlayer(playerId, teamId, pricePaid) {
         const player = await tx.player.findUnique({
             where: { id: playerId }
         });
-        if (player.nationality === 'OS' && team.isOverseasCount >= 4) {
+        if (player.nationality === 'OS' && team.is_overseas_count >= 4) {
             throw new Error('Team already has maximum overseas players (4)');
         }
 
@@ -47,17 +45,17 @@ async function sellPlayer(playerId, teamId, pricePaid) {
         await tx.team.update({
             where: { id: teamId },
             data: {
-                purseRemaining: { decrement: pricePaid },
-                isOverseasCount: player.nationality === 'OS' ? { increment: 1 } : undefined
+                purse_remaining: { decrement: pricePaid },
+                is_overseas_count: player.nationality === 'OS' ? { increment: 1 } : undefined
             }
         });
 
         // 7. Insert into team_players
         await tx.teamPlayer.create({
             data: {
-                teamId,
-                playerId,
-                pricePaid
+                team_id: teamId,
+                player_id: playerId,
+                price_paid: pricePaid
             }
         });
 
@@ -66,8 +64,8 @@ async function sellPlayer(playerId, teamId, pricePaid) {
             where: { id: auctionPlayer.id },
             data: {
                 status: 'SOLD',
-                soldPrice: pricePaid,
-                soldToTeamId: teamId
+                sold_price: pricePaid,
+                sold_to_team_id: teamId
             }
         });
 
@@ -81,6 +79,22 @@ async function sellPlayer(playerId, teamId, pricePaid) {
         });
 
         return { success: true, message: 'Player sold successfully' };
+    });
+}
+
+async function usePowerCard(teamId, type) {
+    return await prisma.$transaction(async (tx) => {
+        const powerCard = await tx.powerCard.findFirst({
+            where: { team_id: teamId, type, is_used: false }
+        });
+        if (!powerCard) throw new Error('Power card not available or already used');
+
+        await tx.powerCard.update({
+            where: { id: powerCard.id },
+            data: { is_used: true }
+        });
+
+        return { success: true, type };
     });
 }
 
@@ -108,5 +122,6 @@ async function updateAuctionStatus(newStatus) {
 
 export default {
     sellPlayer,
+    usePowerCard,
     updateAuctionStatus
 };

@@ -15,14 +15,14 @@ async function main() {
 
     // 2. Teams
     const teams = [
-        { name: 'Mumbai Indians', brandKey: 'MI', purseRemaining: 800000000 },
-        { name: 'Chennai Super Kings', brandKey: 'CSK', purseRemaining: 800000000 },
-        { name: 'Royal Challengers Bangalore', brandKey: 'RCB', purseRemaining: 800000000 }
+        { name: 'Mumbai Indians', brand_key: 'MI', purse_remaining: 800000000 },
+        { name: 'Chennai Super Kings', brand_key: 'CSK', purse_remaining: 800000000 },
+        { name: 'Royal Challengers Bangalore', brand_key: 'RCB', purse_remaining: 800000000 }
     ];
 
     for (const team of teams) {
         await prisma.team.upsert({
-            where: { brandKey: team.brandKey },
+            where: { brand_key: team.brand_key },
             update: team,
             create: team
         });
@@ -30,10 +30,10 @@ async function main() {
 
     // 3. Players
     const players = [
-        { name: 'Virat Kohli', category: 'BAT', grade: 'A', rating: 9.5, nationality: 'IN', basePrice: 20000000 },
-        { name: 'MS Dhoni', category: 'WK', grade: 'A', rating: 9.0, nationality: 'IN', basePrice: 20000000 },
-        { name: 'Glenn Maxwell', category: 'AR', grade: 'A', rating: 8.5, nationality: 'OS', basePrice: 15000000 },
-        { name: 'Jasprit Bumrah', category: 'BOWL', grade: 'A', rating: 9.8, nationality: 'IN', basePrice: 20000000 }
+        { name: 'Virat Kohli', category: 'BAT', grade: 'A', rating: 9.5, nationality: 'IN', base_price: 20000000 },
+        { name: 'MS Dhoni', category: 'WK', grade: 'A', rating: 9.0, nationality: 'IN', base_price: 20000000 },
+        { name: 'Glenn Maxwell', category: 'AR', grade: 'A', rating: 8.5, nationality: 'OS', base_price: 15000000 },
+        { name: 'Jasprit Bumrah', category: 'BOWL', grade: 'A', rating: 9.8, nationality: 'IN', base_price: 20000000 }
     ];
 
     for (const player of players) {
@@ -44,8 +44,20 @@ async function main() {
         // Add to AuctionPlayer list
         await prisma.auctionPlayer.create({
             data: {
-                playerId: createdPlayer.id,
+                player_id: createdPlayer.id,
                 status: 'UNSOLD'
+            }
+        });
+    }
+
+    // 4. Power Cards
+    const firstTeam = await prisma.team.findFirst();
+    if (firstTeam) {
+        await prisma.powerCard.create({
+            data: {
+                team_id: firstTeam.id,
+                type: 'GOD_EYE',
+                is_used: false
             }
         });
     }

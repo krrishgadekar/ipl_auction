@@ -15,66 +15,66 @@ datasource db {
 model Team {
   id                String            @id @default(uuid())
   name              String
-  brandKey          String            @unique
-  purseRemaining    Float             @default(800000000) // Default 80 Cr
-  isOverseasCount   Int               @default(0)
-  createdAt         DateTime          @default(now())
-  teamPlayers       TeamPlayer[]
-  powerCards        PowerCard[]
-  top11Selection    Top11Selection?
+  brand_key         String            @unique
+  purse_remaining   Float             @default(800000000) // Default 80 Cr
+  is_overseas_count Int               @default(0)
+  created_at        DateTime          @default(now())
+  team_players      TeamPlayer[]
+  power_cards       PowerCard[]
+  top11_selection   Top11Selection?
 }
 
 model Player {
-  id             String         @id @default(uuid())
-  name           String
-  category       Category       // BAT | BOWL | AR | WK
-  grade          Grade          // A | B | C | D
-  rating         Float
-  nationality    Nationality    // IN | OS
-  basePrice      Float
-  isRiddle       Boolean        @default(false)
-  auctionPlayers AuctionPlayer[]
-  teamPlayers    TeamPlayer[]
+  id              String         @id @default(uuid())
+  name            String
+  category        Category       // BAT | BOWL | AR | WK
+  grade           Grade          // A | B | C | D
+  rating          Float
+  nationality     Nationality    // IN | OS
+  base_price      Float
+  is_riddle       Boolean        @default(false)
+  auction_players AuctionPlayer[]
+  team_players    TeamPlayer[]
 }
 
 model AuctionPlayer {
   id              String        @id @default(uuid())
-  playerId        String
-  player          Player        @relation(fields: [playerId], references: [id])
+  player_id       String
+  player          Player        @relation(fields: [player_id], references: [id])
   status          AuctionStatus @default(UNSOLD) // UNSOLD | SOLD
-  soldPrice       Float?
-  soldToTeamId    String?
+  sold_price      Float?
+  sold_to_team_id String?
 }
 
 model TeamPlayer {
-  id        String @id @default(uuid())
-  teamId    String
-  team      Team   @relation(fields: [teamId], references: [id])
-  playerId  String
-  player    Player @relation(fields: [playerId], references: [id])
-  pricePaid Float
+  id         String @id @default(uuid())
+  team_id    String
+  team       Team   @relation(fields: [team_id], references: [id])
+  player_id  String
+  player     Player @relation(fields: [player_id], references: [id])
+  price_paid Float
 }
 
 model AuctionState {
-  id                 Int           @id @default(1)
-  current_player_id  String?
-  auction_status     AuctionStatus @default(NOT_STARTED) // NOT_STARTED | LIVE | SOLD | POST_AUCTION | LOCKED
+  id                Int           @id @default(1)
+  current_player_id String?
+  auction_status    AuctionStatus @default(NOT_STARTED) // NOT_STARTED | LIVE | SOLD | POST_AUCTION | LOCKED
 }
 
 model PowerCard {
   id      String        @id @default(uuid())
-  teamId  String
-  team    Team          @relation(fields: [teamId], references: [id])
+  team_id String
+  team    Team          @relation(fields: [team_id], references: [id])
   type    PowerCardType // GOD_EYE | MULLIGAN | FINAL_STRIKE | BID_FREEZER
-  isUsed  Boolean       @default(false)
+  is_used Boolean       @default(false)
 }
 
 model Top11Selection {
-  teamId        String   @id
-  team          Team     @relation(fields: [teamId], references: [id])
-  playerIds     String[] // Array of UUIDs
-  captainId     String
-  viceCaptainId String
+  team_id         String   @id
+  team            Team     @relation(fields: [team_id], references: [id])
+  player_ids      String[] // Array of UUIDs
+  captain_id      String
+  vice_captain_id String
 }
 
 enum Category {

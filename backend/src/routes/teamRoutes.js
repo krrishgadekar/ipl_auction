@@ -4,25 +4,31 @@ import prisma from '../config/db.js';
 
 /**
  * @swagger
+ * /api/team/me:
+ *   get:
+ *     summary: Get my team profile (Placeholder for authenticated user)
+ *     tags: [Team]
+ */
+router.get('/me', async (req, res) => {
+    // In a real app, we'd get teamId from JWT
+    const team = await prisma.team.findFirst({
+        include: { team_players: { include: { player: true } } }
+    });
+    res.json(team);
+});
+
+/**
+ * @swagger
  * /api/team/{id}:
  *   get:
  *     summary: Get team profile and roster
  *     tags: [Team]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Team profile
  */
 router.get('/:id', async (req, res) => {
     try {
         const team = await prisma.team.findUnique({
             where: { id: req.params.id },
-            include: { teamPlayers: { include: { player: true } } }
+            include: { team_players: { include: { player: true } } }
         });
         if (!team) return res.status(404).json({ message: 'Team not found' });
         res.json(team);
@@ -37,26 +43,6 @@ router.get('/:id', async (req, res) => {
  *   post:
  *     summary: Select Top 11 players, captain, and vice-captain
  *     tags: [Team]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               teamId:
- *                 type: string
- *               playerIds:
- *                 type: array
- *                 items:
- *                   type: string
- *               captainId:
- *                 type: string
- *               viceCaptainId:
- *                 type: string
- *     responses:
- *       200:
- *         description: Top 11 selection saved
  */
 router.post('/top11', async (req, res) => {
     const { teamId, playerIds, captainId, viceCaptainId } = req.body;
@@ -67,10 +53,11 @@ router.post('/top11', async (req, res) => {
 
     try {
         const selection = await prisma.top11Selection.upsert({
-            where: { teamId },
-            update: { playerIds, captainId, viceCaptainId },
-            create: { teamId, playerIds, captainId, viceCaptainId }
+            where: { team_id: teamId },
+            update: { player_ids: playerIds, captain_id: captainId, vice_captain_id: viceCaptainId },
+            create: { team_id: teamId, player_ids: playerIds, captain_id: captainId, vice_captain_id: viceCaptainId }
         });
+        req.io.emit('TOP11_LOCKED', { teamId });
         res.json(selection);
     } catch (error) {
         res.status(500).json({ error: error.message });

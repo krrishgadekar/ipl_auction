@@ -8,9 +8,6 @@ import prisma from '../config/db.js';
  *   get:
  *     summary: Get current auction state
  *     tags: [Public]
- *     responses:
- *       200:
- *         description: Current auction state
  */
 router.get('/state', async (req, res) => {
     try {
@@ -27,9 +24,6 @@ router.get('/state', async (req, res) => {
  *   get:
  *     summary: Get current player details
  *     tags: [Public]
- *     responses:
- *       200:
- *         description: Current player details
  */
 router.get('/current-player', async (req, res) => {
     try {
@@ -41,6 +35,26 @@ router.get('/current-player', async (req, res) => {
             where: { id: state.current_player_id }
         });
         res.json(player);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * @swagger
+ * /api/public/auction/last-sold:
+ *   get:
+ *     summary: Get details of the last sold player
+ *     tags: [Public]
+ */
+router.get('/last-sold', async (req, res) => {
+    try {
+        const lastSold = await prisma.auctionPlayer.findFirst({
+            where: { status: 'SOLD' },
+            orderBy: { id: 'desc' }, // Assuming higher ID means later sale, or use a timestamp if added
+            include: { player: true }
+        });
+        res.json(lastSold);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

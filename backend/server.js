@@ -25,6 +25,12 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
+// Attach io to req
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
+
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
