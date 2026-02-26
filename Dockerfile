@@ -1,35 +1,37 @@
-# ── Build stage ─────────────────────────────────────────────
-FROM node:20-alpine AS builder
+# ═══════════════════════════════════════════════════════════════
+# IPL Auction 2026 — Frontend Dockerfile (Next.js Standalone)
+# ═══════════════════════════════════════════════════════════════
 
+FROM node:20-alpine AS base
+
+# ── Build Stage ───────────────────────────────────────────────
+FROM base AS builder
 WORKDIR /app
 
-# Copy package files and install
+# Install deps
 COPY package.json package-lock.json* ./
 RUN npm ci
 
-# Copy source and build
+# Copy source
 COPY . .
 
-# Set backend URL for build time
-ARG NEXT_PUBLIC_API_URL=http://localhost:3001
+# Build with API URL injected at build time
+ARG NEXT_PUBLIC_API_URL=http://localhost:5000
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 RUN npm run build
 
-# ── Production stage ────────────────────────────────────────
-FROM node:20-alpine AS runner
-
+# ── Production Stage ──────────────────────────────────────────
+FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy standalone build (Next.js output)
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
+# Copy standalone output
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Expose port
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

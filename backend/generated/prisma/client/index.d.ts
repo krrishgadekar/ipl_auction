@@ -7147,6 +7147,7 @@ export namespace Prisma {
     current_bid: Decimal | null
     current_sequence_id: number | null
     current_sequence_index: number | null
+    last_sold_price: Decimal | null
   }
 
   export type AuctionStateSumAggregateOutputType = {
@@ -7154,6 +7155,7 @@ export namespace Prisma {
     current_bid: Decimal | null
     current_sequence_id: number | null
     current_sequence_index: number | null
+    last_sold_price: Decimal | null
   }
 
   export type AuctionStateMinAggregateOutputType = {
@@ -7165,6 +7167,14 @@ export namespace Prisma {
     current_sequence_id: number | null
     current_sequence_index: number | null
     bid_frozen_team_id: string | null
+    auction_day: string | null
+    active_power_card: string | null
+    active_power_card_team: string | null
+    gods_eye_revealed: boolean | null
+    last_sold_player_id: string | null
+    last_sold_price: Decimal | null
+    last_sold_team_id: string | null
+    last_sold_team_name: string | null
   }
 
   export type AuctionStateMaxAggregateOutputType = {
@@ -7176,6 +7186,14 @@ export namespace Prisma {
     current_sequence_id: number | null
     current_sequence_index: number | null
     bid_frozen_team_id: string | null
+    auction_day: string | null
+    active_power_card: string | null
+    active_power_card_team: string | null
+    gods_eye_revealed: boolean | null
+    last_sold_player_id: string | null
+    last_sold_price: Decimal | null
+    last_sold_team_id: string | null
+    last_sold_team_name: string | null
   }
 
   export type AuctionStateCountAggregateOutputType = {
@@ -7187,6 +7205,15 @@ export namespace Prisma {
     current_sequence_id: number
     current_sequence_index: number
     bid_frozen_team_id: number
+    auction_day: number
+    active_power_card: number
+    active_power_card_team: number
+    gods_eye_revealed: number
+    bid_history: number
+    last_sold_player_id: number
+    last_sold_price: number
+    last_sold_team_id: number
+    last_sold_team_name: number
     _all: number
   }
 
@@ -7196,6 +7223,7 @@ export namespace Prisma {
     current_bid?: true
     current_sequence_id?: true
     current_sequence_index?: true
+    last_sold_price?: true
   }
 
   export type AuctionStateSumAggregateInputType = {
@@ -7203,6 +7231,7 @@ export namespace Prisma {
     current_bid?: true
     current_sequence_id?: true
     current_sequence_index?: true
+    last_sold_price?: true
   }
 
   export type AuctionStateMinAggregateInputType = {
@@ -7214,6 +7243,14 @@ export namespace Prisma {
     current_sequence_id?: true
     current_sequence_index?: true
     bid_frozen_team_id?: true
+    auction_day?: true
+    active_power_card?: true
+    active_power_card_team?: true
+    gods_eye_revealed?: true
+    last_sold_player_id?: true
+    last_sold_price?: true
+    last_sold_team_id?: true
+    last_sold_team_name?: true
   }
 
   export type AuctionStateMaxAggregateInputType = {
@@ -7225,6 +7262,14 @@ export namespace Prisma {
     current_sequence_id?: true
     current_sequence_index?: true
     bid_frozen_team_id?: true
+    auction_day?: true
+    active_power_card?: true
+    active_power_card_team?: true
+    gods_eye_revealed?: true
+    last_sold_player_id?: true
+    last_sold_price?: true
+    last_sold_team_id?: true
+    last_sold_team_name?: true
   }
 
   export type AuctionStateCountAggregateInputType = {
@@ -7236,6 +7281,15 @@ export namespace Prisma {
     current_sequence_id?: true
     current_sequence_index?: true
     bid_frozen_team_id?: true
+    auction_day?: true
+    active_power_card?: true
+    active_power_card_team?: true
+    gods_eye_revealed?: true
+    bid_history?: true
+    last_sold_player_id?: true
+    last_sold_price?: true
+    last_sold_team_id?: true
+    last_sold_team_name?: true
     _all?: true
   }
 
@@ -7334,6 +7388,15 @@ export namespace Prisma {
     current_sequence_id: number | null
     current_sequence_index: number
     bid_frozen_team_id: string | null
+    auction_day: string
+    active_power_card: string | null
+    active_power_card_team: string | null
+    gods_eye_revealed: boolean
+    bid_history: JsonValue
+    last_sold_player_id: string | null
+    last_sold_price: Decimal | null
+    last_sold_team_id: string | null
+    last_sold_team_name: string | null
     _count: AuctionStateCountAggregateOutputType | null
     _avg: AuctionStateAvgAggregateOutputType | null
     _sum: AuctionStateSumAggregateOutputType | null
@@ -7364,6 +7427,15 @@ export namespace Prisma {
     current_sequence_id?: boolean
     current_sequence_index?: boolean
     bid_frozen_team_id?: boolean
+    auction_day?: boolean
+    active_power_card?: boolean
+    active_power_card_team?: boolean
+    gods_eye_revealed?: boolean
+    bid_history?: boolean
+    last_sold_player_id?: boolean
+    last_sold_price?: boolean
+    last_sold_team_id?: boolean
+    last_sold_team_name?: boolean
   }, ExtArgs["result"]["auctionState"]>
 
   export type AuctionStateSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -7375,6 +7447,15 @@ export namespace Prisma {
     current_sequence_id?: boolean
     current_sequence_index?: boolean
     bid_frozen_team_id?: boolean
+    auction_day?: boolean
+    active_power_card?: boolean
+    active_power_card_team?: boolean
+    gods_eye_revealed?: boolean
+    bid_history?: boolean
+    last_sold_player_id?: boolean
+    last_sold_price?: boolean
+    last_sold_team_id?: boolean
+    last_sold_team_name?: boolean
   }, ExtArgs["result"]["auctionState"]>
 
   export type AuctionStateSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -7386,6 +7467,15 @@ export namespace Prisma {
     current_sequence_id?: boolean
     current_sequence_index?: boolean
     bid_frozen_team_id?: boolean
+    auction_day?: boolean
+    active_power_card?: boolean
+    active_power_card_team?: boolean
+    gods_eye_revealed?: boolean
+    bid_history?: boolean
+    last_sold_player_id?: boolean
+    last_sold_price?: boolean
+    last_sold_team_id?: boolean
+    last_sold_team_name?: boolean
   }, ExtArgs["result"]["auctionState"]>
 
   export type AuctionStateSelectScalar = {
@@ -7397,9 +7487,18 @@ export namespace Prisma {
     current_sequence_id?: boolean
     current_sequence_index?: boolean
     bid_frozen_team_id?: boolean
+    auction_day?: boolean
+    active_power_card?: boolean
+    active_power_card_team?: boolean
+    gods_eye_revealed?: boolean
+    bid_history?: boolean
+    last_sold_player_id?: boolean
+    last_sold_price?: boolean
+    last_sold_team_id?: boolean
+    last_sold_team_name?: boolean
   }
 
-  export type AuctionStateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "phase" | "current_player_id" | "current_bid" | "highest_bidder_id" | "current_sequence_id" | "current_sequence_index" | "bid_frozen_team_id", ExtArgs["result"]["auctionState"]>
+  export type AuctionStateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "phase" | "current_player_id" | "current_bid" | "highest_bidder_id" | "current_sequence_id" | "current_sequence_index" | "bid_frozen_team_id" | "auction_day" | "active_power_card" | "active_power_card_team" | "gods_eye_revealed" | "bid_history" | "last_sold_player_id" | "last_sold_price" | "last_sold_team_id" | "last_sold_team_name", ExtArgs["result"]["auctionState"]>
 
   export type $AuctionStatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AuctionState"
@@ -7413,6 +7512,15 @@ export namespace Prisma {
       current_sequence_id: number | null
       current_sequence_index: number
       bid_frozen_team_id: string | null
+      auction_day: string
+      active_power_card: string | null
+      active_power_card_team: string | null
+      gods_eye_revealed: boolean
+      bid_history: Prisma.JsonValue
+      last_sold_player_id: string | null
+      last_sold_price: Prisma.Decimal | null
+      last_sold_team_id: string | null
+      last_sold_team_name: string | null
     }, ExtArgs["result"]["auctionState"]>
     composites: {}
   }
@@ -7844,6 +7952,15 @@ export namespace Prisma {
     readonly current_sequence_id: FieldRef<"AuctionState", 'Int'>
     readonly current_sequence_index: FieldRef<"AuctionState", 'Int'>
     readonly bid_frozen_team_id: FieldRef<"AuctionState", 'String'>
+    readonly auction_day: FieldRef<"AuctionState", 'String'>
+    readonly active_power_card: FieldRef<"AuctionState", 'String'>
+    readonly active_power_card_team: FieldRef<"AuctionState", 'String'>
+    readonly gods_eye_revealed: FieldRef<"AuctionState", 'Boolean'>
+    readonly bid_history: FieldRef<"AuctionState", 'Json'>
+    readonly last_sold_player_id: FieldRef<"AuctionState", 'String'>
+    readonly last_sold_price: FieldRef<"AuctionState", 'Decimal'>
+    readonly last_sold_team_id: FieldRef<"AuctionState", 'String'>
+    readonly last_sold_team_name: FieldRef<"AuctionState", 'String'>
   }
     
 
@@ -14538,7 +14655,16 @@ export namespace Prisma {
     highest_bidder_id: 'highest_bidder_id',
     current_sequence_id: 'current_sequence_id',
     current_sequence_index: 'current_sequence_index',
-    bid_frozen_team_id: 'bid_frozen_team_id'
+    bid_frozen_team_id: 'bid_frozen_team_id',
+    auction_day: 'auction_day',
+    active_power_card: 'active_power_card',
+    active_power_card_team: 'active_power_card_team',
+    gods_eye_revealed: 'gods_eye_revealed',
+    bid_history: 'bid_history',
+    last_sold_player_id: 'last_sold_player_id',
+    last_sold_price: 'last_sold_price',
+    last_sold_team_id: 'last_sold_team_id',
+    last_sold_team_name: 'last_sold_team_name'
   };
 
   export type AuctionStateScalarFieldEnum = (typeof AuctionStateScalarFieldEnum)[keyof typeof AuctionStateScalarFieldEnum]
@@ -14800,20 +14926,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'PowerCardType'
-   */
-  export type EnumPowerCardTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PowerCardType'>
-    
-
-
-  /**
-   * Reference to a field of type 'PowerCardType[]'
-   */
-  export type ListEnumPowerCardTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PowerCardType[]'>
-    
-
-
-  /**
    * Reference to a field of type 'Json'
    */
   export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -14824,6 +14936,20 @@ export namespace Prisma {
    * Reference to a field of type 'QueryMode'
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'PowerCardType'
+   */
+  export type EnumPowerCardTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PowerCardType'>
+    
+
+
+  /**
+   * Reference to a field of type 'PowerCardType[]'
+   */
+  export type ListEnumPowerCardTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PowerCardType[]'>
     
 
 
@@ -15289,6 +15415,15 @@ export namespace Prisma {
     current_sequence_id?: IntNullableFilter<"AuctionState"> | number | null
     current_sequence_index?: IntFilter<"AuctionState"> | number
     bid_frozen_team_id?: StringNullableFilter<"AuctionState"> | string | null
+    auction_day?: StringFilter<"AuctionState"> | string
+    active_power_card?: StringNullableFilter<"AuctionState"> | string | null
+    active_power_card_team?: StringNullableFilter<"AuctionState"> | string | null
+    gods_eye_revealed?: BoolFilter<"AuctionState"> | boolean
+    bid_history?: JsonFilter<"AuctionState">
+    last_sold_player_id?: StringNullableFilter<"AuctionState"> | string | null
+    last_sold_price?: DecimalNullableFilter<"AuctionState"> | Decimal | DecimalJsLike | number | string | null
+    last_sold_team_id?: StringNullableFilter<"AuctionState"> | string | null
+    last_sold_team_name?: StringNullableFilter<"AuctionState"> | string | null
   }
 
   export type AuctionStateOrderByWithRelationInput = {
@@ -15300,6 +15435,15 @@ export namespace Prisma {
     current_sequence_id?: SortOrderInput | SortOrder
     current_sequence_index?: SortOrder
     bid_frozen_team_id?: SortOrderInput | SortOrder
+    auction_day?: SortOrder
+    active_power_card?: SortOrderInput | SortOrder
+    active_power_card_team?: SortOrderInput | SortOrder
+    gods_eye_revealed?: SortOrder
+    bid_history?: SortOrder
+    last_sold_player_id?: SortOrderInput | SortOrder
+    last_sold_price?: SortOrderInput | SortOrder
+    last_sold_team_id?: SortOrderInput | SortOrder
+    last_sold_team_name?: SortOrderInput | SortOrder
   }
 
   export type AuctionStateWhereUniqueInput = Prisma.AtLeast<{
@@ -15314,6 +15458,15 @@ export namespace Prisma {
     current_sequence_id?: IntNullableFilter<"AuctionState"> | number | null
     current_sequence_index?: IntFilter<"AuctionState"> | number
     bid_frozen_team_id?: StringNullableFilter<"AuctionState"> | string | null
+    auction_day?: StringFilter<"AuctionState"> | string
+    active_power_card?: StringNullableFilter<"AuctionState"> | string | null
+    active_power_card_team?: StringNullableFilter<"AuctionState"> | string | null
+    gods_eye_revealed?: BoolFilter<"AuctionState"> | boolean
+    bid_history?: JsonFilter<"AuctionState">
+    last_sold_player_id?: StringNullableFilter<"AuctionState"> | string | null
+    last_sold_price?: DecimalNullableFilter<"AuctionState"> | Decimal | DecimalJsLike | number | string | null
+    last_sold_team_id?: StringNullableFilter<"AuctionState"> | string | null
+    last_sold_team_name?: StringNullableFilter<"AuctionState"> | string | null
   }, "id">
 
   export type AuctionStateOrderByWithAggregationInput = {
@@ -15325,6 +15478,15 @@ export namespace Prisma {
     current_sequence_id?: SortOrderInput | SortOrder
     current_sequence_index?: SortOrder
     bid_frozen_team_id?: SortOrderInput | SortOrder
+    auction_day?: SortOrder
+    active_power_card?: SortOrderInput | SortOrder
+    active_power_card_team?: SortOrderInput | SortOrder
+    gods_eye_revealed?: SortOrder
+    bid_history?: SortOrder
+    last_sold_player_id?: SortOrderInput | SortOrder
+    last_sold_price?: SortOrderInput | SortOrder
+    last_sold_team_id?: SortOrderInput | SortOrder
+    last_sold_team_name?: SortOrderInput | SortOrder
     _count?: AuctionStateCountOrderByAggregateInput
     _avg?: AuctionStateAvgOrderByAggregateInput
     _max?: AuctionStateMaxOrderByAggregateInput
@@ -15344,6 +15506,15 @@ export namespace Prisma {
     current_sequence_id?: IntNullableWithAggregatesFilter<"AuctionState"> | number | null
     current_sequence_index?: IntWithAggregatesFilter<"AuctionState"> | number
     bid_frozen_team_id?: StringNullableWithAggregatesFilter<"AuctionState"> | string | null
+    auction_day?: StringWithAggregatesFilter<"AuctionState"> | string
+    active_power_card?: StringNullableWithAggregatesFilter<"AuctionState"> | string | null
+    active_power_card_team?: StringNullableWithAggregatesFilter<"AuctionState"> | string | null
+    gods_eye_revealed?: BoolWithAggregatesFilter<"AuctionState"> | boolean
+    bid_history?: JsonWithAggregatesFilter<"AuctionState">
+    last_sold_player_id?: StringNullableWithAggregatesFilter<"AuctionState"> | string | null
+    last_sold_price?: DecimalNullableWithAggregatesFilter<"AuctionState"> | Decimal | DecimalJsLike | number | string | null
+    last_sold_team_id?: StringNullableWithAggregatesFilter<"AuctionState"> | string | null
+    last_sold_team_name?: StringNullableWithAggregatesFilter<"AuctionState"> | string | null
   }
 
   export type AuctionSequenceWhereInput = {
@@ -16176,6 +16347,15 @@ export namespace Prisma {
     current_sequence_id?: number | null
     current_sequence_index?: number
     bid_frozen_team_id?: string | null
+    auction_day?: string
+    active_power_card?: string | null
+    active_power_card_team?: string | null
+    gods_eye_revealed?: boolean
+    bid_history?: JsonNullValueInput | InputJsonValue
+    last_sold_player_id?: string | null
+    last_sold_price?: Decimal | DecimalJsLike | number | string | null
+    last_sold_team_id?: string | null
+    last_sold_team_name?: string | null
   }
 
   export type AuctionStateUncheckedCreateInput = {
@@ -16187,6 +16367,15 @@ export namespace Prisma {
     current_sequence_id?: number | null
     current_sequence_index?: number
     bid_frozen_team_id?: string | null
+    auction_day?: string
+    active_power_card?: string | null
+    active_power_card_team?: string | null
+    gods_eye_revealed?: boolean
+    bid_history?: JsonNullValueInput | InputJsonValue
+    last_sold_player_id?: string | null
+    last_sold_price?: Decimal | DecimalJsLike | number | string | null
+    last_sold_team_id?: string | null
+    last_sold_team_name?: string | null
   }
 
   export type AuctionStateUpdateInput = {
@@ -16198,6 +16387,15 @@ export namespace Prisma {
     current_sequence_id?: NullableIntFieldUpdateOperationsInput | number | null
     current_sequence_index?: IntFieldUpdateOperationsInput | number
     bid_frozen_team_id?: NullableStringFieldUpdateOperationsInput | string | null
+    auction_day?: StringFieldUpdateOperationsInput | string
+    active_power_card?: NullableStringFieldUpdateOperationsInput | string | null
+    active_power_card_team?: NullableStringFieldUpdateOperationsInput | string | null
+    gods_eye_revealed?: BoolFieldUpdateOperationsInput | boolean
+    bid_history?: JsonNullValueInput | InputJsonValue
+    last_sold_player_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_sold_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    last_sold_team_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_sold_team_name?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AuctionStateUncheckedUpdateInput = {
@@ -16209,6 +16407,15 @@ export namespace Prisma {
     current_sequence_id?: NullableIntFieldUpdateOperationsInput | number | null
     current_sequence_index?: IntFieldUpdateOperationsInput | number
     bid_frozen_team_id?: NullableStringFieldUpdateOperationsInput | string | null
+    auction_day?: StringFieldUpdateOperationsInput | string
+    active_power_card?: NullableStringFieldUpdateOperationsInput | string | null
+    active_power_card_team?: NullableStringFieldUpdateOperationsInput | string | null
+    gods_eye_revealed?: BoolFieldUpdateOperationsInput | boolean
+    bid_history?: JsonNullValueInput | InputJsonValue
+    last_sold_player_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_sold_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    last_sold_team_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_sold_team_name?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AuctionStateCreateManyInput = {
@@ -16220,6 +16427,15 @@ export namespace Prisma {
     current_sequence_id?: number | null
     current_sequence_index?: number
     bid_frozen_team_id?: string | null
+    auction_day?: string
+    active_power_card?: string | null
+    active_power_card_team?: string | null
+    gods_eye_revealed?: boolean
+    bid_history?: JsonNullValueInput | InputJsonValue
+    last_sold_player_id?: string | null
+    last_sold_price?: Decimal | DecimalJsLike | number | string | null
+    last_sold_team_id?: string | null
+    last_sold_team_name?: string | null
   }
 
   export type AuctionStateUpdateManyMutationInput = {
@@ -16231,6 +16447,15 @@ export namespace Prisma {
     current_sequence_id?: NullableIntFieldUpdateOperationsInput | number | null
     current_sequence_index?: IntFieldUpdateOperationsInput | number
     bid_frozen_team_id?: NullableStringFieldUpdateOperationsInput | string | null
+    auction_day?: StringFieldUpdateOperationsInput | string
+    active_power_card?: NullableStringFieldUpdateOperationsInput | string | null
+    active_power_card_team?: NullableStringFieldUpdateOperationsInput | string | null
+    gods_eye_revealed?: BoolFieldUpdateOperationsInput | boolean
+    bid_history?: JsonNullValueInput | InputJsonValue
+    last_sold_player_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_sold_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    last_sold_team_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_sold_team_name?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AuctionStateUncheckedUpdateManyInput = {
@@ -16242,6 +16467,15 @@ export namespace Prisma {
     current_sequence_id?: NullableIntFieldUpdateOperationsInput | number | null
     current_sequence_index?: IntFieldUpdateOperationsInput | number
     bid_frozen_team_id?: NullableStringFieldUpdateOperationsInput | string | null
+    auction_day?: StringFieldUpdateOperationsInput | string
+    active_power_card?: NullableStringFieldUpdateOperationsInput | string | null
+    active_power_card_team?: NullableStringFieldUpdateOperationsInput | string | null
+    gods_eye_revealed?: BoolFieldUpdateOperationsInput | boolean
+    bid_history?: JsonNullValueInput | InputJsonValue
+    last_sold_player_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_sold_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    last_sold_team_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_sold_team_name?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AuctionSequenceCreateInput = {
@@ -17210,6 +17444,29 @@ export namespace Prisma {
     notIn?: $Enums.AuctionPhase[] | ListEnumAuctionPhaseFieldRefInput<$PrismaModel>
     not?: NestedEnumAuctionPhaseFilter<$PrismaModel> | $Enums.AuctionPhase
   }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type AuctionStateCountOrderByAggregateInput = {
     id?: SortOrder
@@ -17220,6 +17477,15 @@ export namespace Prisma {
     current_sequence_id?: SortOrder
     current_sequence_index?: SortOrder
     bid_frozen_team_id?: SortOrder
+    auction_day?: SortOrder
+    active_power_card?: SortOrder
+    active_power_card_team?: SortOrder
+    gods_eye_revealed?: SortOrder
+    bid_history?: SortOrder
+    last_sold_player_id?: SortOrder
+    last_sold_price?: SortOrder
+    last_sold_team_id?: SortOrder
+    last_sold_team_name?: SortOrder
   }
 
   export type AuctionStateAvgOrderByAggregateInput = {
@@ -17227,6 +17493,7 @@ export namespace Prisma {
     current_bid?: SortOrder
     current_sequence_id?: SortOrder
     current_sequence_index?: SortOrder
+    last_sold_price?: SortOrder
   }
 
   export type AuctionStateMaxOrderByAggregateInput = {
@@ -17238,6 +17505,14 @@ export namespace Prisma {
     current_sequence_id?: SortOrder
     current_sequence_index?: SortOrder
     bid_frozen_team_id?: SortOrder
+    auction_day?: SortOrder
+    active_power_card?: SortOrder
+    active_power_card_team?: SortOrder
+    gods_eye_revealed?: SortOrder
+    last_sold_player_id?: SortOrder
+    last_sold_price?: SortOrder
+    last_sold_team_id?: SortOrder
+    last_sold_team_name?: SortOrder
   }
 
   export type AuctionStateMinOrderByAggregateInput = {
@@ -17249,6 +17524,14 @@ export namespace Prisma {
     current_sequence_id?: SortOrder
     current_sequence_index?: SortOrder
     bid_frozen_team_id?: SortOrder
+    auction_day?: SortOrder
+    active_power_card?: SortOrder
+    active_power_card_team?: SortOrder
+    gods_eye_revealed?: SortOrder
+    last_sold_player_id?: SortOrder
+    last_sold_price?: SortOrder
+    last_sold_team_id?: SortOrder
+    last_sold_team_name?: SortOrder
   }
 
   export type AuctionStateSumOrderByAggregateInput = {
@@ -17256,6 +17539,7 @@ export namespace Prisma {
     current_bid?: SortOrder
     current_sequence_id?: SortOrder
     current_sequence_index?: SortOrder
+    last_sold_price?: SortOrder
   }
 
   export type EnumAuctionPhaseWithAggregatesFilter<$PrismaModel = never> = {
@@ -17266,6 +17550,32 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumAuctionPhaseFilter<$PrismaModel>
     _max?: NestedEnumAuctionPhaseFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type IntNullableListFilter<$PrismaModel = never> = {
@@ -17411,29 +17721,6 @@ export namespace Prisma {
     vice_captain_id?: SortOrder
     submitted_at?: SortOrder
   }
-  export type JsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type AuditLogCountOrderByAggregateInput = {
     id?: SortOrder
@@ -17452,32 +17739,6 @@ export namespace Prisma {
     id?: SortOrder
     action?: SortOrder
     created_at?: SortOrder
-  }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type FranchiseCountOrderByAggregateInput = {
@@ -18382,23 +18643,6 @@ export namespace Prisma {
     _min?: NestedEnumAuctionPhaseFilter<$PrismaModel>
     _max?: NestedEnumAuctionPhaseFilter<$PrismaModel>
   }
-
-  export type NestedEnumPowerCardTypeFilter<$PrismaModel = never> = {
-    equals?: $Enums.PowerCardType | EnumPowerCardTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.PowerCardType[] | ListEnumPowerCardTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PowerCardType[] | ListEnumPowerCardTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumPowerCardTypeFilter<$PrismaModel> | $Enums.PowerCardType
-  }
-
-  export type NestedEnumPowerCardTypeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.PowerCardType | EnumPowerCardTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.PowerCardType[] | ListEnumPowerCardTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PowerCardType[] | ListEnumPowerCardTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumPowerCardTypeWithAggregatesFilter<$PrismaModel> | $Enums.PowerCardType
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumPowerCardTypeFilter<$PrismaModel>
-    _max?: NestedEnumPowerCardTypeFilter<$PrismaModel>
-  }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -18421,6 +18665,23 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumPowerCardTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.PowerCardType | EnumPowerCardTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.PowerCardType[] | ListEnumPowerCardTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PowerCardType[] | ListEnumPowerCardTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumPowerCardTypeFilter<$PrismaModel> | $Enums.PowerCardType
+  }
+
+  export type NestedEnumPowerCardTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PowerCardType | EnumPowerCardTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.PowerCardType[] | ListEnumPowerCardTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PowerCardType[] | ListEnumPowerCardTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumPowerCardTypeWithAggregatesFilter<$PrismaModel> | $Enums.PowerCardType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPowerCardTypeFilter<$PrismaModel>
+    _max?: NestedEnumPowerCardTypeFilter<$PrismaModel>
   }
 
   export type TeamPlayerCreateWithoutTeamInput = {

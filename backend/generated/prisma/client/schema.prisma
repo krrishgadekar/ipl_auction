@@ -130,6 +130,19 @@ model AuctionState {
   current_sequence_id    Int? // Which of 5 sequences is active
   current_sequence_index Int          @default(0) // Position within the active sequence
   bid_frozen_team_id     String? // Team frozen by Bid Freezer (null = none)
+
+  // ── Display fields (consumed by frontend) ─────────────
+  auction_day            String  @default("Day 1") // "Day 1" or "Day 2"
+  active_power_card      String? // Currently active power card type
+  active_power_card_team String? // Team that played the active card
+  gods_eye_revealed      Boolean @default(false) // Did God's Eye reveal a sealed bid
+  bid_history            Json    @default("[]") // Array of {teamId, teamName, amount, timestamp}
+
+  // ── Last sold player info ─────────────────────────────
+  last_sold_player_id String? // Player ID of last sold player
+  last_sold_price     Decimal? // Price of last sold player
+  last_sold_team_id   String? // Team ID that bought last player
+  last_sold_team_name String? // Team name for display
 }
 
 // 5 pre-defined player orderings (deterministic, selected before auction)

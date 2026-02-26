@@ -1,14 +1,16 @@
 // ═══════════════════════════════════════════════════════════════
 // Public Routes — Read-only auction state for all clients
+// Uses serializer for frontend-compatible camelCase responses
 // ═══════════════════════════════════════════════════════════════
 import { Router } from 'express';
 import prisma from '../config/db.js';
+import { serializePlayer, serializeTeam, serializeAuctionState } from '../utils/serializer.js';
 
 const router = Router();
 
 /**
  * GET /api/public/auction/state
- * Returns current auction state with current player details
+ * Returns full auction state with serialized data for frontend
  */
 router.get('/state', async (req, res) => {
     try {
@@ -19,7 +21,7 @@ router.get('/state', async (req, res) => {
             currentPlayer = await prisma.player.findUnique({
                 where: { id: state.current_player_id },
             });
-            // Hide riddle player identity during bidding
+            // Hide riddle player identity during live auction
             if (currentPlayer?.is_riddle && state.phase === 'LIVE') {
                 currentPlayer = {
                     ...currentPlayer,
@@ -27,6 +29,7 @@ router.get('/state', async (req, res) => {
                     team: '???',
                     url: null,
                     image_url: null,
+                    // Keep category/pool/grade/rating visible
                 };
             }
         }
@@ -39,7 +42,11 @@ router.get('/state', async (req, res) => {
             });
         }
 
-        res.json({ ...state, currentPlayer, highestBidder });
+        const teams = await prisma.team.findMany({
+            orderBy: { purse_remaining: 'desc' },
+        });
+
+        res.json(serializeAuctionState(state, currentPlayer, highestBidder, teams));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -47,7 +54,7 @@ router.get('/state', async (req, res) => {
 
 /**
  * GET /api/public/auction/current-player
- * Returns details of the player currently being auctioned
+ * Returns serialized current player being auctioned
  */
 router.get('/current-player', async (req, res) => {
     try {
@@ -61,7 +68,6 @@ router.get('/current-player', async (req, res) => {
             where: { id: state.current_player_id },
         });
 
-        // Hide riddle player identity
         if (player?.is_riddle && state.phase === 'LIVE') {
             player = {
                 ...player,
@@ -73,9 +79,9 @@ router.get('/current-player', async (req, res) => {
         }
 
         res.json({
-            player,
-            current_bid: state.current_bid,
-            phase: state.phase,
+            player: serializePlayer(player),
+            currentBid: Number(state.current_bid) || 0,
+            status: state.phase,
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -84,25 +90,31 @@ router.get('/current-player', async (req, res) => {
 
 /**
  * GET /api/public/auction/last-sold
- * Returns the most recently sold player
+ * Returns the most recently sold player (serialized)
  */
 router.get('/last-sold', async (req, res) => {
     try {
-        const lastSold = await prisma.auctionPlayer.findFirst({
-            where: { status: 'SOLD' },
-            include: {
-                player: true,
-                sold_to_team: { select: { id: true, name: true, brand_key: true } },
-            },
-            orderBy: { id: 'desc' },
+        const state = await prisma.auctionState.findUnique({ where: { id: 1 } });
+
+        if (!state?.last_sold_player_id) {
+            return res.json({ player: null, soldPrice: null, soldToTeam: null });
+        }
+
+        const player = await prisma.player.findUnique({
+            where: { id: state.last_sold_player_id },
         });
 
-        if (!lastSold) return res.json({ lastSold: null });
+        let soldToTeam = null;
+        if (state.last_sold_team_id) {
+            soldToTeam = await prisma.team.findUnique({
+                where: { id: state.last_sold_team_id },
+            });
+        }
 
         res.json({
-            player: lastSold.player,
-            soldPrice: lastSold.sold_price,
-            soldToTeam: lastSold.sold_to_team,
+            player: serializePlayer(player),
+            soldPrice: state.last_sold_price ? Number(state.last_sold_price) : null,
+            soldToTeam: soldToTeam ? serializeTeam(soldToTeam) : null,
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -111,17 +123,14 @@ router.get('/last-sold', async (req, res) => {
 
 /**
  * GET /api/public/auction/leaderboard
- * Returns team standings with squad info
+ * Returns serialized team standings
  */
 router.get('/leaderboard', async (req, res) => {
     try {
         const teams = await prisma.team.findMany({
-            include: {
-                _count: { select: { team_players: true } },
-            },
             orderBy: { purse_remaining: 'desc' },
         });
-        res.json(teams);
+        res.json(teams.map(serializeTeam));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

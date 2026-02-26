@@ -1,26 +1,28 @@
 // ═══════════════════════════════════════════════════════════════
-// Team Routes — Public team info endpoints
+// Team Routes — Team data with serialized responses
 // ═══════════════════════════════════════════════════════════════
 import { Router } from 'express';
 import prisma from '../config/db.js';
+import { serializeTeam, serializePlayer } from '../utils/serializer.js';
 
 const router = Router();
 
 /**
  * GET /api/teams
- * Returns all teams with squad counts and remaining purse
+ * Returns all teams with serialized camelCase fields
  */
 router.get('/', async (req, res) => {
     try {
         const teams = await prisma.team.findMany({
-            select: {
-                id: true, name: true, brand_key: true, franchise_name: true,
-                purse_remaining: true, squad_count: true, overseas_count: true,
-                logo: true, primary_color: true, brand_score: true,
+            include: {
+                power_cards: true,
+                team_players: {
+                    include: { player: true },
+                },
             },
-            orderBy: { name: 'asc' },
+            orderBy: { purse_remaining: 'desc' },
         });
-        res.json(teams);
+        res.json(teams.map(serializeTeam));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -28,7 +30,7 @@ router.get('/', async (req, res) => {
 
 /**
  * GET /api/teams/:id
- * Returns a single team by ID with power cards and squad
+ * Returns single team with full squad and power cards
  */
 router.get('/:id', async (req, res) => {
     try {
@@ -38,15 +40,11 @@ router.get('/:id', async (req, res) => {
                 power_cards: true,
                 team_players: {
                     include: { player: true },
-                    orderBy: { price_paid: 'desc' },
                 },
             },
         });
         if (!team) return res.status(404).json({ error: 'Team not found' });
-
-        // Remove sensitive auth fields
-        const { password_hash, active_session_id, ...safeTeam } = team;
-        res.json(safeTeam);
+        res.json(serializeTeam(team));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -54,16 +52,18 @@ router.get('/:id', async (req, res) => {
 
 /**
  * GET /api/teams/:id/squad
- * Returns a team's current squad
+ * Returns team's squad (player details + price paid)
  */
 router.get('/:id/squad', async (req, res) => {
     try {
-        const squad = await prisma.teamPlayer.findMany({
+        const teamPlayers = await prisma.teamPlayer.findMany({
             where: { team_id: req.params.id },
             include: { player: true },
-            orderBy: { price_paid: 'desc' },
         });
-        res.json(squad);
+        res.json(teamPlayers.map(tp => ({
+            player: serializePlayer(tp.player),
+            pricePaid: Number(tp.price_paid),
+        })));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -71,7 +71,7 @@ router.get('/:id/squad', async (req, res) => {
 
 /**
  * GET /api/teams/:id/power-cards
- * Returns a team's power cards
+ * Returns team's power cards (serialized)
  */
 router.get('/:id/power-cards', async (req, res) => {
     try {

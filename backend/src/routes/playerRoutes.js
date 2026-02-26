@@ -1,14 +1,15 @@
 // ═══════════════════════════════════════════════════════════════
-// Player Routes — Public player data endpoints
+// Player Routes — Player data with serialized responses
 // ═══════════════════════════════════════════════════════════════
 import { Router } from 'express';
 import prisma from '../config/db.js';
+import { serializePlayer } from '../utils/serializer.js';
 
 const router = Router();
 
 /**
  * GET /api/players
- * Returns all players. Supports filters: ?pool=BAT_WK&category=BAT&grade=A&search=Kohli
+ * Returns all players with optional filters (pool, category, grade, search)
  */
 router.get('/', async (req, res) => {
     try {
@@ -26,7 +27,8 @@ router.get('/', async (req, res) => {
             where,
             orderBy: { rank: 'asc' },
         });
-        res.json(players);
+
+        res.json(players.map(serializePlayer));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -34,14 +36,15 @@ router.get('/', async (req, res) => {
 
 /**
  * GET /api/players/rank/:rank
- * Returns a single player by rank
+ * Returns player by rank (serialized)
  */
 router.get('/rank/:rank', async (req, res) => {
     try {
-        const rank = parseInt(req.params.rank, 10);
-        const player = await prisma.player.findUnique({ where: { rank } });
+        const player = await prisma.player.findFirst({
+            where: { rank: parseInt(req.params.rank) },
+        });
         if (!player) return res.status(404).json({ error: 'Player not found' });
-        res.json(player);
+        res.json(serializePlayer(player));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -49,18 +52,29 @@ router.get('/rank/:rank', async (req, res) => {
 
 /**
  * GET /api/players/:id
- * Returns a single player by UUID
+ * Returns player by UUID with auction status (serialized)
  */
 router.get('/:id', async (req, res) => {
     try {
         const player = await prisma.player.findUnique({
             where: { id: req.params.id },
-            include: {
-                auction_players: { select: { status: true, sold_price: true, sold_to_team_id: true } },
-            },
         });
         if (!player) return res.status(404).json({ error: 'Player not found' });
-        res.json(player);
+
+        // Include auction status if exists
+        const auctionPlayer = await prisma.auctionPlayer.findFirst({
+            where: { player_id: player.id },
+            include: {
+                sold_to_team: { select: { id: true, name: true, brand_key: true } },
+            },
+        });
+
+        res.json({
+            ...serializePlayer(player),
+            auctionStatus: auctionPlayer?.status || 'PENDING',
+            soldPrice: auctionPlayer?.sold_price ? Number(auctionPlayer.sold_price) : null,
+            soldToTeam: auctionPlayer?.sold_to_team || null,
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

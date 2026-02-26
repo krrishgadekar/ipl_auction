@@ -216,14 +216,23 @@ async function sellPlayer(playerId, teamId, pricePaid) {
             }
         });
 
-        // 14. Reset auction state for next player
+        // 14. Reset auction state for next player + track last sold
         await tx.auctionState.update({
             where: { id: 1 },
             data: {
                 current_player_id: null,
                 current_bid: null,
                 highest_bidder_id: null,
-                // Phase stays LIVE — admin advances to next player
+                bid_history: [],
+                active_power_card: null,
+                active_power_card_team: null,
+                bid_frozen_team_id: null,
+                gods_eye_revealed: false,
+                // Track last sold for frontend display
+                last_sold_player_id: playerId,
+                last_sold_price: pricePaid,
+                last_sold_team_id: teamId,
+                last_sold_team_name: team.name,
             }
         });
 
@@ -257,7 +266,12 @@ async function markUnsold(playerId) {
                 current_player_id: null,
                 current_bid: null,
                 highest_bidder_id: null,
-                // Phase stays LIVE
+                bid_history: [],
+                active_power_card: null,
+                active_power_card_team: null,
+                bid_frozen_team_id: null,
+                gods_eye_revealed: false,
+                timer_active: false,
             }
         });
 
@@ -298,6 +312,11 @@ async function assignPlayer(playerIdOrRank) {
                 current_player_id: player.id,
                 current_bid: Number(player.base_price),
                 highest_bidder_id: null,
+                bid_history: [],
+                bid_frozen_team_id: null,
+                active_power_card: null,
+                active_power_card_team: null,
+                gods_eye_revealed: false,
             }
         });
 
@@ -930,6 +949,71 @@ async function loginTeam(username, password) {
         franchiseName: team.franchise_name,
     };
 }
+// ═══════════════════════════════════════════════════════════════
+// DISPLAY CONTROLS — Admin uses these to update frontend display
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Add a bid entry to the bid history display log.
+ * Since bidding is physical, admin logs bids manually.
+ */
+async function addBidToHistory(teamId, teamName, amount) {
+    const state = await prisma.auctionState.findUnique({ where: { id: 1 } });
+    const currentHistory = Array.isArray(state.bid_history) ? state.bid_history : [];
+
+    const newEntry = {
+        teamId,
+        teamName,
+        amount,
+        timestamp: Date.now(),
+    };
+
+    await prisma.auctionState.update({
+        where: { id: 1 },
+        data: {
+            bid_history: [...currentHistory, newEntry],
+            current_bid: amount,
+            highest_bidder_id: teamId,
+        },
+    });
+
+    return newEntry;
+}
+
+
+/**
+ * Set auction day
+ */
+async function setAuctionDay(day) {
+    return await prisma.auctionState.update({
+        where: { id: 1 },
+        data: { auction_day: day },
+    });
+}
+
+/**
+ * Generic display state update (power cards, god's eye, etc.)
+ */
+async function updateDisplayState(updates) {
+    const allowedFields = [
+        'active_power_card',
+        'active_power_card_team',
+        'gods_eye_revealed',
+        'auction_day',
+    ];
+
+    const data = {};
+    for (const [key, val] of Object.entries(updates)) {
+        if (allowedFields.includes(key)) {
+            data[key] = val;
+        }
+    }
+
+    return await prisma.auctionState.update({
+        where: { id: 1 },
+        data,
+    });
+}
 
 export default {
     sellPlayer,
@@ -945,6 +1029,9 @@ export default {
     resolveSealedBids,
     assignFranchise,
     loginTeam,
+    addBidToHistory,
+    setAuctionDay,
+    updateDisplayState,
     getRequiredIncrement,
     MAX_BID,
     MAX_SQUAD_SIZE,

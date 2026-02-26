@@ -1,12 +1,17 @@
 // ═══════════════════════════════════════════════════════════════
 // Admin Routes — Auction control endpoints (auctioneer only)
 // All mutations go through REST only. WebSocket is broadcast-only.
+// Protected by ADMIN_PASSWORD env variable.
 // ═══════════════════════════════════════════════════════════════
 import { Router } from 'express';
 import prisma from '../config/db.js';
 import auctionService from '../services/auctionService.js';
+import adminAuth from '../middleware/adminAuth.js';
 
 const router = Router();
+
+// Apply admin auth to ALL routes in this router
+router.use(adminAuth);
 
 // ── Phase Transitions ────────────────────────────────────────
 
@@ -292,6 +297,55 @@ router.post('/set-riddle', async (req, res) => {
         }
 
         res.json({ success: true, message: 'Riddle players updated' });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+// ── Display Controls ─────────────────────────────────────────
+
+/**
+ * POST /api/admin/auction/log-bid
+ * Log a bid entry to the display history (bidding is physical).
+ * Body: { teamId, teamName, amount }
+ */
+router.post('/log-bid', async (req, res) => {
+    try {
+        const { teamId, teamName, amount } = req.body;
+        const entry = await auctionService.addBidToHistory(teamId, teamName, amount);
+        req.io.emit('BID_UPDATED', entry);
+        res.json(entry);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+
+/**
+ * POST /api/admin/auction/auction-day
+ * Set the auction day. Body: { day: "Day 1" | "Day 2" }
+ */
+router.post('/auction-day', async (req, res) => {
+    try {
+        const { day } = req.body;
+        await auctionService.setAuctionDay(day);
+        req.io.emit('DAY_CHANGED', { day });
+        res.json({ success: true, day });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
+ * POST /api/admin/auction/display-state
+ * Generic display state update (power card active, god's eye, etc.)
+ * Body: { active_power_card?, active_power_card_team?, gods_eye_revealed?, ... }
+ */
+router.post('/display-state', async (req, res) => {
+    try {
+        await auctionService.updateDisplayState(req.body);
+        req.io.emit('STATE_SYNC');
+        res.json({ success: true });
     } catch (err) {
         res.status(400).json({ error: err.message });
     }

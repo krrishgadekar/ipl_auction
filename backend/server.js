@@ -14,6 +14,7 @@ import teamRoutes from './src/routes/teamRoutes.js';
 import playerRoutes from './src/routes/playerRoutes.js';
 import publicRoutes from './src/routes/publicRoutes.js';
 import authRoutes from './src/routes/authRoutes.js';
+import scoringRoutes from './src/routes/scoringRoutes.js';
 import socketHandler from './src/websocket/socketHandler.js';
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/players', playerRoutes);
 app.use('/api/public/auction', publicRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/scoring', scoringRoutes);
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ── Health Check ─────────────────────────────────────────────

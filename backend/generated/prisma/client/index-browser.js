@@ -196,7 +196,16 @@ exports.Prisma.AuctionStateScalarFieldEnum = {
   highest_bidder_id: 'highest_bidder_id',
   current_sequence_id: 'current_sequence_id',
   current_sequence_index: 'current_sequence_index',
-  bid_frozen_team_id: 'bid_frozen_team_id'
+  bid_frozen_team_id: 'bid_frozen_team_id',
+  auction_day: 'auction_day',
+  active_power_card: 'active_power_card',
+  active_power_card_team: 'active_power_card_team',
+  gods_eye_revealed: 'gods_eye_revealed',
+  bid_history: 'bid_history',
+  last_sold_player_id: 'last_sold_player_id',
+  last_sold_price: 'last_sold_price',
+  last_sold_team_id: 'last_sold_team_id',
+  last_sold_team_name: 'last_sold_team_name'
 };
 
 exports.Prisma.AuctionSequenceScalarFieldEnum = {
