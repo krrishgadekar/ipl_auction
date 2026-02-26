@@ -1,50 +1,61 @@
-import dotenv from 'dotenv';
-dotenv.config();
+// ═══════════════════════════════════════════════════════════════
+// IPL Auction 2026 — Server Entry Point
+// ═══════════════════════════════════════════════════════════════
+import 'dotenv/config';
 import express from 'express';
 import http from 'http';
-import { Server } from 'socket.io';
+import { Server as SocketIOServer } from 'socket.io';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
-import swaggerSpecs from './src/config/swagger.js';
+import swaggerSpec from './src/config/swagger.js';
 
 import adminRoutes from './src/routes/adminRoutes.js';
 import teamRoutes from './src/routes/teamRoutes.js';
+import playerRoutes from './src/routes/playerRoutes.js';
 import publicRoutes from './src/routes/publicRoutes.js';
+import authRoutes from './src/routes/authRoutes.js';
 import socketHandler from './src/websocket/socketHandler.js';
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
+const io = new SocketIOServer(server, {
+    cors: { origin: '*', methods: ['GET', 'POST'] },
 });
 
-// Middleware
+// ── Middleware ────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
 
-// Attach io to req
+// Inject io into every route
 app.use((req, res, next) => {
     req.io = io;
     next();
 });
 
-// Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
-
-// Routes
+// ── API Routes ───────────────────────────────────────────────
 app.use('/api/admin/auction', adminRoutes);
-app.use('/api/team', teamRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/players', playerRoutes);
 app.use('/api/public/auction', publicRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// WebSocket
+// ── Health Check ─────────────────────────────────────────────
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// ── WebSocket ────────────────────────────────────────────────
 socketHandler(io);
 
-const PORT = process.env.PORT || 3000;
-
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Swagger UI available at http://localhost:${PORT}/api-docs`);
+// ── Start Server ─────────────────────────────────────────────
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, '0.0.0.0', () => {
+    console.log('═══════════════════════════════════════════════════');
+    console.log(`🏏 IPL Auction 2026 Backend — Port ${PORT}`);
+    console.log(`📄 Swagger UI: http://localhost:${PORT}/api/docs`);
+    console.log(`💚 Health:     http://localhost:${PORT}/api/health`);
+    console.log('═══════════════════════════════════════════════════');
 });
+
+export { app, server, io };

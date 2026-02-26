@@ -4,19 +4,15 @@ const options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'IPL Auction API',
-            version: '1.0.0',
-            description: 'API for IPL Auction Backend with transaction-safe player sales and real-time updates.',
+            title: 'IPL Auction 2026 API',
+            version: '2.0.0',
+            description: 'Backend API for IPL Auction 2026 — Normalized schema with auth, power cards, sealed bids',
         },
         servers: [
-            {
-                url: 'http://localhost:3000',
-            },
+            { url: 'http://localhost:5000', description: 'Local (default)' },
         ],
     },
-    apis: ['./src/routes/*.js'], // Path to the API docs
+    apis: ['./src/routes/*.js'],
 };
 
-const specs = swaggerJsdoc(options);
-
-export default specs;
+export default swaggerJsdoc(options);
