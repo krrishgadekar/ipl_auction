@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { LeaderboardEntry } from '@/lib/mockData/finalTeamState';
-import { fetchLeaderboard } from '@/lib/api/finalTeam';
+import { fetchLeaderboard } from '@/lib/api/leaderboard';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 

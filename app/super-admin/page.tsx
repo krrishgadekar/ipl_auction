@@ -159,15 +159,14 @@ export default function SuperAdminPage() {
                                         { card: team.powerCards.bidFreezer, icon: '❄️' },
                                         { card: team.powerCards.godsEye, icon: '👁️' },
                                         { card: team.powerCards.mulligan, icon: '🔄' },
-                                        { card: team.powerCards.rtm, icon: '🎯' },
                                     ].slice(0, 3).map((item, i) => (
                                         <div
                                             key={i}
                                             className={`p-2 rounded-lg text-center ${item.card.used
-                                                    ? 'bg-red-500/20 text-red-400'
-                                                    : item.card.available
-                                                        ? 'bg-green-500/20 text-green-400'
-                                                        : 'bg-white/5 text-white/40'
+                                                ? 'bg-red-500/20 text-red-400'
+                                                : item.card.available
+                                                    ? 'bg-green-500/20 text-green-400'
+                                                    : 'bg-white/5 text-white/40'
                                                 }`}
                                         >
                                             {item.icon}

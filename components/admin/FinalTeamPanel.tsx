@@ -7,7 +7,7 @@ import { useState, useMemo } from 'react';
 import { Team } from '@/lib/mockData/teams';
 import { Player, getMockPlayerByRank } from '@/lib/mockData/players';
 import { TOP11_COMPOSITION, validateTop11 } from '@/lib/mockData/finalTeamState';
-import { submitTeam, validateSelection } from '@/lib/api/finalTeam';
+import { lockLineup as submitTeamApi } from '@/lib/api/finalTeam';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FinalTeamPanelProps {
@@ -100,7 +100,12 @@ export default function FinalTeamPanel({ teams }: FinalTeamPanelProps) {
         if (!selectedTeamId || !captainRank || !vcRank || !validation.valid) return;
         setSubmitting(true);
         try {
-            await submitTeam(selectedTeamId, Array.from(selectedRanks), captainRank, vcRank);
+            await submitTeamApi(
+                String(selectedTeamId),
+                Array.from(selectedRanks).map(String),
+                String(captainRank),
+                String(vcRank),
+            );
             setSubmitted(prev => new Set(prev).add(selectedTeamId));
             setSuccessMsg(`✅ ${selectedTeam?.name} Top 11 submitted!`);
         } catch (err) {

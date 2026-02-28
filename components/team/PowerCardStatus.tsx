@@ -16,7 +16,6 @@ export default function PowerCardStatus({ team }: PowerCardStatusProps) {
         { ...team.powerCards.bidFreezer, icon: '❄️' },
         { ...team.powerCards.godsEye, icon: '👁️' },
         { ...team.powerCards.mulligan, icon: '🔄' },
-        { ...team.powerCards.rtm, icon: '🎯' },
     ];
 
     return (
@@ -31,10 +30,10 @@ export default function PowerCardStatus({ team }: PowerCardStatusProps) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
                         className={`p-4 rounded-xl border transition-all ${card.used
-                                ? 'bg-red-500/10 border-red-500/30 opacity-50'
-                                : card.available
-                                    ? 'bg-green-500/10 border-green-500/30'
-                                    : 'bg-white/5 border-white/10 opacity-50'
+                            ? 'bg-red-500/10 border-red-500/30 opacity-50'
+                            : card.available
+                                ? 'bg-green-500/10 border-green-500/30'
+                                : 'bg-white/5 border-white/10 opacity-50'
                             }`}
                     >
                         <div className="flex items-center justify-between">
