@@ -123,7 +123,6 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.TeamScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  username: 'username',
   password_hash: 'password_hash',
   active_session_id: 'active_session_id',
   brand_key: 'brand_key',
@@ -132,6 +131,11 @@ exports.Prisma.TeamScalarFieldEnum = {
   purse_remaining: 'purse_remaining',
   squad_count: 'squad_count',
   overseas_count: 'overseas_count',
+  batsmen_count: 'batsmen_count',
+  bowlers_count: 'bowlers_count',
+  ar_count: 'ar_count',
+  wk_count: 'wk_count',
+  purchased_players: 'purchased_players',
   logo: 'logo',
   primary_color: 'primary_color',
   created_at: 'created_at'
@@ -211,15 +215,7 @@ exports.Prisma.AuctionStateScalarFieldEnum = {
 exports.Prisma.AuctionSequenceScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  player_ids: 'player_ids'
-};
-
-exports.Prisma.SealedBidScalarFieldEnum = {
-  id: 'id',
-  team_id: 'team_id',
-  player_id: 'player_id',
-  amount: 'amount',
-  created_at: 'created_at'
+  players: 'players'
 };
 
 exports.Prisma.PowerCardScalarFieldEnum = {
@@ -267,15 +263,15 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 exports.Category = exports.$Enums.Category = {
   BAT: 'BAT',
@@ -332,7 +328,6 @@ exports.Prisma.ModelName = {
   TeamPlayer: 'TeamPlayer',
   AuctionState: 'AuctionState',
   AuctionSequence: 'AuctionSequence',
-  SealedBid: 'SealedBid',
   PowerCard: 'PowerCard',
   Top11Selection: 'Top11Selection',
   AuditLog: 'AuditLog',

@@ -18,7 +18,6 @@ datasource db {
 model Team {
   id                String  @id @default(uuid())
   name              String  @unique // Participant team name
-  username          String  @unique // Login username (one per team)
   password_hash     String // bcrypt hashed password
   active_session_id String? // Enforce single-device access
 
@@ -29,8 +28,18 @@ model Team {
 
   // Financials
   purse_remaining Decimal @default(120) // 120 CR per rulebook
-  squad_count     Int     @default(0) // Tracks current squad size (max 15)
-  overseas_count  Int     @default(0) // Tracks overseas players in squad
+
+  // Squad Composition (Counts)
+  squad_count    Int @default(0) // Exactly 15 required
+  overseas_count Int @default(0) // 2–5 foreign players required
+  batsmen_count  Int @default(0) // Min 3 required
+  bowlers_count  Int @default(0) // Min 3 required
+  ar_count       Int @default(0) // Min 2 required
+  wk_count       Int @default(0) // Min 2 required
+
+  // Consolidated Player Info
+  // Array of { player_id, player_name, sealed_bid_price }
+  purchased_players Json @default("[]")
 
   // Display
   logo          String? // Emoji or URL
@@ -42,7 +51,6 @@ model Team {
   power_cards     PowerCard[]
   top11_selection Top11Selection?
   auction_players AuctionPlayer[]
-  sealed_bids     SealedBid[]
 }
 
 model Player {
@@ -90,7 +98,6 @@ model Player {
   // Relations
   auction_players AuctionPlayer[]
   team_players    TeamPlayer[]
-  sealed_bids     SealedBid[]
 }
 
 // Tracks auction lifecycle per player (UNSOLD → SOLD)
@@ -147,26 +154,10 @@ model AuctionState {
 
 // 5 pre-defined player orderings (deterministic, selected before auction)
 model AuctionSequence {
-  id         Int    @id // 1–5
-  name       String // "Sequence Alpha", etc.
-  player_ids Int[] // Ordered array of player ranks
-}
-
-// ═══════════════════════════════════════════════════════════════
-// §3  CLOSED BIDDING (Sealed Bids)
-// ═══════════════════════════════════════════════════════════════
-
-// Stores sealed bids when bid hits 25 CR → CLOSED_BIDDING phase
-model SealedBid {
-  id         String   @id @default(uuid())
-  team_id    String
-  team       Team     @relation(fields: [team_id], references: [id])
-  player_id  String
-  player     Player   @relation(fields: [player_id], references: [id])
-  amount     Decimal
-  created_at DateTime @default(now())
-
-  @@unique([team_id, player_id]) // One sealed bid per team per player
+  id      Int    @id // 1–5
+  name    String // "Sequence Alpha", etc.
+  // Array of { rank: Int, isRiddlePlayer: Boolean }
+  players Json   @default("[]")
 }
 
 // ═══════════════════════════════════════════════════════════════

@@ -44,11 +44,6 @@ export type AuctionState = $Result.DefaultSelection<Prisma.$AuctionStatePayload>
  */
 export type AuctionSequence = $Result.DefaultSelection<Prisma.$AuctionSequencePayload>
 /**
- * Model SealedBid
- * 
- */
-export type SealedBid = $Result.DefaultSelection<Prisma.$SealedBidPayload>
-/**
  * Model PowerCard
  * 
  */
@@ -347,16 +342,6 @@ export class PrismaClient<
     * ```
     */
   get auctionSequence(): Prisma.AuctionSequenceDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.sealedBid`: Exposes CRUD operations for the **SealedBid** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more SealedBids
-    * const sealedBids = await prisma.sealedBid.findMany()
-    * ```
-    */
-  get sealedBid(): Prisma.SealedBidDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.powerCard`: Exposes CRUD operations for the **PowerCard** model.
@@ -837,7 +822,6 @@ export namespace Prisma {
     TeamPlayer: 'TeamPlayer',
     AuctionState: 'AuctionState',
     AuctionSequence: 'AuctionSequence',
-    SealedBid: 'SealedBid',
     PowerCard: 'PowerCard',
     Top11Selection: 'Top11Selection',
     AuditLog: 'AuditLog',
@@ -857,7 +841,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "team" | "player" | "auctionPlayer" | "teamPlayer" | "auctionState" | "auctionSequence" | "sealedBid" | "powerCard" | "top11Selection" | "auditLog" | "franchise"
+      modelProps: "team" | "player" | "auctionPlayer" | "teamPlayer" | "auctionState" | "auctionSequence" | "powerCard" | "top11Selection" | "auditLog" | "franchise"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1305,80 +1289,6 @@ export namespace Prisma {
           }
         }
       }
-      SealedBid: {
-        payload: Prisma.$SealedBidPayload<ExtArgs>
-        fields: Prisma.SealedBidFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.SealedBidFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SealedBidPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.SealedBidFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SealedBidPayload>
-          }
-          findFirst: {
-            args: Prisma.SealedBidFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SealedBidPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.SealedBidFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SealedBidPayload>
-          }
-          findMany: {
-            args: Prisma.SealedBidFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SealedBidPayload>[]
-          }
-          create: {
-            args: Prisma.SealedBidCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SealedBidPayload>
-          }
-          createMany: {
-            args: Prisma.SealedBidCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.SealedBidCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SealedBidPayload>[]
-          }
-          delete: {
-            args: Prisma.SealedBidDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SealedBidPayload>
-          }
-          update: {
-            args: Prisma.SealedBidUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SealedBidPayload>
-          }
-          deleteMany: {
-            args: Prisma.SealedBidDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.SealedBidUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.SealedBidUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SealedBidPayload>[]
-          }
-          upsert: {
-            args: Prisma.SealedBidUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SealedBidPayload>
-          }
-          aggregate: {
-            args: Prisma.SealedBidAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateSealedBid>
-          }
-          groupBy: {
-            args: Prisma.SealedBidGroupByArgs<ExtArgs>
-            result: $Utils.Optional<SealedBidGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.SealedBidCountArgs<ExtArgs>
-            result: $Utils.Optional<SealedBidCountAggregateOutputType> | number
-          }
-        }
-      }
       PowerCard: {
         payload: Prisma.$PowerCardPayload<ExtArgs>
         fields: Prisma.PowerCardFieldRefs
@@ -1789,7 +1699,6 @@ export namespace Prisma {
     teamPlayer?: TeamPlayerOmit
     auctionState?: AuctionStateOmit
     auctionSequence?: AuctionSequenceOmit
-    sealedBid?: SealedBidOmit
     powerCard?: PowerCardOmit
     top11Selection?: Top11SelectionOmit
     auditLog?: AuditLogOmit
@@ -1877,14 +1786,12 @@ export namespace Prisma {
     team_players: number
     power_cards: number
     auction_players: number
-    sealed_bids: number
   }
 
   export type TeamCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team_players?: boolean | TeamCountOutputTypeCountTeam_playersArgs
     power_cards?: boolean | TeamCountOutputTypeCountPower_cardsArgs
     auction_players?: boolean | TeamCountOutputTypeCountAuction_playersArgs
-    sealed_bids?: boolean | TeamCountOutputTypeCountSealed_bidsArgs
   }
 
   // Custom InputTypes
@@ -1919,13 +1826,6 @@ export namespace Prisma {
     where?: AuctionPlayerWhereInput
   }
 
-  /**
-   * TeamCountOutputType without action
-   */
-  export type TeamCountOutputTypeCountSealed_bidsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SealedBidWhereInput
-  }
-
 
   /**
    * Count Type PlayerCountOutputType
@@ -1934,13 +1834,11 @@ export namespace Prisma {
   export type PlayerCountOutputType = {
     auction_players: number
     team_players: number
-    sealed_bids: number
   }
 
   export type PlayerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     auction_players?: boolean | PlayerCountOutputTypeCountAuction_playersArgs
     team_players?: boolean | PlayerCountOutputTypeCountTeam_playersArgs
-    sealed_bids?: boolean | PlayerCountOutputTypeCountSealed_bidsArgs
   }
 
   // Custom InputTypes
@@ -1968,13 +1866,6 @@ export namespace Prisma {
     where?: TeamPlayerWhereInput
   }
 
-  /**
-   * PlayerCountOutputType without action
-   */
-  export type PlayerCountOutputTypeCountSealed_bidsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SealedBidWhereInput
-  }
-
 
   /**
    * Models
@@ -1997,6 +1888,10 @@ export namespace Prisma {
     purse_remaining: Decimal | null
     squad_count: number | null
     overseas_count: number | null
+    batsmen_count: number | null
+    bowlers_count: number | null
+    ar_count: number | null
+    wk_count: number | null
   }
 
   export type TeamSumAggregateOutputType = {
@@ -2004,12 +1899,15 @@ export namespace Prisma {
     purse_remaining: Decimal | null
     squad_count: number | null
     overseas_count: number | null
+    batsmen_count: number | null
+    bowlers_count: number | null
+    ar_count: number | null
+    wk_count: number | null
   }
 
   export type TeamMinAggregateOutputType = {
     id: string | null
     name: string | null
-    username: string | null
     password_hash: string | null
     active_session_id: string | null
     brand_key: string | null
@@ -2018,6 +1916,10 @@ export namespace Prisma {
     purse_remaining: Decimal | null
     squad_count: number | null
     overseas_count: number | null
+    batsmen_count: number | null
+    bowlers_count: number | null
+    ar_count: number | null
+    wk_count: number | null
     logo: string | null
     primary_color: string | null
     created_at: Date | null
@@ -2026,7 +1928,6 @@ export namespace Prisma {
   export type TeamMaxAggregateOutputType = {
     id: string | null
     name: string | null
-    username: string | null
     password_hash: string | null
     active_session_id: string | null
     brand_key: string | null
@@ -2035,6 +1936,10 @@ export namespace Prisma {
     purse_remaining: Decimal | null
     squad_count: number | null
     overseas_count: number | null
+    batsmen_count: number | null
+    bowlers_count: number | null
+    ar_count: number | null
+    wk_count: number | null
     logo: string | null
     primary_color: string | null
     created_at: Date | null
@@ -2043,7 +1948,6 @@ export namespace Prisma {
   export type TeamCountAggregateOutputType = {
     id: number
     name: number
-    username: number
     password_hash: number
     active_session_id: number
     brand_key: number
@@ -2052,6 +1956,11 @@ export namespace Prisma {
     purse_remaining: number
     squad_count: number
     overseas_count: number
+    batsmen_count: number
+    bowlers_count: number
+    ar_count: number
+    wk_count: number
+    purchased_players: number
     logo: number
     primary_color: number
     created_at: number
@@ -2064,6 +1973,10 @@ export namespace Prisma {
     purse_remaining?: true
     squad_count?: true
     overseas_count?: true
+    batsmen_count?: true
+    bowlers_count?: true
+    ar_count?: true
+    wk_count?: true
   }
 
   export type TeamSumAggregateInputType = {
@@ -2071,12 +1984,15 @@ export namespace Prisma {
     purse_remaining?: true
     squad_count?: true
     overseas_count?: true
+    batsmen_count?: true
+    bowlers_count?: true
+    ar_count?: true
+    wk_count?: true
   }
 
   export type TeamMinAggregateInputType = {
     id?: true
     name?: true
-    username?: true
     password_hash?: true
     active_session_id?: true
     brand_key?: true
@@ -2085,6 +2001,10 @@ export namespace Prisma {
     purse_remaining?: true
     squad_count?: true
     overseas_count?: true
+    batsmen_count?: true
+    bowlers_count?: true
+    ar_count?: true
+    wk_count?: true
     logo?: true
     primary_color?: true
     created_at?: true
@@ -2093,7 +2013,6 @@ export namespace Prisma {
   export type TeamMaxAggregateInputType = {
     id?: true
     name?: true
-    username?: true
     password_hash?: true
     active_session_id?: true
     brand_key?: true
@@ -2102,6 +2021,10 @@ export namespace Prisma {
     purse_remaining?: true
     squad_count?: true
     overseas_count?: true
+    batsmen_count?: true
+    bowlers_count?: true
+    ar_count?: true
+    wk_count?: true
     logo?: true
     primary_color?: true
     created_at?: true
@@ -2110,7 +2033,6 @@ export namespace Prisma {
   export type TeamCountAggregateInputType = {
     id?: true
     name?: true
-    username?: true
     password_hash?: true
     active_session_id?: true
     brand_key?: true
@@ -2119,6 +2041,11 @@ export namespace Prisma {
     purse_remaining?: true
     squad_count?: true
     overseas_count?: true
+    batsmen_count?: true
+    bowlers_count?: true
+    ar_count?: true
+    wk_count?: true
+    purchased_players?: true
     logo?: true
     primary_color?: true
     created_at?: true
@@ -2214,7 +2141,6 @@ export namespace Prisma {
   export type TeamGroupByOutputType = {
     id: string
     name: string
-    username: string
     password_hash: string
     active_session_id: string | null
     brand_key: string | null
@@ -2223,6 +2149,11 @@ export namespace Prisma {
     purse_remaining: Decimal
     squad_count: number
     overseas_count: number
+    batsmen_count: number
+    bowlers_count: number
+    ar_count: number
+    wk_count: number
+    purchased_players: JsonValue
     logo: string | null
     primary_color: string | null
     created_at: Date
@@ -2250,7 +2181,6 @@ export namespace Prisma {
   export type TeamSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    username?: boolean
     password_hash?: boolean
     active_session_id?: boolean
     brand_key?: boolean
@@ -2259,6 +2189,11 @@ export namespace Prisma {
     purse_remaining?: boolean
     squad_count?: boolean
     overseas_count?: boolean
+    batsmen_count?: boolean
+    bowlers_count?: boolean
+    ar_count?: boolean
+    wk_count?: boolean
+    purchased_players?: boolean
     logo?: boolean
     primary_color?: boolean
     created_at?: boolean
@@ -2266,14 +2201,12 @@ export namespace Prisma {
     power_cards?: boolean | Team$power_cardsArgs<ExtArgs>
     top11_selection?: boolean | Team$top11_selectionArgs<ExtArgs>
     auction_players?: boolean | Team$auction_playersArgs<ExtArgs>
-    sealed_bids?: boolean | Team$sealed_bidsArgs<ExtArgs>
     _count?: boolean | TeamCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["team"]>
 
   export type TeamSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    username?: boolean
     password_hash?: boolean
     active_session_id?: boolean
     brand_key?: boolean
@@ -2282,6 +2215,11 @@ export namespace Prisma {
     purse_remaining?: boolean
     squad_count?: boolean
     overseas_count?: boolean
+    batsmen_count?: boolean
+    bowlers_count?: boolean
+    ar_count?: boolean
+    wk_count?: boolean
+    purchased_players?: boolean
     logo?: boolean
     primary_color?: boolean
     created_at?: boolean
@@ -2290,7 +2228,6 @@ export namespace Prisma {
   export type TeamSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    username?: boolean
     password_hash?: boolean
     active_session_id?: boolean
     brand_key?: boolean
@@ -2299,6 +2236,11 @@ export namespace Prisma {
     purse_remaining?: boolean
     squad_count?: boolean
     overseas_count?: boolean
+    batsmen_count?: boolean
+    bowlers_count?: boolean
+    ar_count?: boolean
+    wk_count?: boolean
+    purchased_players?: boolean
     logo?: boolean
     primary_color?: boolean
     created_at?: boolean
@@ -2307,7 +2249,6 @@ export namespace Prisma {
   export type TeamSelectScalar = {
     id?: boolean
     name?: boolean
-    username?: boolean
     password_hash?: boolean
     active_session_id?: boolean
     brand_key?: boolean
@@ -2316,18 +2257,22 @@ export namespace Prisma {
     purse_remaining?: boolean
     squad_count?: boolean
     overseas_count?: boolean
+    batsmen_count?: boolean
+    bowlers_count?: boolean
+    ar_count?: boolean
+    wk_count?: boolean
+    purchased_players?: boolean
     logo?: boolean
     primary_color?: boolean
     created_at?: boolean
   }
 
-  export type TeamOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "username" | "password_hash" | "active_session_id" | "brand_key" | "franchise_name" | "brand_score" | "purse_remaining" | "squad_count" | "overseas_count" | "logo" | "primary_color" | "created_at", ExtArgs["result"]["team"]>
+  export type TeamOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "password_hash" | "active_session_id" | "brand_key" | "franchise_name" | "brand_score" | "purse_remaining" | "squad_count" | "overseas_count" | "batsmen_count" | "bowlers_count" | "ar_count" | "wk_count" | "purchased_players" | "logo" | "primary_color" | "created_at", ExtArgs["result"]["team"]>
   export type TeamInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team_players?: boolean | Team$team_playersArgs<ExtArgs>
     power_cards?: boolean | Team$power_cardsArgs<ExtArgs>
     top11_selection?: boolean | Team$top11_selectionArgs<ExtArgs>
     auction_players?: boolean | Team$auction_playersArgs<ExtArgs>
-    sealed_bids?: boolean | Team$sealed_bidsArgs<ExtArgs>
     _count?: boolean | TeamCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TeamIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2340,12 +2285,10 @@ export namespace Prisma {
       power_cards: Prisma.$PowerCardPayload<ExtArgs>[]
       top11_selection: Prisma.$Top11SelectionPayload<ExtArgs> | null
       auction_players: Prisma.$AuctionPlayerPayload<ExtArgs>[]
-      sealed_bids: Prisma.$SealedBidPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
-      username: string
       password_hash: string
       active_session_id: string | null
       brand_key: string | null
@@ -2354,6 +2297,11 @@ export namespace Prisma {
       purse_remaining: Prisma.Decimal
       squad_count: number
       overseas_count: number
+      batsmen_count: number
+      bowlers_count: number
+      ar_count: number
+      wk_count: number
+      purchased_players: Prisma.JsonValue
       logo: string | null
       primary_color: string | null
       created_at: Date
@@ -2755,7 +2703,6 @@ export namespace Prisma {
     power_cards<T extends Team$power_cardsArgs<ExtArgs> = {}>(args?: Subset<T, Team$power_cardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PowerCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     top11_selection<T extends Team$top11_selectionArgs<ExtArgs> = {}>(args?: Subset<T, Team$top11_selectionArgs<ExtArgs>>): Prisma__Top11SelectionClient<$Result.GetResult<Prisma.$Top11SelectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     auction_players<T extends Team$auction_playersArgs<ExtArgs> = {}>(args?: Subset<T, Team$auction_playersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuctionPlayerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    sealed_bids<T extends Team$sealed_bidsArgs<ExtArgs> = {}>(args?: Subset<T, Team$sealed_bidsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2787,7 +2734,6 @@ export namespace Prisma {
   interface TeamFieldRefs {
     readonly id: FieldRef<"Team", 'String'>
     readonly name: FieldRef<"Team", 'String'>
-    readonly username: FieldRef<"Team", 'String'>
     readonly password_hash: FieldRef<"Team", 'String'>
     readonly active_session_id: FieldRef<"Team", 'String'>
     readonly brand_key: FieldRef<"Team", 'String'>
@@ -2796,6 +2742,11 @@ export namespace Prisma {
     readonly purse_remaining: FieldRef<"Team", 'Decimal'>
     readonly squad_count: FieldRef<"Team", 'Int'>
     readonly overseas_count: FieldRef<"Team", 'Int'>
+    readonly batsmen_count: FieldRef<"Team", 'Int'>
+    readonly bowlers_count: FieldRef<"Team", 'Int'>
+    readonly ar_count: FieldRef<"Team", 'Int'>
+    readonly wk_count: FieldRef<"Team", 'Int'>
+    readonly purchased_players: FieldRef<"Team", 'Json'>
     readonly logo: FieldRef<"Team", 'String'>
     readonly primary_color: FieldRef<"Team", 'String'>
     readonly created_at: FieldRef<"Team", 'DateTime'>
@@ -3275,30 +3226,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AuctionPlayerScalarFieldEnum | AuctionPlayerScalarFieldEnum[]
-  }
-
-  /**
-   * Team.sealed_bids
-   */
-  export type Team$sealed_bidsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
-    where?: SealedBidWhereInput
-    orderBy?: SealedBidOrderByWithRelationInput | SealedBidOrderByWithRelationInput[]
-    cursor?: SealedBidWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: SealedBidScalarFieldEnum | SealedBidScalarFieldEnum[]
   }
 
   /**
@@ -3824,7 +3751,6 @@ export namespace Prisma {
     sub_versatility?: boolean
     auction_players?: boolean | Player$auction_playersArgs<ExtArgs>
     team_players?: boolean | Player$team_playersArgs<ExtArgs>
-    sealed_bids?: boolean | Player$sealed_bidsArgs<ExtArgs>
     _count?: boolean | PlayerCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["player"]>
 
@@ -3940,7 +3866,6 @@ export namespace Prisma {
   export type PlayerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     auction_players?: boolean | Player$auction_playersArgs<ExtArgs>
     team_players?: boolean | Player$team_playersArgs<ExtArgs>
-    sealed_bids?: boolean | Player$sealed_bidsArgs<ExtArgs>
     _count?: boolean | PlayerCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PlayerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3951,7 +3876,6 @@ export namespace Prisma {
     objects: {
       auction_players: Prisma.$AuctionPlayerPayload<ExtArgs>[]
       team_players: Prisma.$TeamPlayerPayload<ExtArgs>[]
-      sealed_bids: Prisma.$SealedBidPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4383,7 +4307,6 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     auction_players<T extends Player$auction_playersArgs<ExtArgs> = {}>(args?: Subset<T, Player$auction_playersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuctionPlayerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     team_players<T extends Player$team_playersArgs<ExtArgs> = {}>(args?: Subset<T, Player$team_playersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeamPlayerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    sealed_bids<T extends Player$sealed_bidsArgs<ExtArgs> = {}>(args?: Subset<T, Player$sealed_bidsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4879,30 +4802,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TeamPlayerScalarFieldEnum | TeamPlayerScalarFieldEnum[]
-  }
-
-  /**
-   * Player.sealed_bids
-   */
-  export type Player$sealed_bidsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
-    where?: SealedBidWhereInput
-    orderBy?: SealedBidOrderByWithRelationInput | SealedBidOrderByWithRelationInput[]
-    cursor?: SealedBidWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: SealedBidScalarFieldEnum | SealedBidScalarFieldEnum[]
   }
 
   /**
@@ -8341,12 +8240,10 @@ export namespace Prisma {
 
   export type AuctionSequenceAvgAggregateOutputType = {
     id: number | null
-    player_ids: number | null
   }
 
   export type AuctionSequenceSumAggregateOutputType = {
     id: number | null
-    player_ids: number[]
   }
 
   export type AuctionSequenceMinAggregateOutputType = {
@@ -8362,19 +8259,17 @@ export namespace Prisma {
   export type AuctionSequenceCountAggregateOutputType = {
     id: number
     name: number
-    player_ids: number
+    players: number
     _all: number
   }
 
 
   export type AuctionSequenceAvgAggregateInputType = {
     id?: true
-    player_ids?: true
   }
 
   export type AuctionSequenceSumAggregateInputType = {
     id?: true
-    player_ids?: true
   }
 
   export type AuctionSequenceMinAggregateInputType = {
@@ -8390,7 +8285,7 @@ export namespace Prisma {
   export type AuctionSequenceCountAggregateInputType = {
     id?: true
     name?: true
-    player_ids?: true
+    players?: true
     _all?: true
   }
 
@@ -8483,7 +8378,7 @@ export namespace Prisma {
   export type AuctionSequenceGroupByOutputType = {
     id: number
     name: string
-    player_ids: number[]
+    players: JsonValue
     _count: AuctionSequenceCountAggregateOutputType | null
     _avg: AuctionSequenceAvgAggregateOutputType | null
     _sum: AuctionSequenceSumAggregateOutputType | null
@@ -8508,28 +8403,28 @@ export namespace Prisma {
   export type AuctionSequenceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    player_ids?: boolean
+    players?: boolean
   }, ExtArgs["result"]["auctionSequence"]>
 
   export type AuctionSequenceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    player_ids?: boolean
+    players?: boolean
   }, ExtArgs["result"]["auctionSequence"]>
 
   export type AuctionSequenceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    player_ids?: boolean
+    players?: boolean
   }, ExtArgs["result"]["auctionSequence"]>
 
   export type AuctionSequenceSelectScalar = {
     id?: boolean
     name?: boolean
-    player_ids?: boolean
+    players?: boolean
   }
 
-  export type AuctionSequenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "player_ids", ExtArgs["result"]["auctionSequence"]>
+  export type AuctionSequenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "players", ExtArgs["result"]["auctionSequence"]>
 
   export type $AuctionSequencePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AuctionSequence"
@@ -8537,7 +8432,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       name: string
-      player_ids: number[]
+      players: Prisma.JsonValue
     }, ExtArgs["result"]["auctionSequence"]>
     composites: {}
   }
@@ -8963,7 +8858,7 @@ export namespace Prisma {
   interface AuctionSequenceFieldRefs {
     readonly id: FieldRef<"AuctionSequence", 'Int'>
     readonly name: FieldRef<"AuctionSequence", 'String'>
-    readonly player_ids: FieldRef<"AuctionSequence", 'Int[]'>
+    readonly players: FieldRef<"AuctionSequence", 'Json'>
   }
     
 
@@ -9327,1106 +9222,6 @@ export namespace Prisma {
      * Omit specific fields from the AuctionSequence
      */
     omit?: AuctionSequenceOmit<ExtArgs> | null
-  }
-
-
-  /**
-   * Model SealedBid
-   */
-
-  export type AggregateSealedBid = {
-    _count: SealedBidCountAggregateOutputType | null
-    _avg: SealedBidAvgAggregateOutputType | null
-    _sum: SealedBidSumAggregateOutputType | null
-    _min: SealedBidMinAggregateOutputType | null
-    _max: SealedBidMaxAggregateOutputType | null
-  }
-
-  export type SealedBidAvgAggregateOutputType = {
-    amount: Decimal | null
-  }
-
-  export type SealedBidSumAggregateOutputType = {
-    amount: Decimal | null
-  }
-
-  export type SealedBidMinAggregateOutputType = {
-    id: string | null
-    team_id: string | null
-    player_id: string | null
-    amount: Decimal | null
-    created_at: Date | null
-  }
-
-  export type SealedBidMaxAggregateOutputType = {
-    id: string | null
-    team_id: string | null
-    player_id: string | null
-    amount: Decimal | null
-    created_at: Date | null
-  }
-
-  export type SealedBidCountAggregateOutputType = {
-    id: number
-    team_id: number
-    player_id: number
-    amount: number
-    created_at: number
-    _all: number
-  }
-
-
-  export type SealedBidAvgAggregateInputType = {
-    amount?: true
-  }
-
-  export type SealedBidSumAggregateInputType = {
-    amount?: true
-  }
-
-  export type SealedBidMinAggregateInputType = {
-    id?: true
-    team_id?: true
-    player_id?: true
-    amount?: true
-    created_at?: true
-  }
-
-  export type SealedBidMaxAggregateInputType = {
-    id?: true
-    team_id?: true
-    player_id?: true
-    amount?: true
-    created_at?: true
-  }
-
-  export type SealedBidCountAggregateInputType = {
-    id?: true
-    team_id?: true
-    player_id?: true
-    amount?: true
-    created_at?: true
-    _all?: true
-  }
-
-  export type SealedBidAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which SealedBid to aggregate.
-     */
-    where?: SealedBidWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SealedBids to fetch.
-     */
-    orderBy?: SealedBidOrderByWithRelationInput | SealedBidOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: SealedBidWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SealedBids from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SealedBids.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned SealedBids
-    **/
-    _count?: true | SealedBidCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: SealedBidAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: SealedBidSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: SealedBidMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: SealedBidMaxAggregateInputType
-  }
-
-  export type GetSealedBidAggregateType<T extends SealedBidAggregateArgs> = {
-        [P in keyof T & keyof AggregateSealedBid]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateSealedBid[P]>
-      : GetScalarType<T[P], AggregateSealedBid[P]>
-  }
-
-
-
-
-  export type SealedBidGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SealedBidWhereInput
-    orderBy?: SealedBidOrderByWithAggregationInput | SealedBidOrderByWithAggregationInput[]
-    by: SealedBidScalarFieldEnum[] | SealedBidScalarFieldEnum
-    having?: SealedBidScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: SealedBidCountAggregateInputType | true
-    _avg?: SealedBidAvgAggregateInputType
-    _sum?: SealedBidSumAggregateInputType
-    _min?: SealedBidMinAggregateInputType
-    _max?: SealedBidMaxAggregateInputType
-  }
-
-  export type SealedBidGroupByOutputType = {
-    id: string
-    team_id: string
-    player_id: string
-    amount: Decimal
-    created_at: Date
-    _count: SealedBidCountAggregateOutputType | null
-    _avg: SealedBidAvgAggregateOutputType | null
-    _sum: SealedBidSumAggregateOutputType | null
-    _min: SealedBidMinAggregateOutputType | null
-    _max: SealedBidMaxAggregateOutputType | null
-  }
-
-  type GetSealedBidGroupByPayload<T extends SealedBidGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<SealedBidGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof SealedBidGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], SealedBidGroupByOutputType[P]>
-            : GetScalarType<T[P], SealedBidGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type SealedBidSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    team_id?: boolean
-    player_id?: boolean
-    amount?: boolean
-    created_at?: boolean
-    team?: boolean | TeamDefaultArgs<ExtArgs>
-    player?: boolean | PlayerDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["sealedBid"]>
-
-  export type SealedBidSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    team_id?: boolean
-    player_id?: boolean
-    amount?: boolean
-    created_at?: boolean
-    team?: boolean | TeamDefaultArgs<ExtArgs>
-    player?: boolean | PlayerDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["sealedBid"]>
-
-  export type SealedBidSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    team_id?: boolean
-    player_id?: boolean
-    amount?: boolean
-    created_at?: boolean
-    team?: boolean | TeamDefaultArgs<ExtArgs>
-    player?: boolean | PlayerDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["sealedBid"]>
-
-  export type SealedBidSelectScalar = {
-    id?: boolean
-    team_id?: boolean
-    player_id?: boolean
-    amount?: boolean
-    created_at?: boolean
-  }
-
-  export type SealedBidOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "team_id" | "player_id" | "amount" | "created_at", ExtArgs["result"]["sealedBid"]>
-  export type SealedBidInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    team?: boolean | TeamDefaultArgs<ExtArgs>
-    player?: boolean | PlayerDefaultArgs<ExtArgs>
-  }
-  export type SealedBidIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    team?: boolean | TeamDefaultArgs<ExtArgs>
-    player?: boolean | PlayerDefaultArgs<ExtArgs>
-  }
-  export type SealedBidIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    team?: boolean | TeamDefaultArgs<ExtArgs>
-    player?: boolean | PlayerDefaultArgs<ExtArgs>
-  }
-
-  export type $SealedBidPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "SealedBid"
-    objects: {
-      team: Prisma.$TeamPayload<ExtArgs>
-      player: Prisma.$PlayerPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      team_id: string
-      player_id: string
-      amount: Prisma.Decimal
-      created_at: Date
-    }, ExtArgs["result"]["sealedBid"]>
-    composites: {}
-  }
-
-  type SealedBidGetPayload<S extends boolean | null | undefined | SealedBidDefaultArgs> = $Result.GetResult<Prisma.$SealedBidPayload, S>
-
-  type SealedBidCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<SealedBidFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: SealedBidCountAggregateInputType | true
-    }
-
-  export interface SealedBidDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SealedBid'], meta: { name: 'SealedBid' } }
-    /**
-     * Find zero or one SealedBid that matches the filter.
-     * @param {SealedBidFindUniqueArgs} args - Arguments to find a SealedBid
-     * @example
-     * // Get one SealedBid
-     * const sealedBid = await prisma.sealedBid.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends SealedBidFindUniqueArgs>(args: SelectSubset<T, SealedBidFindUniqueArgs<ExtArgs>>): Prisma__SealedBidClient<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one SealedBid that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {SealedBidFindUniqueOrThrowArgs} args - Arguments to find a SealedBid
-     * @example
-     * // Get one SealedBid
-     * const sealedBid = await prisma.sealedBid.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends SealedBidFindUniqueOrThrowArgs>(args: SelectSubset<T, SealedBidFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SealedBidClient<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first SealedBid that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SealedBidFindFirstArgs} args - Arguments to find a SealedBid
-     * @example
-     * // Get one SealedBid
-     * const sealedBid = await prisma.sealedBid.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends SealedBidFindFirstArgs>(args?: SelectSubset<T, SealedBidFindFirstArgs<ExtArgs>>): Prisma__SealedBidClient<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first SealedBid that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SealedBidFindFirstOrThrowArgs} args - Arguments to find a SealedBid
-     * @example
-     * // Get one SealedBid
-     * const sealedBid = await prisma.sealedBid.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends SealedBidFindFirstOrThrowArgs>(args?: SelectSubset<T, SealedBidFindFirstOrThrowArgs<ExtArgs>>): Prisma__SealedBidClient<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more SealedBids that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SealedBidFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all SealedBids
-     * const sealedBids = await prisma.sealedBid.findMany()
-     * 
-     * // Get first 10 SealedBids
-     * const sealedBids = await prisma.sealedBid.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const sealedBidWithIdOnly = await prisma.sealedBid.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends SealedBidFindManyArgs>(args?: SelectSubset<T, SealedBidFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a SealedBid.
-     * @param {SealedBidCreateArgs} args - Arguments to create a SealedBid.
-     * @example
-     * // Create one SealedBid
-     * const SealedBid = await prisma.sealedBid.create({
-     *   data: {
-     *     // ... data to create a SealedBid
-     *   }
-     * })
-     * 
-     */
-    create<T extends SealedBidCreateArgs>(args: SelectSubset<T, SealedBidCreateArgs<ExtArgs>>): Prisma__SealedBidClient<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many SealedBids.
-     * @param {SealedBidCreateManyArgs} args - Arguments to create many SealedBids.
-     * @example
-     * // Create many SealedBids
-     * const sealedBid = await prisma.sealedBid.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends SealedBidCreateManyArgs>(args?: SelectSubset<T, SealedBidCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many SealedBids and returns the data saved in the database.
-     * @param {SealedBidCreateManyAndReturnArgs} args - Arguments to create many SealedBids.
-     * @example
-     * // Create many SealedBids
-     * const sealedBid = await prisma.sealedBid.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many SealedBids and only return the `id`
-     * const sealedBidWithIdOnly = await prisma.sealedBid.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends SealedBidCreateManyAndReturnArgs>(args?: SelectSubset<T, SealedBidCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a SealedBid.
-     * @param {SealedBidDeleteArgs} args - Arguments to delete one SealedBid.
-     * @example
-     * // Delete one SealedBid
-     * const SealedBid = await prisma.sealedBid.delete({
-     *   where: {
-     *     // ... filter to delete one SealedBid
-     *   }
-     * })
-     * 
-     */
-    delete<T extends SealedBidDeleteArgs>(args: SelectSubset<T, SealedBidDeleteArgs<ExtArgs>>): Prisma__SealedBidClient<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one SealedBid.
-     * @param {SealedBidUpdateArgs} args - Arguments to update one SealedBid.
-     * @example
-     * // Update one SealedBid
-     * const sealedBid = await prisma.sealedBid.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends SealedBidUpdateArgs>(args: SelectSubset<T, SealedBidUpdateArgs<ExtArgs>>): Prisma__SealedBidClient<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more SealedBids.
-     * @param {SealedBidDeleteManyArgs} args - Arguments to filter SealedBids to delete.
-     * @example
-     * // Delete a few SealedBids
-     * const { count } = await prisma.sealedBid.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends SealedBidDeleteManyArgs>(args?: SelectSubset<T, SealedBidDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more SealedBids.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SealedBidUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many SealedBids
-     * const sealedBid = await prisma.sealedBid.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends SealedBidUpdateManyArgs>(args: SelectSubset<T, SealedBidUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more SealedBids and returns the data updated in the database.
-     * @param {SealedBidUpdateManyAndReturnArgs} args - Arguments to update many SealedBids.
-     * @example
-     * // Update many SealedBids
-     * const sealedBid = await prisma.sealedBid.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more SealedBids and only return the `id`
-     * const sealedBidWithIdOnly = await prisma.sealedBid.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends SealedBidUpdateManyAndReturnArgs>(args: SelectSubset<T, SealedBidUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one SealedBid.
-     * @param {SealedBidUpsertArgs} args - Arguments to update or create a SealedBid.
-     * @example
-     * // Update or create a SealedBid
-     * const sealedBid = await prisma.sealedBid.upsert({
-     *   create: {
-     *     // ... data to create a SealedBid
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the SealedBid we want to update
-     *   }
-     * })
-     */
-    upsert<T extends SealedBidUpsertArgs>(args: SelectSubset<T, SealedBidUpsertArgs<ExtArgs>>): Prisma__SealedBidClient<$Result.GetResult<Prisma.$SealedBidPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of SealedBids.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SealedBidCountArgs} args - Arguments to filter SealedBids to count.
-     * @example
-     * // Count the number of SealedBids
-     * const count = await prisma.sealedBid.count({
-     *   where: {
-     *     // ... the filter for the SealedBids we want to count
-     *   }
-     * })
-    **/
-    count<T extends SealedBidCountArgs>(
-      args?: Subset<T, SealedBidCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], SealedBidCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a SealedBid.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SealedBidAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends SealedBidAggregateArgs>(args: Subset<T, SealedBidAggregateArgs>): Prisma.PrismaPromise<GetSealedBidAggregateType<T>>
-
-    /**
-     * Group by SealedBid.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SealedBidGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends SealedBidGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: SealedBidGroupByArgs['orderBy'] }
-        : { orderBy?: SealedBidGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, SealedBidGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSealedBidGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the SealedBid model
-   */
-  readonly fields: SealedBidFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for SealedBid.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__SealedBidClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    team<T extends TeamDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TeamDefaultArgs<ExtArgs>>): Prisma__TeamClient<$Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    player<T extends PlayerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PlayerDefaultArgs<ExtArgs>>): Prisma__PlayerClient<$Result.GetResult<Prisma.$PlayerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the SealedBid model
-   */
-  interface SealedBidFieldRefs {
-    readonly id: FieldRef<"SealedBid", 'String'>
-    readonly team_id: FieldRef<"SealedBid", 'String'>
-    readonly player_id: FieldRef<"SealedBid", 'String'>
-    readonly amount: FieldRef<"SealedBid", 'Decimal'>
-    readonly created_at: FieldRef<"SealedBid", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * SealedBid findUnique
-   */
-  export type SealedBidFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
-    /**
-     * Filter, which SealedBid to fetch.
-     */
-    where: SealedBidWhereUniqueInput
-  }
-
-  /**
-   * SealedBid findUniqueOrThrow
-   */
-  export type SealedBidFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
-    /**
-     * Filter, which SealedBid to fetch.
-     */
-    where: SealedBidWhereUniqueInput
-  }
-
-  /**
-   * SealedBid findFirst
-   */
-  export type SealedBidFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
-    /**
-     * Filter, which SealedBid to fetch.
-     */
-    where?: SealedBidWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SealedBids to fetch.
-     */
-    orderBy?: SealedBidOrderByWithRelationInput | SealedBidOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for SealedBids.
-     */
-    cursor?: SealedBidWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SealedBids from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SealedBids.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SealedBids.
-     */
-    distinct?: SealedBidScalarFieldEnum | SealedBidScalarFieldEnum[]
-  }
-
-  /**
-   * SealedBid findFirstOrThrow
-   */
-  export type SealedBidFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
-    /**
-     * Filter, which SealedBid to fetch.
-     */
-    where?: SealedBidWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SealedBids to fetch.
-     */
-    orderBy?: SealedBidOrderByWithRelationInput | SealedBidOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for SealedBids.
-     */
-    cursor?: SealedBidWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SealedBids from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SealedBids.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SealedBids.
-     */
-    distinct?: SealedBidScalarFieldEnum | SealedBidScalarFieldEnum[]
-  }
-
-  /**
-   * SealedBid findMany
-   */
-  export type SealedBidFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
-    /**
-     * Filter, which SealedBids to fetch.
-     */
-    where?: SealedBidWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SealedBids to fetch.
-     */
-    orderBy?: SealedBidOrderByWithRelationInput | SealedBidOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing SealedBids.
-     */
-    cursor?: SealedBidWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SealedBids from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SealedBids.
-     */
-    skip?: number
-    distinct?: SealedBidScalarFieldEnum | SealedBidScalarFieldEnum[]
-  }
-
-  /**
-   * SealedBid create
-   */
-  export type SealedBidCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
-    /**
-     * The data needed to create a SealedBid.
-     */
-    data: XOR<SealedBidCreateInput, SealedBidUncheckedCreateInput>
-  }
-
-  /**
-   * SealedBid createMany
-   */
-  export type SealedBidCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many SealedBids.
-     */
-    data: SealedBidCreateManyInput | SealedBidCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * SealedBid createManyAndReturn
-   */
-  export type SealedBidCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * The data used to create many SealedBids.
-     */
-    data: SealedBidCreateManyInput | SealedBidCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * SealedBid update
-   */
-  export type SealedBidUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
-    /**
-     * The data needed to update a SealedBid.
-     */
-    data: XOR<SealedBidUpdateInput, SealedBidUncheckedUpdateInput>
-    /**
-     * Choose, which SealedBid to update.
-     */
-    where: SealedBidWhereUniqueInput
-  }
-
-  /**
-   * SealedBid updateMany
-   */
-  export type SealedBidUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update SealedBids.
-     */
-    data: XOR<SealedBidUpdateManyMutationInput, SealedBidUncheckedUpdateManyInput>
-    /**
-     * Filter which SealedBids to update
-     */
-    where?: SealedBidWhereInput
-    /**
-     * Limit how many SealedBids to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * SealedBid updateManyAndReturn
-   */
-  export type SealedBidUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * The data used to update SealedBids.
-     */
-    data: XOR<SealedBidUpdateManyMutationInput, SealedBidUncheckedUpdateManyInput>
-    /**
-     * Filter which SealedBids to update
-     */
-    where?: SealedBidWhereInput
-    /**
-     * Limit how many SealedBids to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * SealedBid upsert
-   */
-  export type SealedBidUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
-    /**
-     * The filter to search for the SealedBid to update in case it exists.
-     */
-    where: SealedBidWhereUniqueInput
-    /**
-     * In case the SealedBid found by the `where` argument doesn't exist, create a new SealedBid with this data.
-     */
-    create: XOR<SealedBidCreateInput, SealedBidUncheckedCreateInput>
-    /**
-     * In case the SealedBid was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<SealedBidUpdateInput, SealedBidUncheckedUpdateInput>
-  }
-
-  /**
-   * SealedBid delete
-   */
-  export type SealedBidDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
-    /**
-     * Filter which SealedBid to delete.
-     */
-    where: SealedBidWhereUniqueInput
-  }
-
-  /**
-   * SealedBid deleteMany
-   */
-  export type SealedBidDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which SealedBids to delete
-     */
-    where?: SealedBidWhereInput
-    /**
-     * Limit how many SealedBids to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * SealedBid without action
-   */
-  export type SealedBidDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SealedBid
-     */
-    select?: SealedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SealedBid
-     */
-    omit?: SealedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SealedBidInclude<ExtArgs> | null
   }
 
 
@@ -14570,7 +13365,6 @@ export namespace Prisma {
   export const TeamScalarFieldEnum: {
     id: 'id',
     name: 'name',
-    username: 'username',
     password_hash: 'password_hash',
     active_session_id: 'active_session_id',
     brand_key: 'brand_key',
@@ -14579,6 +13373,11 @@ export namespace Prisma {
     purse_remaining: 'purse_remaining',
     squad_count: 'squad_count',
     overseas_count: 'overseas_count',
+    batsmen_count: 'batsmen_count',
+    bowlers_count: 'bowlers_count',
+    ar_count: 'ar_count',
+    wk_count: 'wk_count',
+    purchased_players: 'purchased_players',
     logo: 'logo',
     primary_color: 'primary_color',
     created_at: 'created_at'
@@ -14673,21 +13472,10 @@ export namespace Prisma {
   export const AuctionSequenceScalarFieldEnum: {
     id: 'id',
     name: 'name',
-    player_ids: 'player_ids'
+    players: 'players'
   };
 
   export type AuctionSequenceScalarFieldEnum = (typeof AuctionSequenceScalarFieldEnum)[keyof typeof AuctionSequenceScalarFieldEnum]
-
-
-  export const SealedBidScalarFieldEnum: {
-    id: 'id',
-    team_id: 'team_id',
-    player_id: 'player_id',
-    amount: 'amount',
-    created_at: 'created_at'
-  };
-
-  export type SealedBidScalarFieldEnum = (typeof SealedBidScalarFieldEnum)[keyof typeof SealedBidScalarFieldEnum]
 
 
   export const PowerCardScalarFieldEnum: {
@@ -14756,14 +13544,6 @@ export namespace Prisma {
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-  export const NullsOrder: {
-    first: 'first',
-    last: 'last'
-  };
-
-  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
   export const JsonNullValueFilter: {
     DbNull: typeof DbNull,
     JsonNull: typeof JsonNull,
@@ -14771,6 +13551,14 @@ export namespace Prisma {
   };
 
   export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -14817,6 +13605,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -14926,20 +13728,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-  /**
    * Reference to a field of type 'PowerCardType'
    */
   export type EnumPowerCardTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PowerCardType'>
@@ -14976,7 +13764,6 @@ export namespace Prisma {
     NOT?: TeamWhereInput | TeamWhereInput[]
     id?: StringFilter<"Team"> | string
     name?: StringFilter<"Team"> | string
-    username?: StringFilter<"Team"> | string
     password_hash?: StringFilter<"Team"> | string
     active_session_id?: StringNullableFilter<"Team"> | string | null
     brand_key?: StringNullableFilter<"Team"> | string | null
@@ -14985,6 +13772,11 @@ export namespace Prisma {
     purse_remaining?: DecimalFilter<"Team"> | Decimal | DecimalJsLike | number | string
     squad_count?: IntFilter<"Team"> | number
     overseas_count?: IntFilter<"Team"> | number
+    batsmen_count?: IntFilter<"Team"> | number
+    bowlers_count?: IntFilter<"Team"> | number
+    ar_count?: IntFilter<"Team"> | number
+    wk_count?: IntFilter<"Team"> | number
+    purchased_players?: JsonFilter<"Team">
     logo?: StringNullableFilter<"Team"> | string | null
     primary_color?: StringNullableFilter<"Team"> | string | null
     created_at?: DateTimeFilter<"Team"> | Date | string
@@ -14992,13 +13784,11 @@ export namespace Prisma {
     power_cards?: PowerCardListRelationFilter
     top11_selection?: XOR<Top11SelectionNullableScalarRelationFilter, Top11SelectionWhereInput> | null
     auction_players?: AuctionPlayerListRelationFilter
-    sealed_bids?: SealedBidListRelationFilter
   }
 
   export type TeamOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
-    username?: SortOrder
     password_hash?: SortOrder
     active_session_id?: SortOrderInput | SortOrder
     brand_key?: SortOrderInput | SortOrder
@@ -15007,6 +13797,11 @@ export namespace Prisma {
     purse_remaining?: SortOrder
     squad_count?: SortOrder
     overseas_count?: SortOrder
+    batsmen_count?: SortOrder
+    bowlers_count?: SortOrder
+    ar_count?: SortOrder
+    wk_count?: SortOrder
+    purchased_players?: SortOrder
     logo?: SortOrderInput | SortOrder
     primary_color?: SortOrderInput | SortOrder
     created_at?: SortOrder
@@ -15014,13 +13809,11 @@ export namespace Prisma {
     power_cards?: PowerCardOrderByRelationAggregateInput
     top11_selection?: Top11SelectionOrderByWithRelationInput
     auction_players?: AuctionPlayerOrderByRelationAggregateInput
-    sealed_bids?: SealedBidOrderByRelationAggregateInput
   }
 
   export type TeamWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     name?: string
-    username?: string
     brand_key?: string
     AND?: TeamWhereInput | TeamWhereInput[]
     OR?: TeamWhereInput[]
@@ -15032,6 +13825,11 @@ export namespace Prisma {
     purse_remaining?: DecimalFilter<"Team"> | Decimal | DecimalJsLike | number | string
     squad_count?: IntFilter<"Team"> | number
     overseas_count?: IntFilter<"Team"> | number
+    batsmen_count?: IntFilter<"Team"> | number
+    bowlers_count?: IntFilter<"Team"> | number
+    ar_count?: IntFilter<"Team"> | number
+    wk_count?: IntFilter<"Team"> | number
+    purchased_players?: JsonFilter<"Team">
     logo?: StringNullableFilter<"Team"> | string | null
     primary_color?: StringNullableFilter<"Team"> | string | null
     created_at?: DateTimeFilter<"Team"> | Date | string
@@ -15039,13 +13837,11 @@ export namespace Prisma {
     power_cards?: PowerCardListRelationFilter
     top11_selection?: XOR<Top11SelectionNullableScalarRelationFilter, Top11SelectionWhereInput> | null
     auction_players?: AuctionPlayerListRelationFilter
-    sealed_bids?: SealedBidListRelationFilter
-  }, "id" | "name" | "username" | "brand_key">
+  }, "id" | "name" | "brand_key">
 
   export type TeamOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
-    username?: SortOrder
     password_hash?: SortOrder
     active_session_id?: SortOrderInput | SortOrder
     brand_key?: SortOrderInput | SortOrder
@@ -15054,6 +13850,11 @@ export namespace Prisma {
     purse_remaining?: SortOrder
     squad_count?: SortOrder
     overseas_count?: SortOrder
+    batsmen_count?: SortOrder
+    bowlers_count?: SortOrder
+    ar_count?: SortOrder
+    wk_count?: SortOrder
+    purchased_players?: SortOrder
     logo?: SortOrderInput | SortOrder
     primary_color?: SortOrderInput | SortOrder
     created_at?: SortOrder
@@ -15070,7 +13871,6 @@ export namespace Prisma {
     NOT?: TeamScalarWhereWithAggregatesInput | TeamScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Team"> | string
     name?: StringWithAggregatesFilter<"Team"> | string
-    username?: StringWithAggregatesFilter<"Team"> | string
     password_hash?: StringWithAggregatesFilter<"Team"> | string
     active_session_id?: StringNullableWithAggregatesFilter<"Team"> | string | null
     brand_key?: StringNullableWithAggregatesFilter<"Team"> | string | null
@@ -15079,6 +13879,11 @@ export namespace Prisma {
     purse_remaining?: DecimalWithAggregatesFilter<"Team"> | Decimal | DecimalJsLike | number | string
     squad_count?: IntWithAggregatesFilter<"Team"> | number
     overseas_count?: IntWithAggregatesFilter<"Team"> | number
+    batsmen_count?: IntWithAggregatesFilter<"Team"> | number
+    bowlers_count?: IntWithAggregatesFilter<"Team"> | number
+    ar_count?: IntWithAggregatesFilter<"Team"> | number
+    wk_count?: IntWithAggregatesFilter<"Team"> | number
+    purchased_players?: JsonWithAggregatesFilter<"Team">
     logo?: StringNullableWithAggregatesFilter<"Team"> | string | null
     primary_color?: StringNullableWithAggregatesFilter<"Team"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"Team"> | Date | string
@@ -15123,7 +13928,6 @@ export namespace Prisma {
     sub_versatility?: IntNullableFilter<"Player"> | number | null
     auction_players?: AuctionPlayerListRelationFilter
     team_players?: TeamPlayerListRelationFilter
-    sealed_bids?: SealedBidListRelationFilter
   }
 
   export type PlayerOrderByWithRelationInput = {
@@ -15162,7 +13966,6 @@ export namespace Prisma {
     sub_versatility?: SortOrderInput | SortOrder
     auction_players?: AuctionPlayerOrderByRelationAggregateInput
     team_players?: TeamPlayerOrderByRelationAggregateInput
-    sealed_bids?: SealedBidOrderByRelationAggregateInput
   }
 
   export type PlayerWhereUniqueInput = Prisma.AtLeast<{
@@ -15204,7 +14007,6 @@ export namespace Prisma {
     sub_versatility?: IntNullableFilter<"Player"> | number | null
     auction_players?: AuctionPlayerListRelationFilter
     team_players?: TeamPlayerListRelationFilter
-    sealed_bids?: SealedBidListRelationFilter
   }, "id" | "rank">
 
   export type PlayerOrderByWithAggregationInput = {
@@ -15523,13 +14325,13 @@ export namespace Prisma {
     NOT?: AuctionSequenceWhereInput | AuctionSequenceWhereInput[]
     id?: IntFilter<"AuctionSequence"> | number
     name?: StringFilter<"AuctionSequence"> | string
-    player_ids?: IntNullableListFilter<"AuctionSequence">
+    players?: JsonFilter<"AuctionSequence">
   }
 
   export type AuctionSequenceOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
-    player_ids?: SortOrder
+    players?: SortOrder
   }
 
   export type AuctionSequenceWhereUniqueInput = Prisma.AtLeast<{
@@ -15538,13 +14340,13 @@ export namespace Prisma {
     OR?: AuctionSequenceWhereInput[]
     NOT?: AuctionSequenceWhereInput | AuctionSequenceWhereInput[]
     name?: StringFilter<"AuctionSequence"> | string
-    player_ids?: IntNullableListFilter<"AuctionSequence">
+    players?: JsonFilter<"AuctionSequence">
   }, "id">
 
   export type AuctionSequenceOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
-    player_ids?: SortOrder
+    players?: SortOrder
     _count?: AuctionSequenceCountOrderByAggregateInput
     _avg?: AuctionSequenceAvgOrderByAggregateInput
     _max?: AuctionSequenceMaxOrderByAggregateInput
@@ -15558,68 +14360,7 @@ export namespace Prisma {
     NOT?: AuctionSequenceScalarWhereWithAggregatesInput | AuctionSequenceScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"AuctionSequence"> | number
     name?: StringWithAggregatesFilter<"AuctionSequence"> | string
-    player_ids?: IntNullableListFilter<"AuctionSequence">
-  }
-
-  export type SealedBidWhereInput = {
-    AND?: SealedBidWhereInput | SealedBidWhereInput[]
-    OR?: SealedBidWhereInput[]
-    NOT?: SealedBidWhereInput | SealedBidWhereInput[]
-    id?: StringFilter<"SealedBid"> | string
-    team_id?: StringFilter<"SealedBid"> | string
-    player_id?: StringFilter<"SealedBid"> | string
-    amount?: DecimalFilter<"SealedBid"> | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFilter<"SealedBid"> | Date | string
-    team?: XOR<TeamScalarRelationFilter, TeamWhereInput>
-    player?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
-  }
-
-  export type SealedBidOrderByWithRelationInput = {
-    id?: SortOrder
-    team_id?: SortOrder
-    player_id?: SortOrder
-    amount?: SortOrder
-    created_at?: SortOrder
-    team?: TeamOrderByWithRelationInput
-    player?: PlayerOrderByWithRelationInput
-  }
-
-  export type SealedBidWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    team_id_player_id?: SealedBidTeam_idPlayer_idCompoundUniqueInput
-    AND?: SealedBidWhereInput | SealedBidWhereInput[]
-    OR?: SealedBidWhereInput[]
-    NOT?: SealedBidWhereInput | SealedBidWhereInput[]
-    team_id?: StringFilter<"SealedBid"> | string
-    player_id?: StringFilter<"SealedBid"> | string
-    amount?: DecimalFilter<"SealedBid"> | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFilter<"SealedBid"> | Date | string
-    team?: XOR<TeamScalarRelationFilter, TeamWhereInput>
-    player?: XOR<PlayerScalarRelationFilter, PlayerWhereInput>
-  }, "id" | "team_id_player_id">
-
-  export type SealedBidOrderByWithAggregationInput = {
-    id?: SortOrder
-    team_id?: SortOrder
-    player_id?: SortOrder
-    amount?: SortOrder
-    created_at?: SortOrder
-    _count?: SealedBidCountOrderByAggregateInput
-    _avg?: SealedBidAvgOrderByAggregateInput
-    _max?: SealedBidMaxOrderByAggregateInput
-    _min?: SealedBidMinOrderByAggregateInput
-    _sum?: SealedBidSumOrderByAggregateInput
-  }
-
-  export type SealedBidScalarWhereWithAggregatesInput = {
-    AND?: SealedBidScalarWhereWithAggregatesInput | SealedBidScalarWhereWithAggregatesInput[]
-    OR?: SealedBidScalarWhereWithAggregatesInput[]
-    NOT?: SealedBidScalarWhereWithAggregatesInput | SealedBidScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"SealedBid"> | string
-    team_id?: StringWithAggregatesFilter<"SealedBid"> | string
-    player_id?: StringWithAggregatesFilter<"SealedBid"> | string
-    amount?: DecimalWithAggregatesFilter<"SealedBid"> | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeWithAggregatesFilter<"SealedBid"> | Date | string
+    players?: JsonWithAggregatesFilter<"AuctionSequence">
   }
 
   export type PowerCardWhereInput = {
@@ -15837,7 +14578,6 @@ export namespace Prisma {
   export type TeamCreateInput = {
     id?: string
     name: string
-    username: string
     password_hash: string
     active_session_id?: string | null
     brand_key?: string | null
@@ -15846,6 +14586,11 @@ export namespace Prisma {
     purse_remaining?: Decimal | DecimalJsLike | number | string
     squad_count?: number
     overseas_count?: number
+    batsmen_count?: number
+    bowlers_count?: number
+    ar_count?: number
+    wk_count?: number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: string | null
     primary_color?: string | null
     created_at?: Date | string
@@ -15853,13 +14598,11 @@ export namespace Prisma {
     power_cards?: PowerCardCreateNestedManyWithoutTeamInput
     top11_selection?: Top11SelectionCreateNestedOneWithoutTeamInput
     auction_players?: AuctionPlayerCreateNestedManyWithoutSold_to_teamInput
-    sealed_bids?: SealedBidCreateNestedManyWithoutTeamInput
   }
 
   export type TeamUncheckedCreateInput = {
     id?: string
     name: string
-    username: string
     password_hash: string
     active_session_id?: string | null
     brand_key?: string | null
@@ -15868,6 +14611,11 @@ export namespace Prisma {
     purse_remaining?: Decimal | DecimalJsLike | number | string
     squad_count?: number
     overseas_count?: number
+    batsmen_count?: number
+    bowlers_count?: number
+    ar_count?: number
+    wk_count?: number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: string | null
     primary_color?: string | null
     created_at?: Date | string
@@ -15875,13 +14623,11 @@ export namespace Prisma {
     power_cards?: PowerCardUncheckedCreateNestedManyWithoutTeamInput
     top11_selection?: Top11SelectionUncheckedCreateNestedOneWithoutTeamInput
     auction_players?: AuctionPlayerUncheckedCreateNestedManyWithoutSold_to_teamInput
-    sealed_bids?: SealedBidUncheckedCreateNestedManyWithoutTeamInput
   }
 
   export type TeamUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15890,6 +14636,11 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15897,13 +14648,11 @@ export namespace Prisma {
     power_cards?: PowerCardUpdateManyWithoutTeamNestedInput
     top11_selection?: Top11SelectionUpdateOneWithoutTeamNestedInput
     auction_players?: AuctionPlayerUpdateManyWithoutSold_to_teamNestedInput
-    sealed_bids?: SealedBidUpdateManyWithoutTeamNestedInput
   }
 
   export type TeamUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15912,6 +14661,11 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15919,13 +14673,11 @@ export namespace Prisma {
     power_cards?: PowerCardUncheckedUpdateManyWithoutTeamNestedInput
     top11_selection?: Top11SelectionUncheckedUpdateOneWithoutTeamNestedInput
     auction_players?: AuctionPlayerUncheckedUpdateManyWithoutSold_to_teamNestedInput
-    sealed_bids?: SealedBidUncheckedUpdateManyWithoutTeamNestedInput
   }
 
   export type TeamCreateManyInput = {
     id?: string
     name: string
-    username: string
     password_hash: string
     active_session_id?: string | null
     brand_key?: string | null
@@ -15934,6 +14686,11 @@ export namespace Prisma {
     purse_remaining?: Decimal | DecimalJsLike | number | string
     squad_count?: number
     overseas_count?: number
+    batsmen_count?: number
+    bowlers_count?: number
+    ar_count?: number
+    wk_count?: number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: string | null
     primary_color?: string | null
     created_at?: Date | string
@@ -15942,7 +14699,6 @@ export namespace Prisma {
   export type TeamUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15951,6 +14707,11 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15959,7 +14720,6 @@ export namespace Prisma {
   export type TeamUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15968,6 +14728,11 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16009,7 +14774,6 @@ export namespace Prisma {
     sub_versatility?: number | null
     auction_players?: AuctionPlayerCreateNestedManyWithoutPlayerInput
     team_players?: TeamPlayerCreateNestedManyWithoutPlayerInput
-    sealed_bids?: SealedBidCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerUncheckedCreateInput = {
@@ -16048,7 +14812,6 @@ export namespace Prisma {
     sub_versatility?: number | null
     auction_players?: AuctionPlayerUncheckedCreateNestedManyWithoutPlayerInput
     team_players?: TeamPlayerUncheckedCreateNestedManyWithoutPlayerInput
-    sealed_bids?: SealedBidUncheckedCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerUpdateInput = {
@@ -16087,7 +14850,6 @@ export namespace Prisma {
     sub_versatility?: NullableIntFieldUpdateOperationsInput | number | null
     auction_players?: AuctionPlayerUpdateManyWithoutPlayerNestedInput
     team_players?: TeamPlayerUpdateManyWithoutPlayerNestedInput
-    sealed_bids?: SealedBidUpdateManyWithoutPlayerNestedInput
   }
 
   export type PlayerUncheckedUpdateInput = {
@@ -16126,7 +14888,6 @@ export namespace Prisma {
     sub_versatility?: NullableIntFieldUpdateOperationsInput | number | null
     auction_players?: AuctionPlayerUncheckedUpdateManyWithoutPlayerNestedInput
     team_players?: TeamPlayerUncheckedUpdateManyWithoutPlayerNestedInput
-    sealed_bids?: SealedBidUncheckedUpdateManyWithoutPlayerNestedInput
   }
 
   export type PlayerCreateManyInput = {
@@ -16481,97 +15242,43 @@ export namespace Prisma {
   export type AuctionSequenceCreateInput = {
     id: number
     name: string
-    player_ids?: AuctionSequenceCreateplayer_idsInput | number[]
+    players?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceUncheckedCreateInput = {
     id: number
     name: string
-    player_ids?: AuctionSequenceCreateplayer_idsInput | number[]
+    players?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    player_ids?: AuctionSequenceUpdateplayer_idsInput | number[]
+    players?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    player_ids?: AuctionSequenceUpdateplayer_idsInput | number[]
+    players?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceCreateManyInput = {
     id: number
     name: string
-    player_ids?: AuctionSequenceCreateplayer_idsInput | number[]
+    players?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceUpdateManyMutationInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    player_ids?: AuctionSequenceUpdateplayer_idsInput | number[]
+    players?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    player_ids?: AuctionSequenceUpdateplayer_idsInput | number[]
-  }
-
-  export type SealedBidCreateInput = {
-    id?: string
-    amount: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
-    team: TeamCreateNestedOneWithoutSealed_bidsInput
-    player: PlayerCreateNestedOneWithoutSealed_bidsInput
-  }
-
-  export type SealedBidUncheckedCreateInput = {
-    id?: string
-    team_id: string
-    player_id: string
-    amount: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
-  }
-
-  export type SealedBidUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    team?: TeamUpdateOneRequiredWithoutSealed_bidsNestedInput
-    player?: PlayerUpdateOneRequiredWithoutSealed_bidsNestedInput
-  }
-
-  export type SealedBidUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    team_id?: StringFieldUpdateOperationsInput | string
-    player_id?: StringFieldUpdateOperationsInput | string
-    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SealedBidCreateManyInput = {
-    id?: string
-    team_id: string
-    player_id: string
-    amount: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
-  }
-
-  export type SealedBidUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SealedBidUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    team_id?: StringFieldUpdateOperationsInput | string
-    player_id?: StringFieldUpdateOperationsInput | string
-    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    players?: JsonNullValueInput | InputJsonValue
   }
 
   export type PowerCardCreateInput = {
@@ -16840,6 +15547,29 @@ export namespace Prisma {
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntFilter<$PrismaModel> | number
   }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -16875,12 +15605,6 @@ export namespace Prisma {
     none?: AuctionPlayerWhereInput
   }
 
-  export type SealedBidListRelationFilter = {
-    every?: SealedBidWhereInput
-    some?: SealedBidWhereInput
-    none?: SealedBidWhereInput
-  }
-
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -16898,14 +15622,9 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type SealedBidOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type TeamCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    username?: SortOrder
     password_hash?: SortOrder
     active_session_id?: SortOrder
     brand_key?: SortOrder
@@ -16914,6 +15633,11 @@ export namespace Prisma {
     purse_remaining?: SortOrder
     squad_count?: SortOrder
     overseas_count?: SortOrder
+    batsmen_count?: SortOrder
+    bowlers_count?: SortOrder
+    ar_count?: SortOrder
+    wk_count?: SortOrder
+    purchased_players?: SortOrder
     logo?: SortOrder
     primary_color?: SortOrder
     created_at?: SortOrder
@@ -16924,12 +15648,15 @@ export namespace Prisma {
     purse_remaining?: SortOrder
     squad_count?: SortOrder
     overseas_count?: SortOrder
+    batsmen_count?: SortOrder
+    bowlers_count?: SortOrder
+    ar_count?: SortOrder
+    wk_count?: SortOrder
   }
 
   export type TeamMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    username?: SortOrder
     password_hash?: SortOrder
     active_session_id?: SortOrder
     brand_key?: SortOrder
@@ -16938,6 +15665,10 @@ export namespace Prisma {
     purse_remaining?: SortOrder
     squad_count?: SortOrder
     overseas_count?: SortOrder
+    batsmen_count?: SortOrder
+    bowlers_count?: SortOrder
+    ar_count?: SortOrder
+    wk_count?: SortOrder
     logo?: SortOrder
     primary_color?: SortOrder
     created_at?: SortOrder
@@ -16946,7 +15677,6 @@ export namespace Prisma {
   export type TeamMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    username?: SortOrder
     password_hash?: SortOrder
     active_session_id?: SortOrder
     brand_key?: SortOrder
@@ -16955,6 +15685,10 @@ export namespace Prisma {
     purse_remaining?: SortOrder
     squad_count?: SortOrder
     overseas_count?: SortOrder
+    batsmen_count?: SortOrder
+    bowlers_count?: SortOrder
+    ar_count?: SortOrder
+    wk_count?: SortOrder
     logo?: SortOrder
     primary_color?: SortOrder
     created_at?: SortOrder
@@ -16965,6 +15699,10 @@ export namespace Prisma {
     purse_remaining?: SortOrder
     squad_count?: SortOrder
     overseas_count?: SortOrder
+    batsmen_count?: SortOrder
+    bowlers_count?: SortOrder
+    ar_count?: SortOrder
+    wk_count?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -17033,6 +15771,32 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -17444,29 +16208,6 @@ export namespace Prisma {
     notIn?: $Enums.AuctionPhase[] | ListEnumAuctionPhaseFieldRefInput<$PrismaModel>
     not?: NestedEnumAuctionPhaseFilter<$PrismaModel> | $Enums.AuctionPhase
   }
-  export type JsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type AuctionStateCountOrderByAggregateInput = {
     id?: SortOrder
@@ -17551,50 +16292,15 @@ export namespace Prisma {
     _min?: NestedEnumAuctionPhaseFilter<$PrismaModel>
     _max?: NestedEnumAuctionPhaseFilter<$PrismaModel>
   }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
-  }
-
-  export type IntNullableListFilter<$PrismaModel = never> = {
-    equals?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    has?: number | IntFieldRefInput<$PrismaModel> | null
-    hasEvery?: number[] | ListIntFieldRefInput<$PrismaModel>
-    hasSome?: number[] | ListIntFieldRefInput<$PrismaModel>
-    isEmpty?: boolean
-  }
 
   export type AuctionSequenceCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    player_ids?: SortOrder
+    players?: SortOrder
   }
 
   export type AuctionSequenceAvgOrderByAggregateInput = {
     id?: SortOrder
-    player_ids?: SortOrder
   }
 
   export type AuctionSequenceMaxOrderByAggregateInput = {
@@ -17609,44 +16315,6 @@ export namespace Prisma {
 
   export type AuctionSequenceSumOrderByAggregateInput = {
     id?: SortOrder
-    player_ids?: SortOrder
-  }
-
-  export type SealedBidTeam_idPlayer_idCompoundUniqueInput = {
-    team_id: string
-    player_id: string
-  }
-
-  export type SealedBidCountOrderByAggregateInput = {
-    id?: SortOrder
-    team_id?: SortOrder
-    player_id?: SortOrder
-    amount?: SortOrder
-    created_at?: SortOrder
-  }
-
-  export type SealedBidAvgOrderByAggregateInput = {
-    amount?: SortOrder
-  }
-
-  export type SealedBidMaxOrderByAggregateInput = {
-    id?: SortOrder
-    team_id?: SortOrder
-    player_id?: SortOrder
-    amount?: SortOrder
-    created_at?: SortOrder
-  }
-
-  export type SealedBidMinOrderByAggregateInput = {
-    id?: SortOrder
-    team_id?: SortOrder
-    player_id?: SortOrder
-    amount?: SortOrder
-    created_at?: SortOrder
-  }
-
-  export type SealedBidSumOrderByAggregateInput = {
-    amount?: SortOrder
   }
 
   export type EnumPowerCardTypeFilter<$PrismaModel = never> = {
@@ -17805,13 +16473,6 @@ export namespace Prisma {
     connect?: AuctionPlayerWhereUniqueInput | AuctionPlayerWhereUniqueInput[]
   }
 
-  export type SealedBidCreateNestedManyWithoutTeamInput = {
-    create?: XOR<SealedBidCreateWithoutTeamInput, SealedBidUncheckedCreateWithoutTeamInput> | SealedBidCreateWithoutTeamInput[] | SealedBidUncheckedCreateWithoutTeamInput[]
-    connectOrCreate?: SealedBidCreateOrConnectWithoutTeamInput | SealedBidCreateOrConnectWithoutTeamInput[]
-    createMany?: SealedBidCreateManyTeamInputEnvelope
-    connect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-  }
-
   export type TeamPlayerUncheckedCreateNestedManyWithoutTeamInput = {
     create?: XOR<TeamPlayerCreateWithoutTeamInput, TeamPlayerUncheckedCreateWithoutTeamInput> | TeamPlayerCreateWithoutTeamInput[] | TeamPlayerUncheckedCreateWithoutTeamInput[]
     connectOrCreate?: TeamPlayerCreateOrConnectWithoutTeamInput | TeamPlayerCreateOrConnectWithoutTeamInput[]
@@ -17837,13 +16498,6 @@ export namespace Prisma {
     connectOrCreate?: AuctionPlayerCreateOrConnectWithoutSold_to_teamInput | AuctionPlayerCreateOrConnectWithoutSold_to_teamInput[]
     createMany?: AuctionPlayerCreateManySold_to_teamInputEnvelope
     connect?: AuctionPlayerWhereUniqueInput | AuctionPlayerWhereUniqueInput[]
-  }
-
-  export type SealedBidUncheckedCreateNestedManyWithoutTeamInput = {
-    create?: XOR<SealedBidCreateWithoutTeamInput, SealedBidUncheckedCreateWithoutTeamInput> | SealedBidCreateWithoutTeamInput[] | SealedBidUncheckedCreateWithoutTeamInput[]
-    connectOrCreate?: SealedBidCreateOrConnectWithoutTeamInput | SealedBidCreateOrConnectWithoutTeamInput[]
-    createMany?: SealedBidCreateManyTeamInputEnvelope
-    connect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -17926,20 +16580,6 @@ export namespace Prisma {
     deleteMany?: AuctionPlayerScalarWhereInput | AuctionPlayerScalarWhereInput[]
   }
 
-  export type SealedBidUpdateManyWithoutTeamNestedInput = {
-    create?: XOR<SealedBidCreateWithoutTeamInput, SealedBidUncheckedCreateWithoutTeamInput> | SealedBidCreateWithoutTeamInput[] | SealedBidUncheckedCreateWithoutTeamInput[]
-    connectOrCreate?: SealedBidCreateOrConnectWithoutTeamInput | SealedBidCreateOrConnectWithoutTeamInput[]
-    upsert?: SealedBidUpsertWithWhereUniqueWithoutTeamInput | SealedBidUpsertWithWhereUniqueWithoutTeamInput[]
-    createMany?: SealedBidCreateManyTeamInputEnvelope
-    set?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    disconnect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    delete?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    connect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    update?: SealedBidUpdateWithWhereUniqueWithoutTeamInput | SealedBidUpdateWithWhereUniqueWithoutTeamInput[]
-    updateMany?: SealedBidUpdateManyWithWhereWithoutTeamInput | SealedBidUpdateManyWithWhereWithoutTeamInput[]
-    deleteMany?: SealedBidScalarWhereInput | SealedBidScalarWhereInput[]
-  }
-
   export type TeamPlayerUncheckedUpdateManyWithoutTeamNestedInput = {
     create?: XOR<TeamPlayerCreateWithoutTeamInput, TeamPlayerUncheckedCreateWithoutTeamInput> | TeamPlayerCreateWithoutTeamInput[] | TeamPlayerUncheckedCreateWithoutTeamInput[]
     connectOrCreate?: TeamPlayerCreateOrConnectWithoutTeamInput | TeamPlayerCreateOrConnectWithoutTeamInput[]
@@ -17992,20 +16632,6 @@ export namespace Prisma {
     deleteMany?: AuctionPlayerScalarWhereInput | AuctionPlayerScalarWhereInput[]
   }
 
-  export type SealedBidUncheckedUpdateManyWithoutTeamNestedInput = {
-    create?: XOR<SealedBidCreateWithoutTeamInput, SealedBidUncheckedCreateWithoutTeamInput> | SealedBidCreateWithoutTeamInput[] | SealedBidUncheckedCreateWithoutTeamInput[]
-    connectOrCreate?: SealedBidCreateOrConnectWithoutTeamInput | SealedBidCreateOrConnectWithoutTeamInput[]
-    upsert?: SealedBidUpsertWithWhereUniqueWithoutTeamInput | SealedBidUpsertWithWhereUniqueWithoutTeamInput[]
-    createMany?: SealedBidCreateManyTeamInputEnvelope
-    set?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    disconnect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    delete?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    connect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    update?: SealedBidUpdateWithWhereUniqueWithoutTeamInput | SealedBidUpdateWithWhereUniqueWithoutTeamInput[]
-    updateMany?: SealedBidUpdateManyWithWhereWithoutTeamInput | SealedBidUpdateManyWithWhereWithoutTeamInput[]
-    deleteMany?: SealedBidScalarWhereInput | SealedBidScalarWhereInput[]
-  }
-
   export type AuctionPlayerCreateNestedManyWithoutPlayerInput = {
     create?: XOR<AuctionPlayerCreateWithoutPlayerInput, AuctionPlayerUncheckedCreateWithoutPlayerInput> | AuctionPlayerCreateWithoutPlayerInput[] | AuctionPlayerUncheckedCreateWithoutPlayerInput[]
     connectOrCreate?: AuctionPlayerCreateOrConnectWithoutPlayerInput | AuctionPlayerCreateOrConnectWithoutPlayerInput[]
@@ -18020,13 +16646,6 @@ export namespace Prisma {
     connect?: TeamPlayerWhereUniqueInput | TeamPlayerWhereUniqueInput[]
   }
 
-  export type SealedBidCreateNestedManyWithoutPlayerInput = {
-    create?: XOR<SealedBidCreateWithoutPlayerInput, SealedBidUncheckedCreateWithoutPlayerInput> | SealedBidCreateWithoutPlayerInput[] | SealedBidUncheckedCreateWithoutPlayerInput[]
-    connectOrCreate?: SealedBidCreateOrConnectWithoutPlayerInput | SealedBidCreateOrConnectWithoutPlayerInput[]
-    createMany?: SealedBidCreateManyPlayerInputEnvelope
-    connect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-  }
-
   export type AuctionPlayerUncheckedCreateNestedManyWithoutPlayerInput = {
     create?: XOR<AuctionPlayerCreateWithoutPlayerInput, AuctionPlayerUncheckedCreateWithoutPlayerInput> | AuctionPlayerCreateWithoutPlayerInput[] | AuctionPlayerUncheckedCreateWithoutPlayerInput[]
     connectOrCreate?: AuctionPlayerCreateOrConnectWithoutPlayerInput | AuctionPlayerCreateOrConnectWithoutPlayerInput[]
@@ -18039,13 +16658,6 @@ export namespace Prisma {
     connectOrCreate?: TeamPlayerCreateOrConnectWithoutPlayerInput | TeamPlayerCreateOrConnectWithoutPlayerInput[]
     createMany?: TeamPlayerCreateManyPlayerInputEnvelope
     connect?: TeamPlayerWhereUniqueInput | TeamPlayerWhereUniqueInput[]
-  }
-
-  export type SealedBidUncheckedCreateNestedManyWithoutPlayerInput = {
-    create?: XOR<SealedBidCreateWithoutPlayerInput, SealedBidUncheckedCreateWithoutPlayerInput> | SealedBidCreateWithoutPlayerInput[] | SealedBidUncheckedCreateWithoutPlayerInput[]
-    connectOrCreate?: SealedBidCreateOrConnectWithoutPlayerInput | SealedBidCreateOrConnectWithoutPlayerInput[]
-    createMany?: SealedBidCreateManyPlayerInputEnvelope
-    connect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
   }
 
   export type EnumCategoryFieldUpdateOperationsInput = {
@@ -18112,20 +16724,6 @@ export namespace Prisma {
     deleteMany?: TeamPlayerScalarWhereInput | TeamPlayerScalarWhereInput[]
   }
 
-  export type SealedBidUpdateManyWithoutPlayerNestedInput = {
-    create?: XOR<SealedBidCreateWithoutPlayerInput, SealedBidUncheckedCreateWithoutPlayerInput> | SealedBidCreateWithoutPlayerInput[] | SealedBidUncheckedCreateWithoutPlayerInput[]
-    connectOrCreate?: SealedBidCreateOrConnectWithoutPlayerInput | SealedBidCreateOrConnectWithoutPlayerInput[]
-    upsert?: SealedBidUpsertWithWhereUniqueWithoutPlayerInput | SealedBidUpsertWithWhereUniqueWithoutPlayerInput[]
-    createMany?: SealedBidCreateManyPlayerInputEnvelope
-    set?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    disconnect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    delete?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    connect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    update?: SealedBidUpdateWithWhereUniqueWithoutPlayerInput | SealedBidUpdateWithWhereUniqueWithoutPlayerInput[]
-    updateMany?: SealedBidUpdateManyWithWhereWithoutPlayerInput | SealedBidUpdateManyWithWhereWithoutPlayerInput[]
-    deleteMany?: SealedBidScalarWhereInput | SealedBidScalarWhereInput[]
-  }
-
   export type AuctionPlayerUncheckedUpdateManyWithoutPlayerNestedInput = {
     create?: XOR<AuctionPlayerCreateWithoutPlayerInput, AuctionPlayerUncheckedCreateWithoutPlayerInput> | AuctionPlayerCreateWithoutPlayerInput[] | AuctionPlayerUncheckedCreateWithoutPlayerInput[]
     connectOrCreate?: AuctionPlayerCreateOrConnectWithoutPlayerInput | AuctionPlayerCreateOrConnectWithoutPlayerInput[]
@@ -18152,20 +16750,6 @@ export namespace Prisma {
     update?: TeamPlayerUpdateWithWhereUniqueWithoutPlayerInput | TeamPlayerUpdateWithWhereUniqueWithoutPlayerInput[]
     updateMany?: TeamPlayerUpdateManyWithWhereWithoutPlayerInput | TeamPlayerUpdateManyWithWhereWithoutPlayerInput[]
     deleteMany?: TeamPlayerScalarWhereInput | TeamPlayerScalarWhereInput[]
-  }
-
-  export type SealedBidUncheckedUpdateManyWithoutPlayerNestedInput = {
-    create?: XOR<SealedBidCreateWithoutPlayerInput, SealedBidUncheckedCreateWithoutPlayerInput> | SealedBidCreateWithoutPlayerInput[] | SealedBidUncheckedCreateWithoutPlayerInput[]
-    connectOrCreate?: SealedBidCreateOrConnectWithoutPlayerInput | SealedBidCreateOrConnectWithoutPlayerInput[]
-    upsert?: SealedBidUpsertWithWhereUniqueWithoutPlayerInput | SealedBidUpsertWithWhereUniqueWithoutPlayerInput[]
-    createMany?: SealedBidCreateManyPlayerInputEnvelope
-    set?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    disconnect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    delete?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    connect?: SealedBidWhereUniqueInput | SealedBidWhereUniqueInput[]
-    update?: SealedBidUpdateWithWhereUniqueWithoutPlayerInput | SealedBidUpdateWithWhereUniqueWithoutPlayerInput[]
-    updateMany?: SealedBidUpdateManyWithWhereWithoutPlayerInput | SealedBidUpdateManyWithWhereWithoutPlayerInput[]
-    deleteMany?: SealedBidScalarWhereInput | SealedBidScalarWhereInput[]
   }
 
   export type PlayerCreateNestedOneWithoutAuction_playersInput = {
@@ -18232,43 +16816,6 @@ export namespace Prisma {
 
   export type EnumAuctionPhaseFieldUpdateOperationsInput = {
     set?: $Enums.AuctionPhase
-  }
-
-  export type AuctionSequenceCreateplayer_idsInput = {
-    set: number[]
-  }
-
-  export type AuctionSequenceUpdateplayer_idsInput = {
-    set?: number[]
-    push?: number | number[]
-  }
-
-  export type TeamCreateNestedOneWithoutSealed_bidsInput = {
-    create?: XOR<TeamCreateWithoutSealed_bidsInput, TeamUncheckedCreateWithoutSealed_bidsInput>
-    connectOrCreate?: TeamCreateOrConnectWithoutSealed_bidsInput
-    connect?: TeamWhereUniqueInput
-  }
-
-  export type PlayerCreateNestedOneWithoutSealed_bidsInput = {
-    create?: XOR<PlayerCreateWithoutSealed_bidsInput, PlayerUncheckedCreateWithoutSealed_bidsInput>
-    connectOrCreate?: PlayerCreateOrConnectWithoutSealed_bidsInput
-    connect?: PlayerWhereUniqueInput
-  }
-
-  export type TeamUpdateOneRequiredWithoutSealed_bidsNestedInput = {
-    create?: XOR<TeamCreateWithoutSealed_bidsInput, TeamUncheckedCreateWithoutSealed_bidsInput>
-    connectOrCreate?: TeamCreateOrConnectWithoutSealed_bidsInput
-    upsert?: TeamUpsertWithoutSealed_bidsInput
-    connect?: TeamWhereUniqueInput
-    update?: XOR<XOR<TeamUpdateToOneWithWhereWithoutSealed_bidsInput, TeamUpdateWithoutSealed_bidsInput>, TeamUncheckedUpdateWithoutSealed_bidsInput>
-  }
-
-  export type PlayerUpdateOneRequiredWithoutSealed_bidsNestedInput = {
-    create?: XOR<PlayerCreateWithoutSealed_bidsInput, PlayerUncheckedCreateWithoutSealed_bidsInput>
-    connectOrCreate?: PlayerCreateOrConnectWithoutSealed_bidsInput
-    upsert?: PlayerUpsertWithoutSealed_bidsInput
-    connect?: PlayerWhereUniqueInput
-    update?: XOR<XOR<PlayerUpdateToOneWithWhereWithoutSealed_bidsInput, PlayerUpdateWithoutSealed_bidsInput>, PlayerUncheckedUpdateWithoutSealed_bidsInput>
   }
 
   export type TeamCreateNestedOneWithoutPower_cardsInput = {
@@ -18460,6 +17007,29 @@ export namespace Prisma {
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
   }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -18643,29 +17213,6 @@ export namespace Prisma {
     _min?: NestedEnumAuctionPhaseFilter<$PrismaModel>
     _max?: NestedEnumAuctionPhaseFilter<$PrismaModel>
   }
-  export type NestedJsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type NestedEnumPowerCardTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.PowerCardType | EnumPowerCardTypeFieldRefInput<$PrismaModel>
@@ -18768,30 +17315,6 @@ export namespace Prisma {
 
   export type AuctionPlayerCreateManySold_to_teamInputEnvelope = {
     data: AuctionPlayerCreateManySold_to_teamInput | AuctionPlayerCreateManySold_to_teamInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type SealedBidCreateWithoutTeamInput = {
-    id?: string
-    amount: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
-    player: PlayerCreateNestedOneWithoutSealed_bidsInput
-  }
-
-  export type SealedBidUncheckedCreateWithoutTeamInput = {
-    id?: string
-    player_id: string
-    amount: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
-  }
-
-  export type SealedBidCreateOrConnectWithoutTeamInput = {
-    where: SealedBidWhereUniqueInput
-    create: XOR<SealedBidCreateWithoutTeamInput, SealedBidUncheckedCreateWithoutTeamInput>
-  }
-
-  export type SealedBidCreateManyTeamInputEnvelope = {
-    data: SealedBidCreateManyTeamInput | SealedBidCreateManyTeamInput[]
     skipDuplicates?: boolean
   }
 
@@ -18899,33 +17422,6 @@ export namespace Prisma {
     sold_to_team_id?: StringNullableFilter<"AuctionPlayer"> | string | null
   }
 
-  export type SealedBidUpsertWithWhereUniqueWithoutTeamInput = {
-    where: SealedBidWhereUniqueInput
-    update: XOR<SealedBidUpdateWithoutTeamInput, SealedBidUncheckedUpdateWithoutTeamInput>
-    create: XOR<SealedBidCreateWithoutTeamInput, SealedBidUncheckedCreateWithoutTeamInput>
-  }
-
-  export type SealedBidUpdateWithWhereUniqueWithoutTeamInput = {
-    where: SealedBidWhereUniqueInput
-    data: XOR<SealedBidUpdateWithoutTeamInput, SealedBidUncheckedUpdateWithoutTeamInput>
-  }
-
-  export type SealedBidUpdateManyWithWhereWithoutTeamInput = {
-    where: SealedBidScalarWhereInput
-    data: XOR<SealedBidUpdateManyMutationInput, SealedBidUncheckedUpdateManyWithoutTeamInput>
-  }
-
-  export type SealedBidScalarWhereInput = {
-    AND?: SealedBidScalarWhereInput | SealedBidScalarWhereInput[]
-    OR?: SealedBidScalarWhereInput[]
-    NOT?: SealedBidScalarWhereInput | SealedBidScalarWhereInput[]
-    id?: StringFilter<"SealedBid"> | string
-    team_id?: StringFilter<"SealedBid"> | string
-    player_id?: StringFilter<"SealedBid"> | string
-    amount?: DecimalFilter<"SealedBid"> | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFilter<"SealedBid"> | Date | string
-  }
-
   export type AuctionPlayerCreateWithoutPlayerInput = {
     id?: string
     status?: $Enums.PlayerAuctionStatus
@@ -18972,30 +17468,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type SealedBidCreateWithoutPlayerInput = {
-    id?: string
-    amount: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
-    team: TeamCreateNestedOneWithoutSealed_bidsInput
-  }
-
-  export type SealedBidUncheckedCreateWithoutPlayerInput = {
-    id?: string
-    team_id: string
-    amount: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
-  }
-
-  export type SealedBidCreateOrConnectWithoutPlayerInput = {
-    where: SealedBidWhereUniqueInput
-    create: XOR<SealedBidCreateWithoutPlayerInput, SealedBidUncheckedCreateWithoutPlayerInput>
-  }
-
-  export type SealedBidCreateManyPlayerInputEnvelope = {
-    data: SealedBidCreateManyPlayerInput | SealedBidCreateManyPlayerInput[]
-    skipDuplicates?: boolean
-  }
-
   export type AuctionPlayerUpsertWithWhereUniqueWithoutPlayerInput = {
     where: AuctionPlayerWhereUniqueInput
     update: XOR<AuctionPlayerUpdateWithoutPlayerInput, AuctionPlayerUncheckedUpdateWithoutPlayerInput>
@@ -19026,22 +17498,6 @@ export namespace Prisma {
   export type TeamPlayerUpdateManyWithWhereWithoutPlayerInput = {
     where: TeamPlayerScalarWhereInput
     data: XOR<TeamPlayerUpdateManyMutationInput, TeamPlayerUncheckedUpdateManyWithoutPlayerInput>
-  }
-
-  export type SealedBidUpsertWithWhereUniqueWithoutPlayerInput = {
-    where: SealedBidWhereUniqueInput
-    update: XOR<SealedBidUpdateWithoutPlayerInput, SealedBidUncheckedUpdateWithoutPlayerInput>
-    create: XOR<SealedBidCreateWithoutPlayerInput, SealedBidUncheckedCreateWithoutPlayerInput>
-  }
-
-  export type SealedBidUpdateWithWhereUniqueWithoutPlayerInput = {
-    where: SealedBidWhereUniqueInput
-    data: XOR<SealedBidUpdateWithoutPlayerInput, SealedBidUncheckedUpdateWithoutPlayerInput>
-  }
-
-  export type SealedBidUpdateManyWithWhereWithoutPlayerInput = {
-    where: SealedBidScalarWhereInput
-    data: XOR<SealedBidUpdateManyMutationInput, SealedBidUncheckedUpdateManyWithoutPlayerInput>
   }
 
   export type PlayerCreateWithoutAuction_playersInput = {
@@ -19079,7 +17535,6 @@ export namespace Prisma {
     sub_bowling?: number | null
     sub_versatility?: number | null
     team_players?: TeamPlayerCreateNestedManyWithoutPlayerInput
-    sealed_bids?: SealedBidCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerUncheckedCreateWithoutAuction_playersInput = {
@@ -19117,7 +17572,6 @@ export namespace Prisma {
     sub_bowling?: number | null
     sub_versatility?: number | null
     team_players?: TeamPlayerUncheckedCreateNestedManyWithoutPlayerInput
-    sealed_bids?: SealedBidUncheckedCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerCreateOrConnectWithoutAuction_playersInput = {
@@ -19128,7 +17582,6 @@ export namespace Prisma {
   export type TeamCreateWithoutAuction_playersInput = {
     id?: string
     name: string
-    username: string
     password_hash: string
     active_session_id?: string | null
     brand_key?: string | null
@@ -19137,19 +17590,22 @@ export namespace Prisma {
     purse_remaining?: Decimal | DecimalJsLike | number | string
     squad_count?: number
     overseas_count?: number
+    batsmen_count?: number
+    bowlers_count?: number
+    ar_count?: number
+    wk_count?: number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: string | null
     primary_color?: string | null
     created_at?: Date | string
     team_players?: TeamPlayerCreateNestedManyWithoutTeamInput
     power_cards?: PowerCardCreateNestedManyWithoutTeamInput
     top11_selection?: Top11SelectionCreateNestedOneWithoutTeamInput
-    sealed_bids?: SealedBidCreateNestedManyWithoutTeamInput
   }
 
   export type TeamUncheckedCreateWithoutAuction_playersInput = {
     id?: string
     name: string
-    username: string
     password_hash: string
     active_session_id?: string | null
     brand_key?: string | null
@@ -19158,13 +17614,17 @@ export namespace Prisma {
     purse_remaining?: Decimal | DecimalJsLike | number | string
     squad_count?: number
     overseas_count?: number
+    batsmen_count?: number
+    bowlers_count?: number
+    ar_count?: number
+    wk_count?: number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: string | null
     primary_color?: string | null
     created_at?: Date | string
     team_players?: TeamPlayerUncheckedCreateNestedManyWithoutTeamInput
     power_cards?: PowerCardUncheckedCreateNestedManyWithoutTeamInput
     top11_selection?: Top11SelectionUncheckedCreateNestedOneWithoutTeamInput
-    sealed_bids?: SealedBidUncheckedCreateNestedManyWithoutTeamInput
   }
 
   export type TeamCreateOrConnectWithoutAuction_playersInput = {
@@ -19218,7 +17678,6 @@ export namespace Prisma {
     sub_bowling?: NullableIntFieldUpdateOperationsInput | number | null
     sub_versatility?: NullableIntFieldUpdateOperationsInput | number | null
     team_players?: TeamPlayerUpdateManyWithoutPlayerNestedInput
-    sealed_bids?: SealedBidUpdateManyWithoutPlayerNestedInput
   }
 
   export type PlayerUncheckedUpdateWithoutAuction_playersInput = {
@@ -19256,7 +17715,6 @@ export namespace Prisma {
     sub_bowling?: NullableIntFieldUpdateOperationsInput | number | null
     sub_versatility?: NullableIntFieldUpdateOperationsInput | number | null
     team_players?: TeamPlayerUncheckedUpdateManyWithoutPlayerNestedInput
-    sealed_bids?: SealedBidUncheckedUpdateManyWithoutPlayerNestedInput
   }
 
   export type TeamUpsertWithoutAuction_playersInput = {
@@ -19273,7 +17731,6 @@ export namespace Prisma {
   export type TeamUpdateWithoutAuction_playersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19282,19 +17739,22 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     team_players?: TeamPlayerUpdateManyWithoutTeamNestedInput
     power_cards?: PowerCardUpdateManyWithoutTeamNestedInput
     top11_selection?: Top11SelectionUpdateOneWithoutTeamNestedInput
-    sealed_bids?: SealedBidUpdateManyWithoutTeamNestedInput
   }
 
   export type TeamUncheckedUpdateWithoutAuction_playersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19303,19 +17763,22 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     team_players?: TeamPlayerUncheckedUpdateManyWithoutTeamNestedInput
     power_cards?: PowerCardUncheckedUpdateManyWithoutTeamNestedInput
     top11_selection?: Top11SelectionUncheckedUpdateOneWithoutTeamNestedInput
-    sealed_bids?: SealedBidUncheckedUpdateManyWithoutTeamNestedInput
   }
 
   export type TeamCreateWithoutTeam_playersInput = {
     id?: string
     name: string
-    username: string
     password_hash: string
     active_session_id?: string | null
     brand_key?: string | null
@@ -19324,19 +17787,22 @@ export namespace Prisma {
     purse_remaining?: Decimal | DecimalJsLike | number | string
     squad_count?: number
     overseas_count?: number
+    batsmen_count?: number
+    bowlers_count?: number
+    ar_count?: number
+    wk_count?: number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: string | null
     primary_color?: string | null
     created_at?: Date | string
     power_cards?: PowerCardCreateNestedManyWithoutTeamInput
     top11_selection?: Top11SelectionCreateNestedOneWithoutTeamInput
     auction_players?: AuctionPlayerCreateNestedManyWithoutSold_to_teamInput
-    sealed_bids?: SealedBidCreateNestedManyWithoutTeamInput
   }
 
   export type TeamUncheckedCreateWithoutTeam_playersInput = {
     id?: string
     name: string
-    username: string
     password_hash: string
     active_session_id?: string | null
     brand_key?: string | null
@@ -19345,13 +17811,17 @@ export namespace Prisma {
     purse_remaining?: Decimal | DecimalJsLike | number | string
     squad_count?: number
     overseas_count?: number
+    batsmen_count?: number
+    bowlers_count?: number
+    ar_count?: number
+    wk_count?: number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: string | null
     primary_color?: string | null
     created_at?: Date | string
     power_cards?: PowerCardUncheckedCreateNestedManyWithoutTeamInput
     top11_selection?: Top11SelectionUncheckedCreateNestedOneWithoutTeamInput
     auction_players?: AuctionPlayerUncheckedCreateNestedManyWithoutSold_to_teamInput
-    sealed_bids?: SealedBidUncheckedCreateNestedManyWithoutTeamInput
   }
 
   export type TeamCreateOrConnectWithoutTeam_playersInput = {
@@ -19394,7 +17864,6 @@ export namespace Prisma {
     sub_bowling?: number | null
     sub_versatility?: number | null
     auction_players?: AuctionPlayerCreateNestedManyWithoutPlayerInput
-    sealed_bids?: SealedBidCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerUncheckedCreateWithoutTeam_playersInput = {
@@ -19432,7 +17901,6 @@ export namespace Prisma {
     sub_bowling?: number | null
     sub_versatility?: number | null
     auction_players?: AuctionPlayerUncheckedCreateNestedManyWithoutPlayerInput
-    sealed_bids?: SealedBidUncheckedCreateNestedManyWithoutPlayerInput
   }
 
   export type PlayerCreateOrConnectWithoutTeam_playersInput = {
@@ -19454,7 +17922,6 @@ export namespace Prisma {
   export type TeamUpdateWithoutTeam_playersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19463,19 +17930,22 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     power_cards?: PowerCardUpdateManyWithoutTeamNestedInput
     top11_selection?: Top11SelectionUpdateOneWithoutTeamNestedInput
     auction_players?: AuctionPlayerUpdateManyWithoutSold_to_teamNestedInput
-    sealed_bids?: SealedBidUpdateManyWithoutTeamNestedInput
   }
 
   export type TeamUncheckedUpdateWithoutTeam_playersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19484,13 +17954,17 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     power_cards?: PowerCardUncheckedUpdateManyWithoutTeamNestedInput
     top11_selection?: Top11SelectionUncheckedUpdateOneWithoutTeamNestedInput
     auction_players?: AuctionPlayerUncheckedUpdateManyWithoutSold_to_teamNestedInput
-    sealed_bids?: SealedBidUncheckedUpdateManyWithoutTeamNestedInput
   }
 
   export type PlayerUpsertWithoutTeam_playersInput = {
@@ -19539,7 +18013,6 @@ export namespace Prisma {
     sub_bowling?: NullableIntFieldUpdateOperationsInput | number | null
     sub_versatility?: NullableIntFieldUpdateOperationsInput | number | null
     auction_players?: AuctionPlayerUpdateManyWithoutPlayerNestedInput
-    sealed_bids?: SealedBidUpdateManyWithoutPlayerNestedInput
   }
 
   export type PlayerUncheckedUpdateWithoutTeam_playersInput = {
@@ -19577,281 +18050,11 @@ export namespace Prisma {
     sub_bowling?: NullableIntFieldUpdateOperationsInput | number | null
     sub_versatility?: NullableIntFieldUpdateOperationsInput | number | null
     auction_players?: AuctionPlayerUncheckedUpdateManyWithoutPlayerNestedInput
-    sealed_bids?: SealedBidUncheckedUpdateManyWithoutPlayerNestedInput
-  }
-
-  export type TeamCreateWithoutSealed_bidsInput = {
-    id?: string
-    name: string
-    username: string
-    password_hash: string
-    active_session_id?: string | null
-    brand_key?: string | null
-    franchise_name?: string | null
-    brand_score?: Decimal | DecimalJsLike | number | string
-    purse_remaining?: Decimal | DecimalJsLike | number | string
-    squad_count?: number
-    overseas_count?: number
-    logo?: string | null
-    primary_color?: string | null
-    created_at?: Date | string
-    team_players?: TeamPlayerCreateNestedManyWithoutTeamInput
-    power_cards?: PowerCardCreateNestedManyWithoutTeamInput
-    top11_selection?: Top11SelectionCreateNestedOneWithoutTeamInput
-    auction_players?: AuctionPlayerCreateNestedManyWithoutSold_to_teamInput
-  }
-
-  export type TeamUncheckedCreateWithoutSealed_bidsInput = {
-    id?: string
-    name: string
-    username: string
-    password_hash: string
-    active_session_id?: string | null
-    brand_key?: string | null
-    franchise_name?: string | null
-    brand_score?: Decimal | DecimalJsLike | number | string
-    purse_remaining?: Decimal | DecimalJsLike | number | string
-    squad_count?: number
-    overseas_count?: number
-    logo?: string | null
-    primary_color?: string | null
-    created_at?: Date | string
-    team_players?: TeamPlayerUncheckedCreateNestedManyWithoutTeamInput
-    power_cards?: PowerCardUncheckedCreateNestedManyWithoutTeamInput
-    top11_selection?: Top11SelectionUncheckedCreateNestedOneWithoutTeamInput
-    auction_players?: AuctionPlayerUncheckedCreateNestedManyWithoutSold_to_teamInput
-  }
-
-  export type TeamCreateOrConnectWithoutSealed_bidsInput = {
-    where: TeamWhereUniqueInput
-    create: XOR<TeamCreateWithoutSealed_bidsInput, TeamUncheckedCreateWithoutSealed_bidsInput>
-  }
-
-  export type PlayerCreateWithoutSealed_bidsInput = {
-    id?: string
-    rank: number
-    name: string
-    team: string
-    role: string
-    category: $Enums.Category
-    pool: $Enums.Pool
-    grade: $Enums.Grade
-    rating: number
-    nationality: $Enums.Nationality
-    nationality_raw?: string | null
-    base_price: Decimal | DecimalJsLike | number | string
-    legacy?: number
-    url?: string | null
-    image_url?: string | null
-    is_riddle?: boolean
-    matches?: number | null
-    bat_runs?: number | null
-    bat_sr?: Decimal | DecimalJsLike | number | string | null
-    bat_average?: Decimal | DecimalJsLike | number | string | null
-    bowl_wickets?: number | null
-    bowl_eco?: Decimal | DecimalJsLike | number | string | null
-    bowl_avg?: Decimal | DecimalJsLike | number | string | null
-    sub_experience?: number | null
-    sub_scoring?: number | null
-    sub_impact?: number | null
-    sub_consistency?: number | null
-    sub_wicket_taking?: number | null
-    sub_economy?: number | null
-    sub_efficiency?: number | null
-    sub_batting?: number | null
-    sub_bowling?: number | null
-    sub_versatility?: number | null
-    auction_players?: AuctionPlayerCreateNestedManyWithoutPlayerInput
-    team_players?: TeamPlayerCreateNestedManyWithoutPlayerInput
-  }
-
-  export type PlayerUncheckedCreateWithoutSealed_bidsInput = {
-    id?: string
-    rank: number
-    name: string
-    team: string
-    role: string
-    category: $Enums.Category
-    pool: $Enums.Pool
-    grade: $Enums.Grade
-    rating: number
-    nationality: $Enums.Nationality
-    nationality_raw?: string | null
-    base_price: Decimal | DecimalJsLike | number | string
-    legacy?: number
-    url?: string | null
-    image_url?: string | null
-    is_riddle?: boolean
-    matches?: number | null
-    bat_runs?: number | null
-    bat_sr?: Decimal | DecimalJsLike | number | string | null
-    bat_average?: Decimal | DecimalJsLike | number | string | null
-    bowl_wickets?: number | null
-    bowl_eco?: Decimal | DecimalJsLike | number | string | null
-    bowl_avg?: Decimal | DecimalJsLike | number | string | null
-    sub_experience?: number | null
-    sub_scoring?: number | null
-    sub_impact?: number | null
-    sub_consistency?: number | null
-    sub_wicket_taking?: number | null
-    sub_economy?: number | null
-    sub_efficiency?: number | null
-    sub_batting?: number | null
-    sub_bowling?: number | null
-    sub_versatility?: number | null
-    auction_players?: AuctionPlayerUncheckedCreateNestedManyWithoutPlayerInput
-    team_players?: TeamPlayerUncheckedCreateNestedManyWithoutPlayerInput
-  }
-
-  export type PlayerCreateOrConnectWithoutSealed_bidsInput = {
-    where: PlayerWhereUniqueInput
-    create: XOR<PlayerCreateWithoutSealed_bidsInput, PlayerUncheckedCreateWithoutSealed_bidsInput>
-  }
-
-  export type TeamUpsertWithoutSealed_bidsInput = {
-    update: XOR<TeamUpdateWithoutSealed_bidsInput, TeamUncheckedUpdateWithoutSealed_bidsInput>
-    create: XOR<TeamCreateWithoutSealed_bidsInput, TeamUncheckedCreateWithoutSealed_bidsInput>
-    where?: TeamWhereInput
-  }
-
-  export type TeamUpdateToOneWithWhereWithoutSealed_bidsInput = {
-    where?: TeamWhereInput
-    data: XOR<TeamUpdateWithoutSealed_bidsInput, TeamUncheckedUpdateWithoutSealed_bidsInput>
-  }
-
-  export type TeamUpdateWithoutSealed_bidsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    password_hash?: StringFieldUpdateOperationsInput | string
-    active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
-    brand_key?: NullableStringFieldUpdateOperationsInput | string | null
-    franchise_name?: NullableStringFieldUpdateOperationsInput | string | null
-    brand_score?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    squad_count?: IntFieldUpdateOperationsInput | number
-    overseas_count?: IntFieldUpdateOperationsInput | number
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    primary_color?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    team_players?: TeamPlayerUpdateManyWithoutTeamNestedInput
-    power_cards?: PowerCardUpdateManyWithoutTeamNestedInput
-    top11_selection?: Top11SelectionUpdateOneWithoutTeamNestedInput
-    auction_players?: AuctionPlayerUpdateManyWithoutSold_to_teamNestedInput
-  }
-
-  export type TeamUncheckedUpdateWithoutSealed_bidsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    password_hash?: StringFieldUpdateOperationsInput | string
-    active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
-    brand_key?: NullableStringFieldUpdateOperationsInput | string | null
-    franchise_name?: NullableStringFieldUpdateOperationsInput | string | null
-    brand_score?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    squad_count?: IntFieldUpdateOperationsInput | number
-    overseas_count?: IntFieldUpdateOperationsInput | number
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    primary_color?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    team_players?: TeamPlayerUncheckedUpdateManyWithoutTeamNestedInput
-    power_cards?: PowerCardUncheckedUpdateManyWithoutTeamNestedInput
-    top11_selection?: Top11SelectionUncheckedUpdateOneWithoutTeamNestedInput
-    auction_players?: AuctionPlayerUncheckedUpdateManyWithoutSold_to_teamNestedInput
-  }
-
-  export type PlayerUpsertWithoutSealed_bidsInput = {
-    update: XOR<PlayerUpdateWithoutSealed_bidsInput, PlayerUncheckedUpdateWithoutSealed_bidsInput>
-    create: XOR<PlayerCreateWithoutSealed_bidsInput, PlayerUncheckedCreateWithoutSealed_bidsInput>
-    where?: PlayerWhereInput
-  }
-
-  export type PlayerUpdateToOneWithWhereWithoutSealed_bidsInput = {
-    where?: PlayerWhereInput
-    data: XOR<PlayerUpdateWithoutSealed_bidsInput, PlayerUncheckedUpdateWithoutSealed_bidsInput>
-  }
-
-  export type PlayerUpdateWithoutSealed_bidsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    rank?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    team?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    category?: EnumCategoryFieldUpdateOperationsInput | $Enums.Category
-    pool?: EnumPoolFieldUpdateOperationsInput | $Enums.Pool
-    grade?: EnumGradeFieldUpdateOperationsInput | $Enums.Grade
-    rating?: IntFieldUpdateOperationsInput | number
-    nationality?: EnumNationalityFieldUpdateOperationsInput | $Enums.Nationality
-    nationality_raw?: NullableStringFieldUpdateOperationsInput | string | null
-    base_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    legacy?: IntFieldUpdateOperationsInput | number
-    url?: NullableStringFieldUpdateOperationsInput | string | null
-    image_url?: NullableStringFieldUpdateOperationsInput | string | null
-    is_riddle?: BoolFieldUpdateOperationsInput | boolean
-    matches?: NullableIntFieldUpdateOperationsInput | number | null
-    bat_runs?: NullableIntFieldUpdateOperationsInput | number | null
-    bat_sr?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    bat_average?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    bowl_wickets?: NullableIntFieldUpdateOperationsInput | number | null
-    bowl_eco?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    bowl_avg?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    sub_experience?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_scoring?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_impact?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_consistency?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_wicket_taking?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_economy?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_efficiency?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_batting?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_bowling?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_versatility?: NullableIntFieldUpdateOperationsInput | number | null
-    auction_players?: AuctionPlayerUpdateManyWithoutPlayerNestedInput
-    team_players?: TeamPlayerUpdateManyWithoutPlayerNestedInput
-  }
-
-  export type PlayerUncheckedUpdateWithoutSealed_bidsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    rank?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    team?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    category?: EnumCategoryFieldUpdateOperationsInput | $Enums.Category
-    pool?: EnumPoolFieldUpdateOperationsInput | $Enums.Pool
-    grade?: EnumGradeFieldUpdateOperationsInput | $Enums.Grade
-    rating?: IntFieldUpdateOperationsInput | number
-    nationality?: EnumNationalityFieldUpdateOperationsInput | $Enums.Nationality
-    nationality_raw?: NullableStringFieldUpdateOperationsInput | string | null
-    base_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    legacy?: IntFieldUpdateOperationsInput | number
-    url?: NullableStringFieldUpdateOperationsInput | string | null
-    image_url?: NullableStringFieldUpdateOperationsInput | string | null
-    is_riddle?: BoolFieldUpdateOperationsInput | boolean
-    matches?: NullableIntFieldUpdateOperationsInput | number | null
-    bat_runs?: NullableIntFieldUpdateOperationsInput | number | null
-    bat_sr?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    bat_average?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    bowl_wickets?: NullableIntFieldUpdateOperationsInput | number | null
-    bowl_eco?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    bowl_avg?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    sub_experience?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_scoring?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_impact?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_consistency?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_wicket_taking?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_economy?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_efficiency?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_batting?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_bowling?: NullableIntFieldUpdateOperationsInput | number | null
-    sub_versatility?: NullableIntFieldUpdateOperationsInput | number | null
-    auction_players?: AuctionPlayerUncheckedUpdateManyWithoutPlayerNestedInput
-    team_players?: TeamPlayerUncheckedUpdateManyWithoutPlayerNestedInput
   }
 
   export type TeamCreateWithoutPower_cardsInput = {
     id?: string
     name: string
-    username: string
     password_hash: string
     active_session_id?: string | null
     brand_key?: string | null
@@ -19860,19 +18063,22 @@ export namespace Prisma {
     purse_remaining?: Decimal | DecimalJsLike | number | string
     squad_count?: number
     overseas_count?: number
+    batsmen_count?: number
+    bowlers_count?: number
+    ar_count?: number
+    wk_count?: number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: string | null
     primary_color?: string | null
     created_at?: Date | string
     team_players?: TeamPlayerCreateNestedManyWithoutTeamInput
     top11_selection?: Top11SelectionCreateNestedOneWithoutTeamInput
     auction_players?: AuctionPlayerCreateNestedManyWithoutSold_to_teamInput
-    sealed_bids?: SealedBidCreateNestedManyWithoutTeamInput
   }
 
   export type TeamUncheckedCreateWithoutPower_cardsInput = {
     id?: string
     name: string
-    username: string
     password_hash: string
     active_session_id?: string | null
     brand_key?: string | null
@@ -19881,13 +18087,17 @@ export namespace Prisma {
     purse_remaining?: Decimal | DecimalJsLike | number | string
     squad_count?: number
     overseas_count?: number
+    batsmen_count?: number
+    bowlers_count?: number
+    ar_count?: number
+    wk_count?: number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: string | null
     primary_color?: string | null
     created_at?: Date | string
     team_players?: TeamPlayerUncheckedCreateNestedManyWithoutTeamInput
     top11_selection?: Top11SelectionUncheckedCreateNestedOneWithoutTeamInput
     auction_players?: AuctionPlayerUncheckedCreateNestedManyWithoutSold_to_teamInput
-    sealed_bids?: SealedBidUncheckedCreateNestedManyWithoutTeamInput
   }
 
   export type TeamCreateOrConnectWithoutPower_cardsInput = {
@@ -19909,7 +18119,6 @@ export namespace Prisma {
   export type TeamUpdateWithoutPower_cardsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19918,19 +18127,22 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     team_players?: TeamPlayerUpdateManyWithoutTeamNestedInput
     top11_selection?: Top11SelectionUpdateOneWithoutTeamNestedInput
     auction_players?: AuctionPlayerUpdateManyWithoutSold_to_teamNestedInput
-    sealed_bids?: SealedBidUpdateManyWithoutTeamNestedInput
   }
 
   export type TeamUncheckedUpdateWithoutPower_cardsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19939,19 +18151,22 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     team_players?: TeamPlayerUncheckedUpdateManyWithoutTeamNestedInput
     top11_selection?: Top11SelectionUncheckedUpdateOneWithoutTeamNestedInput
     auction_players?: AuctionPlayerUncheckedUpdateManyWithoutSold_to_teamNestedInput
-    sealed_bids?: SealedBidUncheckedUpdateManyWithoutTeamNestedInput
   }
 
   export type TeamCreateWithoutTop11_selectionInput = {
     id?: string
     name: string
-    username: string
     password_hash: string
     active_session_id?: string | null
     brand_key?: string | null
@@ -19960,19 +18175,22 @@ export namespace Prisma {
     purse_remaining?: Decimal | DecimalJsLike | number | string
     squad_count?: number
     overseas_count?: number
+    batsmen_count?: number
+    bowlers_count?: number
+    ar_count?: number
+    wk_count?: number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: string | null
     primary_color?: string | null
     created_at?: Date | string
     team_players?: TeamPlayerCreateNestedManyWithoutTeamInput
     power_cards?: PowerCardCreateNestedManyWithoutTeamInput
     auction_players?: AuctionPlayerCreateNestedManyWithoutSold_to_teamInput
-    sealed_bids?: SealedBidCreateNestedManyWithoutTeamInput
   }
 
   export type TeamUncheckedCreateWithoutTop11_selectionInput = {
     id?: string
     name: string
-    username: string
     password_hash: string
     active_session_id?: string | null
     brand_key?: string | null
@@ -19981,13 +18199,17 @@ export namespace Prisma {
     purse_remaining?: Decimal | DecimalJsLike | number | string
     squad_count?: number
     overseas_count?: number
+    batsmen_count?: number
+    bowlers_count?: number
+    ar_count?: number
+    wk_count?: number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: string | null
     primary_color?: string | null
     created_at?: Date | string
     team_players?: TeamPlayerUncheckedCreateNestedManyWithoutTeamInput
     power_cards?: PowerCardUncheckedCreateNestedManyWithoutTeamInput
     auction_players?: AuctionPlayerUncheckedCreateNestedManyWithoutSold_to_teamInput
-    sealed_bids?: SealedBidUncheckedCreateNestedManyWithoutTeamInput
   }
 
   export type TeamCreateOrConnectWithoutTop11_selectionInput = {
@@ -20009,7 +18231,6 @@ export namespace Prisma {
   export type TeamUpdateWithoutTop11_selectionInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20018,19 +18239,22 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     team_players?: TeamPlayerUpdateManyWithoutTeamNestedInput
     power_cards?: PowerCardUpdateManyWithoutTeamNestedInput
     auction_players?: AuctionPlayerUpdateManyWithoutSold_to_teamNestedInput
-    sealed_bids?: SealedBidUpdateManyWithoutTeamNestedInput
   }
 
   export type TeamUncheckedUpdateWithoutTop11_selectionInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
     active_session_id?: NullableStringFieldUpdateOperationsInput | string | null
     brand_key?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20039,13 +18263,17 @@ export namespace Prisma {
     purse_remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     squad_count?: IntFieldUpdateOperationsInput | number
     overseas_count?: IntFieldUpdateOperationsInput | number
+    batsmen_count?: IntFieldUpdateOperationsInput | number
+    bowlers_count?: IntFieldUpdateOperationsInput | number
+    ar_count?: IntFieldUpdateOperationsInput | number
+    wk_count?: IntFieldUpdateOperationsInput | number
+    purchased_players?: JsonNullValueInput | InputJsonValue
     logo?: NullableStringFieldUpdateOperationsInput | string | null
     primary_color?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     team_players?: TeamPlayerUncheckedUpdateManyWithoutTeamNestedInput
     power_cards?: PowerCardUncheckedUpdateManyWithoutTeamNestedInput
     auction_players?: AuctionPlayerUncheckedUpdateManyWithoutSold_to_teamNestedInput
-    sealed_bids?: SealedBidUncheckedUpdateManyWithoutTeamNestedInput
   }
 
   export type TeamPlayerCreateManyTeamInput = {
@@ -20065,13 +18293,6 @@ export namespace Prisma {
     player_id: string
     status?: $Enums.PlayerAuctionStatus
     sold_price?: Decimal | DecimalJsLike | number | string | null
-  }
-
-  export type SealedBidCreateManyTeamInput = {
-    id?: string
-    player_id: string
-    amount: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
   }
 
   export type TeamPlayerUpdateWithoutTeamInput = {
@@ -20131,27 +18352,6 @@ export namespace Prisma {
     sold_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
-  export type SealedBidUpdateWithoutTeamInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    player?: PlayerUpdateOneRequiredWithoutSealed_bidsNestedInput
-  }
-
-  export type SealedBidUncheckedUpdateWithoutTeamInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    player_id?: StringFieldUpdateOperationsInput | string
-    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SealedBidUncheckedUpdateManyWithoutTeamInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    player_id?: StringFieldUpdateOperationsInput | string
-    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type AuctionPlayerCreateManyPlayerInput = {
     id?: string
     status?: $Enums.PlayerAuctionStatus
@@ -20163,13 +18363,6 @@ export namespace Prisma {
     id?: string
     team_id: string
     price_paid: Decimal | DecimalJsLike | number | string
-  }
-
-  export type SealedBidCreateManyPlayerInput = {
-    id?: string
-    team_id: string
-    amount: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
   }
 
   export type AuctionPlayerUpdateWithoutPlayerInput = {
@@ -20209,27 +18402,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     team_id?: StringFieldUpdateOperationsInput | string
     price_paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-  }
-
-  export type SealedBidUpdateWithoutPlayerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    team?: TeamUpdateOneRequiredWithoutSealed_bidsNestedInput
-  }
-
-  export type SealedBidUncheckedUpdateWithoutPlayerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    team_id?: StringFieldUpdateOperationsInput | string
-    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SealedBidUncheckedUpdateManyWithoutPlayerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    team_id?: StringFieldUpdateOperationsInput | string
-    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
