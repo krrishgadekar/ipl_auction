@@ -1,94 +1,50 @@
-// API Wrapper Layer
-// This file provides a clean interface to fetch player data
-// Currently uses MOCK data, easily switchable to real backend API
+// ═══════════════════════════════════════════════════════════════
+// Frontend API — Players
+// Connects to real backend via NEXT_PUBLIC_API_URL
+// ═══════════════════════════════════════════════════════════════
 
-import { Player, mockPlayers, getMockPlayerByRank, getMockPlayersByPool, getMockPlayersByCategory } from '../mockData/players';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-// Environment flag to switch between mock and real API
-const USE_MOCK_DATA = true; // TODO: Change to false when backend is ready
+import type { Player } from './auction';
 
-/**
- * Get all players
- * TODO: Replace with real API call: GET /api/players
- */
-export async function getAllPlayers(): Promise<Player[]> {
-    if (USE_MOCK_DATA) {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 100));
-        return mockPlayers;
+async function fetchJSON<T>(path: string): Promise<T> {
+    const res = await fetch(`${API_URL}${path}`, {
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error(err.error || `API error: ${res.status}`);
     }
-
-    // TODO: Real implementation
-    const response = await fetch('/api/players');
-    if (!response.ok) throw new Error('Failed to fetch players');
-    return response.json();
+    return res.json();
 }
 
-/**
- * Get player by rank
- * TODO: Replace with real API call: GET /api/players/:rank
- */
-export async function getPlayerByRank(rank: number): Promise<Player | null> {
-    if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        return getMockPlayerByRank(rank) || null;
-    }
-
-    // TODO: Real implementation
-    const response = await fetch(`/api/players/${rank}`);
-    if (!response.ok) return null;
-    return response.json();
+/** Get all players (optional filters: pool, category, grade, search) */
+export async function getAllPlayers(filters?: {
+    pool?: string;
+    category?: string;
+    grade?: string;
+    search?: string;
+}): Promise<Player[]> {
+    const params = new URLSearchParams();
+    if (filters?.pool) params.set('pool', filters.pool);
+    if (filters?.category) params.set('category', filters.category);
+    if (filters?.grade) params.set('grade', filters.grade);
+    if (filters?.search) params.set('search', filters.search);
+    const qs = params.toString();
+    return fetchJSON(`/api/players${qs ? `?${qs}` : ''}`);
 }
 
-/**
- * Get players by pool
- * TODO: Replace with real API call: GET /api/players?pool=BAT_WK
- */
-export async function getPlayersByPool(pool: 'BAT_WK' | 'BOWL' | 'AR'): Promise<Player[]> {
-    if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        return getMockPlayersByPool(pool);
-    }
-
-    // TODO: Real implementation
-    const response = await fetch(`/api/players?pool=${pool}`);
-    if (!response.ok) throw new Error('Failed to fetch players by pool');
-    return response.json();
+/** Get player by rank */
+export async function getPlayerByRank(rank: number): Promise<Player> {
+    return fetchJSON(`/api/players/rank/${rank}`);
 }
 
-/**
- * Get current player being auctioned
- * TODO: Replace with real API call: GET /api/auction/current-player
- */
-export async function getCurrentPlayer(): Promise<Player | null> {
-    if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        // For mock, return first player
-        return mockPlayers[0] || null;
-    }
-
-    // TODO: Real implementation
-    const response = await fetch('/api/auction/current-player');
-    if (!response.ok) return null;
-    return response.json();
+/** Get player by UUID */
+export async function getPlayerById(id: string): Promise<Player> {
+    return fetchJSON(`/api/players/${id}`);
 }
 
-/**
- * Search players by name
- * TODO: Replace with real API call: GET /api/players/search?q=name
- */
+/** Search players by name */
 export async function searchPlayers(query: string): Promise<Player[]> {
-    if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        const lowerQuery = query.toLowerCase();
-        return mockPlayers.filter(p =>
-            p.player.toLowerCase().includes(lowerQuery) ||
-            p.team.toLowerCase().includes(lowerQuery)
-        );
-    }
-
-    // TODO: Real implementation
-    const response = await fetch(`/api/players/search?q=${encodeURIComponent(query)}`);
-    if (!response.ok) throw new Error('Failed to search players');
-    return response.json();
+    return getAllPlayers({ search: query });
 }

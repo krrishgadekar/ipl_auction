@@ -1,66 +1,86 @@
-import express from 'express';
-const router = express.Router();
+// ═══════════════════════════════════════════════════════════════
+// Team Routes — Team data with serialized responses
+// ═══════════════════════════════════════════════════════════════
+import { Router } from 'express';
 import prisma from '../config/db.js';
+import { serializeTeam, serializePlayer } from '../utils/serializer.js';
+
+const router = Router();
 
 /**
- * @swagger
- * /api/team/me:
- *   get:
- *     summary: Get my team profile (Placeholder for authenticated user)
- *     tags: [Team]
+ * GET /api/teams
+ * Returns all teams with serialized camelCase fields
  */
-router.get('/me', async (req, res) => {
-    // In a real app, we'd get teamId from JWT
-    const team = await prisma.team.findFirst({
-        include: { team_players: { include: { player: true } } }
-    });
-    res.json(team);
+router.get('/', async (req, res) => {
+    try {
+        const teams = await prisma.team.findMany({
+            include: {
+                power_cards: true,
+                team_players: {
+                    include: { player: true },
+                },
+            },
+            orderBy: { purse_remaining: 'desc' },
+        });
+        res.json(teams.map(serializeTeam));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 /**
- * @swagger
- * /api/team/{id}:
- *   get:
- *     summary: Get team profile and roster
- *     tags: [Team]
+ * GET /api/teams/:id
+ * Returns single team with full squad and power cards
  */
 router.get('/:id', async (req, res) => {
     try {
         const team = await prisma.team.findUnique({
             where: { id: req.params.id },
-            include: { team_players: { include: { player: true } } }
+            include: {
+                power_cards: true,
+                team_players: {
+                    include: { player: true },
+                },
+            },
         });
-        if (!team) return res.status(404).json({ message: 'Team not found' });
-        res.json(team);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        if (!team) return res.status(404).json({ error: 'Team not found' });
+        res.json(serializeTeam(team));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
 /**
- * @swagger
- * /api/team/top11:
- *   post:
- *     summary: Select Top 11 players, captain, and vice-captain
- *     tags: [Team]
+ * GET /api/teams/:id/squad
+ * Returns team's squad (player details + price paid)
  */
-router.post('/top11', async (req, res) => {
-    const { teamId, playerIds, captainId, viceCaptainId } = req.body;
-
-    if (playerIds.length !== 11) {
-        return res.status(400).json({ message: 'Must select exactly 11 players' });
-    }
-
+router.get('/:id/squad', async (req, res) => {
     try {
-        const selection = await prisma.top11Selection.upsert({
-            where: { team_id: teamId },
-            update: { player_ids: playerIds, captain_id: captainId, vice_captain_id: viceCaptainId },
-            create: { team_id: teamId, player_ids: playerIds, captain_id: captainId, vice_captain_id: viceCaptainId }
+        const teamPlayers = await prisma.teamPlayer.findMany({
+            where: { team_id: req.params.id },
+            include: { player: true },
         });
-        req.io.emit('TOP11_LOCKED', { teamId });
-        res.json(selection);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.json(teamPlayers.map(tp => ({
+            player: serializePlayer(tp.player),
+            pricePaid: Number(tp.price_paid),
+        })));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * GET /api/teams/:id/power-cards
+ * Returns team's power cards (serialized)
+ */
+router.get('/:id/power-cards', async (req, res) => {
+    try {
+        const cards = await prisma.powerCard.findMany({
+            where: { team_id: req.params.id },
+        });
+        res.json(cards);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
