@@ -3,448 +3,191 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { useState, useRef } from 'react';
+import dynamic from 'next/dynamic';
 
-/* ─── Ocean Bubble Particles ─── */
-function OceanBubbles() {
-    const bubbles = Array.from({ length: 30 }, (_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        size: Math.random() * 10 + 4,
-        duration: Math.random() * 18 + 10,
-        delay: Math.random() * 10,
-        color: Math.random() > 0.5 ? 'rgba(43,181,204,' : 'rgba(212,175,55,',
-        opacity: Math.random() * 0.4 + 0.1,
-    }));
+const Logo3D = dynamic(() => import('@/components/Logo3D'), {
+    ssr: false,
+    loading: () => <div className="logo3d-container"><div className="logo3d-loader"><div className="logo3d-spinner" /></div></div>,
+});
 
+/* ─── SVG Icons ─── */
+function IconMonitor() {
     return (
-        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-            {bubbles.map((b) => (
-                <div
-                    key={b.id}
-                    className="particle"
-                    style={{
-                        left: b.left,
-                        width: `${b.size}px`,
-                        height: `${b.size}px`,
-                        background: `radial-gradient(circle at 35% 35%, ${b.color}0.9) 0%, ${b.color}0.3) 100%)`,
-                        border: `1px solid ${b.color}0.5)`,
-                        borderRadius: '50%',
-                        animationDuration: `${b.duration}s`,
-                        animationDelay: `${b.delay}s`,
-                        opacity: b.opacity,
-                        backdropFilter: 'blur(1px)',
-                    }}
-                />
-            ))}
-        </div>
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <path d="M8 21h8M12 17v4" />
+        </svg>
     );
 }
 
-/* ─── Wave SVG Footer ─── */
-function OceanWaves() {
+function IconCog() {
     return (
-        <div className="ocean-waves">
-            <svg className="wave-layer-1" viewBox="0 0 1440 200" preserveAspectRatio="none" fill="none">
-                <path d="M0,100 C240,160 480,40 720,100 C960,160 1200,40 1440,100 L1440,200 L0,200 Z"
-                    fill="url(#waveGrad1)" />
-                <defs>
-                    <linearGradient id="waveGrad1" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#0e4d5e" />
-                        <stop offset="50%" stopColor="#1a8a9e" />
-                        <stop offset="100%" stopColor="#0e4d5e" />
-                    </linearGradient>
-                </defs>
-            </svg>
-            <svg className="wave-layer-2" viewBox="0 0 1440 200" preserveAspectRatio="none" fill="none" style={{ bottom: 0 }}>
-                <path d="M0,130 C360,60 720,180 1080,100 C1260,60 1380,120 1440,130 L1440,200 L0,200 Z"
-                    fill="url(#waveGrad2)" />
-                <defs>
-                    <linearGradient id="waveGrad2" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#0a1628" />
-                        <stop offset="50%" stopColor="#0d2137" />
-                        <stop offset="100%" stopColor="#0a1628" />
-                    </linearGradient>
-                </defs>
-            </svg>
-        </div>
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
     );
 }
 
-/* ─── 3D Tilt Card ─── */
-function TiltCard({ children, className, glowColor }: {
-    children: React.ReactNode;
-    className?: string;
-    glowColor: string;
-}) {
-    const cardRef = useRef<HTMLDivElement>(null);
-    const [tilt, setTilt] = useState({ x: 0, y: 0 });
-    const [hovered, setHovered] = useState(false);
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!cardRef.current) return;
-        const rect = cardRef.current.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-        setTilt({ x: y * 12, y: -x * 12 });
-    };
-
+function IconUsers() {
     return (
-        <motion.div
-            ref={cardRef}
-            onMouseMove={handleMouseMove}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => { setTilt({ x: 0, y: 0 }); setHovered(false); }}
-            style={{
-                transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-                transformStyle: 'preserve-3d',
-            }}
-            className={`relative transition-transform duration-150 ${className}`}
-        >
-            {/* Glow halo */}
-            <div className={`
-                absolute inset-0 rounded-3xl blur-xl transition-opacity duration-400
-                ${hovered ? 'opacity-30' : 'opacity-0'}
-            `} style={{ background: glowColor }} />
-            {children}
-        </motion.div>
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
     );
 }
 
+function IconTrophy() {
+    return (
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+            <path d="M4 22h16" />
+            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22" />
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22" />
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+        </svg>
+    );
+}
+
+/* ─── Nav Card Data ─── */
 const NAV_LINKS = [
     {
         title: 'Big Screen',
-        description: 'Immersive projector display for live audience',
+        description: 'Projector display for live audience viewing',
         href: '/big-screen',
-        icon: '📺',
-        gradient: 'linear-gradient(135deg, #0e4d5e, #1a8a9e)',
-        glow: 'linear-gradient(135deg, #1a8a9e, #2bb5cc)',
-        borderColor: 'rgba(43,181,204,0.3)',
-        badge: '1920×1080',
-    },
-    {
-        title: 'All Teams',
-        description: 'Complete overview of all team standings',
-        href: '/teams',
-        icon: '🏆',
-        gradient: 'linear-gradient(135deg, #7a5c00, #c9a84c)',
-        glow: 'linear-gradient(135deg, #c9a84c, #f5d569)',
-        borderColor: 'rgba(212,175,55,0.3)',
-        badge: 'Leaderboard',
+        Icon: IconMonitor,
+        accent: '#2bb5cc',
+        tag: '1920×1080',
     },
     {
         title: 'Admin Panel',
-        description: 'Full control dashboard for auctioneers',
+        description: 'Auctioneer control center and bid management',
         href: '/admin',
-        icon: '🎛️',
-        gradient: 'linear-gradient(135deg, #0d3a52, #1a6a82)',
-        glow: 'linear-gradient(135deg, #2bb5cc, #5ccfdf)',
-        borderColor: 'rgba(43,181,204,0.25)',
-        badge: 'Control',
+        Icon: IconCog,
+        accent: '#6c8aff',
+        tag: 'Control',
     },
     {
         title: 'Team Dashboard',
-        description: 'Real-time view for team participants',
+        description: 'Real-time squad builder for team owners',
         href: '/team/1',
-        icon: '👥',
-        gradient: 'linear-gradient(135deg, #0a3d2e, #1a6a52)',
-        glow: 'linear-gradient(135deg, #2dd4a0, #5ee8c5)',
-        borderColor: 'rgba(45,212,160,0.25)',
-        badge: 'Live',
+        Icon: IconUsers,
+        accent: '#2dd4a0',
+        tag: 'Live',
     },
     {
         title: 'Final Standings',
         description: 'Leaderboard with scores & winner declaration',
         href: '/leaderboard',
-        icon: '🏅',
-        gradient: 'linear-gradient(135deg, #5a3d00, #a67c2e)',
-        glow: 'linear-gradient(135deg, #d4af37, #f5d569)',
-        borderColor: 'rgba(212,175,55,0.35)',
-        badge: 'V3.1',
+        Icon: IconTrophy,
+        accent: '#d4af37',
+        tag: 'V3.1',
     },
 ];
 
-const TEAMS = [
-    { id: 1, name: 'MI', color: '#004BA0', glow: '#1976D2' },
-    { id: 2, name: 'CSK', color: '#F9C400', text: '#000', glow: '#FFD700' },
-    { id: 3, name: 'RCB', color: '#C01B2D', glow: '#E53935' },
-    { id: 4, name: 'KKR', color: '#3A225D', glow: '#7B1FA2' },
-    { id: 5, name: 'DC', color: '#00509E', glow: '#1565C0' },
-    { id: 6, name: 'PBKS', color: '#AA0000', glow: '#C62828' },
-    { id: 7, name: 'RR', color: '#EA1A84', glow: '#E91E8C' },
-    { id: 8, name: 'SRH', color: '#F26522', glow: '#FF6F00' },
-    { id: 9, name: 'GT', color: '#1C2951', glow: '#283593' },
-    { id: 10, name: 'LSG', color: '#00A99D', glow: '#00BCD4' },
-];
+const fadeUp = {
+    hidden: { opacity: 0, y: 24 },
+    show: (i: number) => ({
+        opacity: 1,
+        y: 0,
+        transition: { delay: i * 0.08, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
+    }),
+};
 
 export default function HomePage() {
     return (
-        <div className="min-h-screen animated-gradient-bg flex items-center justify-center p-8 overflow-hidden relative">
-            <OceanBubbles />
+        <div className="home-root">
+            {/* Clean Premium Gradient Background */}
+            <div className="home-bg" />
 
-            <div className="max-w-7xl w-full relative z-10">
+            {/* Float Stats Top Right */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+                className="home-stats-corner"
+            >
+                {[
+                    { label: 'Teams', value: '10', dot: '#2bb5cc' },
+                    { label: 'Players', value: '246', dot: '#d4af37' },
+                    { label: 'Budget', value: '₹1200 CR', dot: '#2dd4a0' },
+                ].map((stat, i) => (
+                    <div key={stat.label} className="home-stat-item">
+                        <div className="home-stat-dot" style={{ background: stat.dot }} />
+                        <div>
+                            <div className="home-stat-label">{stat.label}</div>
+                            <div className="home-stat-value">{stat.value}</div>
+                        </div>
+                        {i < 2 && <div className="home-stat-sep" />}
+                    </div>
+                ))}
+            </motion.div>
+
+            <div className="home-content">
 
                 {/* ── HERO ── */}
                 <motion.div
-                    initial={{ opacity: 0, y: -40 }}
+                    initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7 }}
-                    className="text-center mb-14"
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                    className="text-center mb-4"
                 >
-                    {/* Logo */}
-                    <motion.div
-                        initial={{ scale: 0, rotate: -180 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ type: 'spring', stiffness: 180, delay: 0.1 }}
-                        className="inline-block mb-6 floating"
-                    >
-                        <div className="relative w-28 h-28">
-                            <Image
-                                src="/logo.png"
-                                alt="IPL Auction 2026"
-                                fill
-                                className="object-contain drop-shadow-[0_0_30px_rgba(43,181,204,0.5)]"
-                                onError={(e) => {
-                                    // Fallback if logo not found
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                }}
-                            />
-                            {/* Fallback emoji if image missing */}
-                            <div className="absolute inset-0 flex items-center justify-center text-6xl">🏏</div>
-                        </div>
-                    </motion.div>
+                    {/* 3D Logo */}
+                    <Logo3D />
 
                     {/* Title */}
-                    <motion.h1
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="big-screen-title gradient-text-animated mb-3"
-                    >
+                    <h1 className="home-title gradient-text-animated">
                         IPL AUCTION 2026
-                    </motion.h1>
-
-                    {/* Subtitle */}
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.35 }}
-                        className="text-xl mb-1"
-                        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", color: 'rgba(188,220,230,0.7)', letterSpacing: '0.12em' }}
-                    >
-                        The Water Edition — Live Auction System
-                    </motion.p>
-
-                    {/* Divider */}
-                    <motion.div
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ delay: 0.45, duration: 0.6 }}
-                        className="mx-auto mt-4 mb-8 h-px w-64"
-                        style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent)' }}
-                    />
-
-                    {/* Stats Pill */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                        className="inline-flex items-center gap-8 px-8 py-4 rounded-full"
-                        style={{
-                            background: 'rgba(14,77,94,0.2)',
-                            border: '1px solid rgba(43,181,204,0.2)',
-                            backdropFilter: 'blur(12px)',
-                        }}
-                    >
-                        {[
-                            { label: 'Teams', value: '10', icon: '🏆' },
-                            { label: 'Players', value: '246', icon: '👤' },
-                            { label: 'Budget', value: '₹1200 CR', icon: '💰' },
-                        ].map((stat, i) => (
-                            <motion.div
-                                key={stat.label}
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.6 + i * 0.1 }}
-                                className="flex items-center gap-3"
-                            >
-                                <span className="text-2xl">{stat.icon}</span>
-                                <div className="text-left">
-                                    <div className="text-xs" style={{ color: 'rgba(122,148,176,0.8)' }}>{stat.label}</div>
-                                    <div className="font-bold text-white">{stat.value}</div>
-                                </div>
-                                {i < 2 && <div className="w-px h-8 mx-2" style={{ background: 'rgba(43,181,204,0.2)' }} />}
-                            </motion.div>
-                        ))}
-                    </motion.div>
+                    </h1>
                 </motion.div>
 
                 {/* ── NAV CARDS ── */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+                <div className="home-cards-grid">
                     {NAV_LINKS.map((link, i) => (
                         <motion.div
                             key={link.href}
-                            initial={{ opacity: 0, y: 50 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 + i * 0.08 }}
+                            custom={i}
+                            initial="hidden"
+                            animate="show"
+                            variants={fadeUp}
                         >
-                            <Link href={link.href}>
-                                <TiltCard glowColor={link.glow}>
-                                    <div
-                                        className="group relative rounded-3xl p-6 transition-all duration-300 cursor-pointer overflow-hidden h-full ocean-surface-hover"
-                                        style={{
-                                            background: 'rgba(10,22,40,0.7)',
-                                            border: `1px solid ${link.borderColor}`,
-                                            backdropFilter: 'blur(16px)',
-                                            minHeight: '180px',
-                                        }}
-                                    >
-                                        {/* Gradient hover overlay */}
-                                        <div
-                                            className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500"
-                                            style={{ background: link.gradient }}
-                                        />
+                            <Link href={link.href} className="block h-full">
+                                <div
+                                    className="home-card group"
+                                    style={{ '--card-accent': link.accent } as React.CSSProperties}
+                                >
+                                    {/* Top accent border */}
+                                    <div className="home-card-accent" />
 
-                                        {/* Badge top-right */}
-                                        <motion.div
-                                            whileHover={{ scale: 1.08 }}
-                                            className="absolute top-4 right-4 px-2.5 py-1 rounded-full text-[10px] font-bold text-white"
-                                            style={{ background: link.gradient }}
-                                        >
-                                            {link.badge}
-                                        </motion.div>
-
-                                        {/* Content */}
-                                        <div className="relative z-10">
-                                            <motion.div
-                                                whileHover={{ scale: 1.1, rotate: 6 }}
-                                                className="text-5xl mb-4 inline-block"
-                                            >
-                                                {link.icon}
-                                            </motion.div>
-                                            <h2
-                                                className="text-xl font-black text-white mb-2"
-                                                style={{ fontFamily: "'Cinzel', serif" }}
-                                            >
-                                                {link.title}
-                                            </h2>
-                                            <p className="text-sm" style={{ color: 'rgba(122,148,176,0.8)' }}>
-                                                {link.description}
-                                            </p>
-                                        </div>
-
-                                        {/* Arrow */}
-                                        <motion.div
-                                            className="absolute bottom-5 right-5 text-2xl transition-all duration-300 opacity-30 group-hover:opacity-70"
-                                            whileHover={{ x: 4 }}
-                                        >
-                                            →
-                                        </motion.div>
-
-                                        {/* Bottom border glow on hover */}
-                                        <div
-                                            className="absolute bottom-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-b-3xl"
-                                            style={{ background: link.gradient }}
-                                        />
+                                    {/* Tag */}
+                                    <div className="home-card-tag">
+                                        {link.tag}
                                     </div>
-                                </TiltCard>
+
+                                    {/* Icon */}
+                                    <div className="home-card-icon">
+                                        <link.Icon />
+                                    </div>
+
+                                    {/* Text */}
+                                    <h2 className="home-card-title">{link.title}</h2>
+                                    <p className="home-card-desc">{link.description}</p>
+
+                                    {/* Arrow */}
+                                    <div className="home-card-arrow">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M5 12h14M12 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                </div>
                             </Link>
                         </motion.div>
                     ))}
                 </div>
-
-                {/* ── QUICK TEAM ACCESS ── */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
-                    className="rounded-2xl p-6 mb-8"
-                    style={{
-                        background: 'rgba(10,22,40,0.6)',
-                        border: '1px solid rgba(43,181,204,0.12)',
-                        backdropFilter: 'blur(16px)',
-                    }}
-                >
-                    <h3
-                        className="text-lg font-bold mb-5 flex items-center gap-2"
-                        style={{ fontFamily: "'Cinzel', serif" }}
-                    >
-                        <span
-                            className="text-sm font-bold px-3 py-1 rounded-full"
-                            style={{
-                                background: 'rgba(212,175,55,0.1)',
-                                border: '1px solid rgba(212,175,55,0.25)',
-                                color: '#d4af37',
-                            }}
-                        >
-                            ⚡ QUICK ACCESS
-                        </span>
-                        <span className="gradient-text">Team Dashboards</span>
-                    </h3>
-                    <div className="flex flex-wrap gap-3">
-                        {TEAMS.map((team, i) => (
-                            <motion.div
-                                key={team.id}
-                                initial={{ scale: 0, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ delay: 0.8 + i * 0.04 }}
-                            >
-                                <Link href={`/team/${team.id}`}>
-                                    <motion.div
-                                        whileHover={{ scale: 1.1, y: -4 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="px-4 py-2.5 rounded-xl font-bold text-sm cursor-pointer flex items-center gap-2 transition-all"
-                                        style={{
-                                            background: team.color,
-                                            color: team.text ?? '#fff',
-                                            boxShadow: `0 4px 15px ${team.glow}30`,
-                                            border: `1px solid ${team.glow}50`,
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            (e.currentTarget as HTMLElement).style.boxShadow = `0 6px 25px ${team.glow}60`;
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 15px ${team.glow}30`;
-                                        }}
-                                    >
-                                        <span>{team.name}</span>
-                                    </motion.div>
-                                </Link>
-                            </motion.div>
-                        ))}
-                    </div>
-                </motion.div>
-
-                {/* ── STATUS BAR ── */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1 }}
-                    className="text-center"
-                >
-                    <div
-                        className="inline-flex items-center gap-4 px-6 py-3 rounded-full"
-                        style={{
-                            background: 'rgba(14,77,94,0.15)',
-                            border: '1px solid rgba(43,181,204,0.15)',
-                            backdropFilter: 'blur(12px)',
-                        }}
-                    >
-                        <motion.div
-                            animate={{ scale: [1, 1.3, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className="w-2 h-2 rounded-full"
-                            style={{ background: '#2dd4a0' }}
-                        />
-                        <span style={{ color: 'rgba(188,220,230,0.7)' }}>System Ready</span>
-                        <span style={{ color: 'rgba(43,181,204,0.3)' }}>•</span>
-                        <span style={{ color: 'rgba(122,148,176,0.6)' }}>All services operational</span>
-                    </div>
-                </motion.div>
             </div>
-
-            {/* ── WAVE FOOTER ── */}
-            <OceanWaves />
         </div>
     );
 }
