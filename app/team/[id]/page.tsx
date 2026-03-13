@@ -124,43 +124,35 @@ function FIFACard({ player, showPrice, price }: {
         setTilt({ x: y * 12, y: -x * 12 });
     };
 
-    // Grade to card template mapping
+    // Grade to CSS premium config mapping
     const gradeConfig = {
         A: {
             name: 'GOLD',
-            template: '/cards/gold.png',
-            ratingColor: '#3d2817',
-            nameColor: '#3d2817',
-            statColor: '#3d2817',
-            bgGradient: 'from-[#fff5c3] to-[#dcaa4d]',
+            bgOuter: 'linear-gradient(135deg, #FDE08B 0%, #D4AF37 50%, #FDE08B 100%)',
+            bgInner: 'linear-gradient(180deg, #1A1305 0%, #0D0902 100%)',
+            textColor: '#FDE08B',
         },
         B: {
             name: 'SILVER',
-            template: '/cards/silver.png',
-            ratingColor: '#1a1a1a',
-            nameColor: '#1a1a1a',
-            statColor: '#1a1a1a',
-            bgGradient: 'from-[#ffffff] to-[#bcc6cc]',
+            bgOuter: 'linear-gradient(135deg, #E8ECF1 0%, #9BA4B5 50%, #E8ECF1 100%)',
+            bgInner: 'linear-gradient(180deg, #111827 0%, #030712 100%)',
+            textColor: '#E8ECF1',
         },
         C: {
             name: 'PURPLE',
-            template: '/cards/purple.png',
-            ratingColor: '#ffffff',
-            nameColor: '#ffffff',
-            statColor: '#ffffff',
-            bgGradient: 'from-[#e0c3fc] to-[#8ec5fc]',
+            bgOuter: 'linear-gradient(135deg, #E0C3FC 0%, #8E2DE2 50%, #E0C3FC 100%)',
+            bgInner: 'linear-gradient(180deg, #1A0B2E 0%, #0D031A 100%)',
+            textColor: '#E0C3FC',
         },
         D: {
             name: 'BRONZE',
-            template: '/cards/bronze.png',
-            ratingColor: '#2d1810',
-            nameColor: '#2d1810',
-            statColor: '#2d1810',
-            bgGradient: 'from-[#ffdac1] to-[#b38260]',
+            bgOuter: 'linear-gradient(135deg, #E6A171 0%, #A65D37 50%, #E6A171 100%)',
+            bgInner: 'linear-gradient(180deg, #2D1A11 0%, #170C08 100%)',
+            textColor: '#E6A171',
         },
     };
 
-    const config = gradeConfig[player.grade];
+    const config = gradeConfig[player.grade as keyof typeof gradeConfig];
 
     // Position mapping
     const positionMap: Record<string, string> = {
@@ -223,42 +215,46 @@ function FIFACard({ player, showPrice, price }: {
                 />
             )}
 
-            {/* Dynamic Card with Grade-Specific Template */}
-            <div className="relative w-full h-[360px] rounded-2xl overflow-hidden shadow-2xl">
-                <div className={`absolute inset-0 bg-gradient-to-b ${config.bgGradient}`} />
-
-                {/* Background Template Image */}
-                <Image
-                    src={config.template}
-                    alt={`${config.name} card background`}
-                    fill
-                    className="object-cover relative z-10"
-                    priority
-                />
-
-                {/* Gradient overlay to blend template with content */}
-                <div
-                    className={`absolute inset-x-5 top-14 bottom-28 rounded-3xl opacity-90 blur-sm bg-gradient-to-b ${config.bgGradient}`}
-                    style={{ zIndex: 15 }}
-                />
+            {/* Dynamic CSS Shield Card */}
+            <div 
+                className="relative w-full h-[360px] shadow-2xl transition-all duration-300"
+                style={{
+                    clipPath: 'polygon(10% 0, 90% 0, 100% 12%, 100% 85%, 50% 100%, 0 85%, 0 12%)',
+                    background: config.bgOuter,
+                    padding: '3px' // creates the metallic border effect
+                }}
+            >
+                {/* Inner Card Background */}
+                <div 
+                    className="relative w-full h-full overflow-hidden"
+                    style={{
+                        clipPath: 'polygon(10% 0, 90% 0, 100% 12%, 100% 86%, 50% 100%, 0 86%, 0 12%)',
+                        background: config.bgInner
+                    }}
+                >
+                    {/* Top glass reflection */}
+                    <div className="absolute top-0 left-0 w-full h-[40%] bg-gradient-to-b from-white/10 to-transparent pointer-events-none z-0" />
+                    
+                    {/* Diagonal animated shine */}
+                    <div className="absolute -inset-[100%] w-[300%] h-[300%] bg-[linear-gradient(45deg,transparent_45%,rgba(255,255,255,0.1)_50%,transparent_55%)] animate-[shimmer_5s_infinite] pointer-events-none z-10" />
 
                 {/* Overlay Content */}
                 <div className="absolute inset-0 z-20">
                     {/* Rating & Position (Top Left) */}
-                    <div className="absolute top-6 left-6">
+                    <div className="absolute top-8 left-6">
                         <div
-                            className="text-5xl font-black leading-none"
+                            className="text-5xl font-black leading-none tracking-tighter"
                             style={{
-                                color: config.ratingColor,
-                                fontFamily: 'Arial Black, sans-serif',
-                                textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+                                color: config.textColor,
+                                fontFamily: "'Cinzel', serif",
+                                textShadow: '0px 2px 10px rgba(0,0,0,0.8)',
                             }}
                         >
                             {player.rating}
                         </div>
                         <div
-                            className="text-base font-bold mt-1"
-                            style={{ color: config.ratingColor }}
+                            className="text-sm font-black mt-1 ml-1 tracking-widest uppercase opacity-90"
+                            style={{ color: config.textColor }}
                         >
                             {positionMap[player.category] || 'PLR'}
                         </div>
@@ -266,23 +262,25 @@ function FIFACard({ player, showPrice, price }: {
 
                     {/* Player Image Area - Center */}
                     <div
-                        className="absolute top-12 left-1/2 -translate-x-1/2 w-44 h-48 flex items-center justify-center overflow-hidden"
-                        style={{ maskImage: 'radial-gradient(ellipse at center 40%, black 60%, transparent 100%)', WebkitMaskImage: 'radial-gradient(ellipse at center 40%, black 60%, transparent 100%)' }}
+                        className="absolute top-10 left-1/2 -translate-x-1/2 w-48 h-[220px] flex items-end justify-center overflow-hidden"
+                        style={{ maskImage: 'linear-gradient(to bottom, black 50%, transparent 90%)', WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 90%)' }}
                     >
                         {playerImageUrl ? (
                             <Image
                                 src={playerImageUrl}
                                 alt={player.player}
-                                width={200}
-                                height={220}
-                                className="object-cover object-top scale-110"
-                                style={{ objectPosition: 'center 10%' }}
+                                width={220}
+                                height={240}
+                                className="object-cover object-top"
+                                style={{ 
+                                    objectPosition: 'center top',
+                                }}
                             />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center">
+                            <div className="w-full h-full flex items-center justify-center pb-10">
                                 <span
-                                    className="text-7xl font-black opacity-60"
-                                    style={{ color: config.ratingColor }}
+                                    className="text-7xl font-black opacity-30"
+                                    style={{ color: '#000', fontFamily: "'Cinzel', serif" }}
                                 >
                                     {player.player.charAt(0)}
                                 </span>
@@ -292,14 +290,14 @@ function FIFACard({ player, showPrice, price }: {
 
                     {/* Player Name */}
                     <div
-                        className="absolute top-[240px] left-1/2 -translate-x-1/2 w-full text-center px-4"
+                        className="absolute top-[230px] left-1/2 -translate-x-1/2 w-full text-center px-4 border-b border-white/10 pb-2 z-30"
                     >
                         <h3
-                            className="text-xl font-black tracking-tight"
+                            className="text-2xl font-black tracking-widest uppercase drop-shadow-md"
                             style={{
-                                color: config.nameColor,
-                                fontFamily: 'Arial Black, sans-serif',
-                                textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+                                color: config.textColor,
+                                fontFamily: "'Cinzel', serif",
+                                textShadow: '0px 2px 4px rgba(0,0,0,0.5)',
                             }}
                         >
                             {player.player.split(' ').slice(-1)[0]}
@@ -309,19 +307,19 @@ function FIFACard({ player, showPrice, price }: {
                     {/* Stats Row - 6 stats in a row */}
                     <div className="absolute top-[270px] left-1/2 -translate-x-1/2 w-[220px]">
                         {/* Stats Labels */}
-                        <div className="flex justify-between text-[9px] font-bold mb-1 px-2">
+                        <div className="flex justify-between text-[10px] font-black tracking-widest mb-1 px-1 opacity-80">
                             {Object.keys(stats).map(stat => (
-                                <span key={stat} style={{ color: config.statColor }}>{stat}</span>
+                                <span key={stat} style={{ color: config.textColor }}>{stat}</span>
                             ))}
                         </div>
                         {/* Stats Values */}
-                        <div className="flex justify-between text-lg font-black px-2">
+                        <div className="flex justify-between text-lg font-black px-1">
                             {Object.values(stats).map((value, i) => (
                                 <span
                                     key={i}
                                     style={{
-                                        color: config.statColor,
-                                        fontFamily: 'Arial Black, sans-serif',
+                                        color: config.textColor,
+                                        fontFamily: "'Cinzel', serif",
                                     }}
                                 >
                                     {value}
@@ -331,25 +329,27 @@ function FIFACard({ player, showPrice, price }: {
                     </div>
 
                     {/* Bottom Icons - Flag & Badge */}
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3">
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center justify-center gap-4 w-full pt-3 border-t border-white/5 mx-auto max-w-[180px]">
                         {/* Nationality Flag */}
-                        <div className="w-6 h-4 rounded-sm overflow-hidden bg-white flex items-center justify-center text-xs">
+                        <div className="w-6 h-4 rounded-sm shadow-sm overflow-hidden bg-white flex items-center justify-center text-[10px]">
                             {player.nationality === 'Overseas' ? '🌍' : '🇮🇳'}
                         </div>
 
                         {/* Team Badge */}
                         <div
-                            className="w-5 h-6 rounded flex items-center justify-center text-xs font-bold"
+                            className="w-6 h-6 rounded flex items-center justify-center text-xs font-black bg-white/10"
                             style={{
-                                background: 'rgba(255,255,255,0.3)',
-                                color: config.ratingColor,
+                                color: config.textColor,
+                                border: `1px solid ${config.textColor}30`
                             }}
                         >
                             {player.team.charAt(0)}
                         </div>
 
                         {/* Legacy Stars */}
-                        <div className="text-sm" title={`Legacy: ${player.legacy}`}>{'⭐'.repeat(Math.min(3, Math.ceil(player.legacy / 3)))}</div>
+                        <div className="text-[10px] tracking-widest flex" style={{ color: config.textColor }} title={`Legacy: ${player.legacy}`}>
+                            {Array(Math.min(3, Math.ceil(player.legacy / 3))).fill('⭐').map((s,i) => <span key={i} style={{ textShadow: `0 0 5px ${config.textColor}`}}>{s}</span>)}
+                        </div>
                     </div>
 
                     {/* Grade Badge (Top Right) */}
@@ -374,18 +374,21 @@ function FIFACard({ player, showPrice, price }: {
 
                     {/* Price Tag (if shown) */}
                     {showPrice && price && (
-                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2">
+                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-50">
                             <div
-                                className="px-4 py-1 rounded-full text-sm font-black"
+                                className="px-5 py-2 rounded-full text-sm font-black tracking-widest shadow-2xl border"
                                 style={{
-                                    background: 'rgba(0,0,0,0.7)',
-                                    color: '#ffd700',
+                                    background: config.bgInner,
+                                    color: config.textColor,
+                                    borderColor: config.textColor,
+                                    fontFamily: "'Cinzel', serif"
                                 }}
                             >
                                 ₹{price} CR
                             </div>
                         </div>
                     )}
+                </div>
                 </div>
             </div>
         </motion.div>
@@ -428,21 +431,9 @@ function HeroAuctionCard({ auctionState, team }: { auctionState: AuctionState | 
         <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="w-full h-[calc(100vh-100px)] flex flex-col relative"
+            className="w-full flex-1 flex flex-col relative py-12"
         >
-            {/* Background Image - Full Cover */}
-            <div
-                className="absolute inset-0 bg-cover bg-center z-0"
-                style={{
-                    backgroundImage: 'url(/bg/stadium.png)',
-                    opacity: 0.5
-                }}
-            />
-            {/* Gradients */}
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/60 to-slate-950/90 z-0" />
-            <div className="absolute inset-0 bg-radial-gradient z-0" style={{ background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%)' }} />
-
-            {/* Content Container - Centered Single Page */}
+            {/* Content Container - Centered */}
             <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 gap-8">
 
                 {/* Minimal Glass Header - Replaces Yellow Banner */}
@@ -548,36 +539,48 @@ function HeroAuctionCard({ auctionState, team }: { auctionState: AuctionState | 
 }
 
 // Quick Link Card
-function QuickLinkCard({ href, icon, title, description, stats, gradient, delay }: {
+function QuickLinkCard({ href, icon, title, description, stats, accent, delay }: {
     href: string;
     icon: string;
     title: string;
     description: string;
     stats?: { label: string; value: string | number }[];
-    gradient: string;
+    accent: string;
     delay?: number;
 }) {
     return (
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay }}>
-            <Link href={href}>
-                <motion.div whileHover={{ scale: 1.02, y: -5 }} whileTap={{ scale: 0.98 }} className="glass-card p-5 cursor-pointer group relative overflow-hidden h-full">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
-                    <div className="relative">
-                        <div className="flex items-center justify-between mb-3">
-                            <span className="text-3xl">{icon}</span>
-                            <span className="text-white/30 text-2xl group-hover:text-white/60 transition-all">→</span>
-                        </div>
-                        <h3 className="font-bold text-lg text-white mb-1">{title}</h3>
-                        <p className="text-white/50 text-sm mb-3">{description}</p>
-                        {stats && (
-                            <div className="flex gap-4">
-                                {stats.map((stat, i) => (
-                                    <div key={i}><div className={`text-lg font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>{stat.value}</div><div className="text-[10px] text-white/40">{stat.label}</div></div>
-                                ))}
-                            </div>
-                        )}
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay }} className="h-full">
+            <Link href={href} className="block h-full">
+                <div 
+                    className="home-card group h-full flex flex-col"
+                    style={{ '--card-accent': accent } as React.CSSProperties}
+                >
+                    <div className="home-card-accent" />
+                    
+                    <div className="home-card-icon text-3xl mb-4">
+                        {icon}
                     </div>
-                </motion.div>
+
+                    <h3 className="home-card-title">{title}</h3>
+                    <p className="home-card-desc mb-4 flex-1">{description}</p>
+                    
+                    {stats && (
+                        <div className="flex gap-4 mt-auto pt-4 border-t border-white/5">
+                            {stats.map((stat, i) => (
+                                <div key={i}>
+                                    <div className="text-lg font-black text-white">{stat.value}</div>
+                                    <div className="text-[10px] text-white/40 uppercase tracking-wider">{stat.label}</div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="home-card-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                </div>
             </Link>
         </motion.div>
     );
@@ -635,24 +638,34 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
     const displayPlayers = selectedCategory ? groupedPlayers[selectedCategory] || [] : purchasedPlayers;
 
     return (
-        <div ref={containerRef} className="min-h-screen animated-gradient-bg overflow-auto">
+        <div ref={containerRef} className="min-h-screen relative overflow-auto">
+            <div className="home-bg" />
             <FloatingParticles />
 
             {/* Header */}
-            <motion.div style={{ opacity: headerOpacity }} className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/60 border-b border-white/10">
+            <motion.div style={{ opacity: headerOpacity }} className="sticky top-0 z-50 backdrop-blur-xl bg-[#0a1628]/80 border-b border-[#2bb5cc]/10">
                 <div className="max-w-7xl mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-3xl shadow-lg">{team.logo}</div>
-                            <div><h1 className="text-2xl font-black gradient-text-animated">{team.name}</h1><p className="text-white/50 text-sm">{team.shortName} • Team Dashboard</p></div>
+                        <div className="flex items-center gap-5">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#081a2e] to-[#040b14] border border-[#d4af37]/30 flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(212,175,55,0.2)]">{team.logo}</div>
+                            <div>
+                                <h1 className="text-2xl font-black text-[#e8ecf1]" style={{ fontFamily: "'Cinzel', serif", letterSpacing: "0.05em" }}>{team.name}</h1>
+                                <p className="text-[#bcdce6]/60 text-xs tracking-widest uppercase mt-0.5">{team.shortName} • Dashboard</p>
+                            </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            <div className="hidden md:flex items-center gap-2">
-                                <div className="px-3 py-1.5 bg-green-500/20 rounded-full border border-green-500/30"><span className="text-green-400 font-bold text-sm">₹{team.budgetRemaining} CR</span></div>
-                                <div className="px-3 py-1.5 bg-cyan-500/20 rounded-full border border-cyan-500/30"><span className="text-cyan-400 font-bold text-sm">{team.squadCount}/{team.squadLimit}</span></div>
+                            <div className="hidden md:flex items-center gap-3">
+                                <div className="px-4 py-1.5 bg-[#0a1628]/50 rounded-full border border-[#2bb5cc]/20 backdrop-blur-md">
+                                    <span className="text-[10px] text-[#7a9ab0] uppercase tracking-wider mr-2">Budget</span>
+                                    <span className="text-[#2dd4a0] font-bold text-sm">₹{team.budgetRemaining} CR</span>
+                                </div>
+                                <div className="px-4 py-1.5 bg-[#0a1628]/50 rounded-full border border-[#2bb5cc]/20 backdrop-blur-md">
+                                    <span className="text-[10px] text-[#7a9ab0] uppercase tracking-wider mr-2">Squad</span>
+                                    <span className="text-[#2bb5cc] font-bold text-sm">{team.squadCount}/{team.squadLimit}</span>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/50 rounded-full"><div className="w-2 h-2 bg-red-500 rounded-full status-pulse" /><span className="font-bold text-red-400 text-sm">LIVE</span></div>
-                            <Link href="/" className="btn-secondary text-sm">← Home</Link>
+                            <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-full"><div className="w-2 h-2 bg-red-500 rounded-full status-pulse" /><span className="font-bold text-red-400 text-xs tracking-widest uppercase">Live</span></div>
+                            <Link href="/" className="px-5 py-2 text-xs font-bold uppercase tracking-wider text-[#bcdce6]/80 hover:text-white border border-white/10 rounded-full hover:bg-white/5 transition-all">← Home</Link>
                         </div>
                     </div>
                 </div>
@@ -663,81 +676,40 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                 <HeroAuctionCard auctionState={auctionState} team={team} />
             </motion.div>
 
-            <div className="max-w-7xl mx-auto p-6 relative z-10">
+            <div className="max-w-7xl mx-auto p-6 relative z-10 flex flex-col gap-10">
 
-                {/* Budget Bar */}
-                <ScrollReveal className="glass-card p-4 mb-10">
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="text-white/60">Budget Remaining</span>
-                        <div className="flex items-center gap-4">
-                            <span className="text-green-400 font-bold">₹{team.budgetRemaining} CR</span>
-                            <span className="text-white/40">of ₹{team.totalBudget} CR</span>
-                            <span className="font-bold text-lg text-white">{budgetPercentage.toFixed(0)}%</span>
+                {/* Budget Bar - Premium Look */}
+                <ScrollReveal className="p-6 rounded-2xl bg-[#0a1628]/60 border border-[#2bb5cc]/10 backdrop-blur-xl">
+                    <div className="flex justify-between items-center mb-4">
+                        <span className="text-[#7a9ab0] text-xs font-bold uppercase tracking-widest">Budget Remaining</span>
+                        <div className="flex items-baseline gap-3">
+                            <span className="text-[#2dd4a0] font-black text-2xl">₹{team.budgetRemaining} <span className="text-sm">CR</span></span>
+                            <span className="text-[#7a9ab0]/50 text-sm font-bold">/ ₹{team.totalBudget} CR</span>
+                            <span className="font-black text-sm text-[#e8ecf1] ml-2 px-2 py-0.5 rounded bg-white/5">{budgetPercentage.toFixed(0)}%</span>
                         </div>
                     </div>
-                    <div className="h-4 bg-white/10 rounded-full overflow-hidden">
-                        <motion.div initial={{ width: 0 }} animate={{ width: `${budgetPercentage}%` }} className="h-full bg-gradient-to-r from-green-500 via-emerald-400 to-cyan-500" />
-                    </div>
-                </ScrollReveal>
-
-                {/* My Collection - FIFA Cards */}
-                <ScrollReveal className="glass-card p-6 mb-10" delay={0.1}>
-                    <div className="flex items-center justify-between mb-8">
-                        <div>
-                            <h2 className="text-3xl font-black text-white flex items-center gap-3">🎴 <span className="gradient-text">My Collection</span></h2>
-                            <p className="text-white/50 mt-1">{purchasedPlayers.length} FIFA-style cards • Hover for 3D effect</p>
-                        </div>
-                        <div className="flex gap-2">
-                            <button onClick={() => setSelectedCategory(null)} className={`px-4 py-2 rounded-xl text-sm font-bold ${!selectedCategory ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' : 'bg-white/10 text-white/60'}`}>All ({purchasedPlayers.length})</button>
-                            {categories.map(cat => {
-                                const count = (groupedPlayers[cat] || []).length;
-                                if (count === 0) return null;
-                                return <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-4 py-2 rounded-xl text-sm font-bold ${selectedCategory === cat ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' : 'bg-white/10 text-white/60'}`}>{categoryIcons[cat]} {count}</button>;
-                            })}
-                        </div>
-                    </div>
-
-                    {purchasedPlayers.length === 0 ? (
-                        <div className="text-center py-20">
-                            <motion.div animate={{ y: [0, -15, 0] }} transition={{ duration: 3, repeat: Infinity }} className="text-8xl mb-6">🎴</motion.div>
-                            <div className="text-2xl text-white/60 mb-2 font-bold">No cards collected yet</div>
-                            <div className="text-lg text-white/40">Win auctions to build your FIFA-style squad!</div>
-                        </div>
-                    ) : (
-                        <div className="flex flex-wrap gap-8 justify-center py-4">
-                            <AnimatePresence mode="popLayout">
-                                {displayPlayers.map((player, i) => (
-                                    <motion.div key={player.rank} layout initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ delay: i * 0.05 }}>
-                                        <FIFACard player={player} showPrice={true} price={getPlayerPrice(player)} />
-                                    </motion.div>
-                                ))}
-                            </AnimatePresence>
-                        </div>
-                    )}
-
-                    {/* Legend */}
-                    <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-center gap-6">
-                        {[
-                            { label: 'GOLD', count: purchasedPlayers.filter(p => p.grade === 'A').length },
-                            { label: 'SILVER', count: purchasedPlayers.filter(p => p.grade === 'B').length },
-                            { label: 'PURPLE', count: purchasedPlayers.filter(p => p.grade === 'C').length },
-                            { label: 'BRONZE', count: purchasedPlayers.filter(p => p.grade === 'D').length },
-                        ].map(item => (
-                            <div key={item.label} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10">
-                                <span className="font-black text-white">{item.label}</span>
-                                <span className="text-white/80">×{item.count}</span>
-                            </div>
-                        ))}
+                    <div className="h-2 bg-[#040b14] rounded-full overflow-hidden border border-white/5">
+                        <motion.div 
+                            initial={{ width: 0 }} 
+                            animate={{ width: `${budgetPercentage}%` }} 
+                            className="h-full rounded-full relative"
+                            style={{ background: 'linear-gradient(90deg, #2bb5cc, #2dd4a0)' }}
+                        >
+                            <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] animate-[shimmer_2s_infinite]" />
+                        </motion.div>
                     </div>
                 </ScrollReveal>
+
 
                 {/* Quick Access */}
                 <div className="mb-8">
-                    <h2 className="text-xl font-bold text-white mb-4">🔗 Quick Access</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <QuickLinkCard href={`/team/${team.id}/power-cards`} icon="⚡" title="Power Cards" description="View your arsenal and card rules" stats={[{ label: 'Available', value: availablePowerCards }, { label: 'Used', value: 5 - availablePowerCards }]} gradient="from-yellow-500 to-orange-500" />
-                        <QuickLinkCard href="/teams" icon="🏆" title="All Teams" description="View all teams' budget & squads" stats={[{ label: 'Teams', value: allTeams.length }]} gradient="from-cyan-500 to-blue-500" delay={0.1} />
-                        <QuickLinkCard href="/big-screen" icon="📺" title="Big Screen" description="Full immersive auction display" gradient="from-purple-500 to-pink-500" delay={0.2} />
+                    <h2 className="text-[#e8ecf1] font-black text-xl mb-6 tracking-wide" style={{ fontFamily: "'Cinzel', serif" }}>
+                        Command Center
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <QuickLinkCard href={`/team/${team.id}/power-cards`} icon="⚡" title="Power Cards" description="View your arsenal and match-altering abilities." stats={[{ label: 'Available', value: availablePowerCards }, { label: 'Used', value: 5 - availablePowerCards }]} accent="#d4af37" />
+                        <QuickLinkCard href="/teams" icon="🏆" title="All Teams" description="View all rival franchises, budgets & squads." stats={[{ label: 'Teams', value: allTeams.length }]} accent="#2bb5cc" delay={0.1} />
+                        <QuickLinkCard href="/big-screen" icon="📺" title="Big Screen" description="Launch the full immersive live public display." accent="#6c8aff" delay={0.2} />
                     </div>
                 </div>
             </div>
