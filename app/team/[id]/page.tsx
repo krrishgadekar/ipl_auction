@@ -14,6 +14,12 @@ import { getAllPlayers } from '@/lib/api/players';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
+
+const Logo3D = dynamic(() => import('@/components/Logo3D'), {
+    ssr: false,
+    loading: () => <div className="logo3d-container"><div className="logo3d-loader"><div className="logo3d-spinner" /></div></div>,
+});
 
 // Floating Particles
 function FloatingParticles() {
@@ -447,9 +453,9 @@ function HeroAuctionCard({ auctionState, team }: { auctionState: AuctionState | 
                         <div className="text-white/60 text-xs font-bold tracking-wider uppercase">Current Auction</div>
                         <div className="text-xl font-black text-white leading-none">#{player.rank} • {player.player}</div>
                     </div>
-                    <div className={`ml-4 px-3 py-1 rounded-lg text-xs font-black ${auctionState.status === 'BIDDING' ? 'bg-green-500/20 text-green-400 border border-green-500/40' : 'bg-red-500/20 text-red-400'
+                    <div className={`ml-4 px-3 py-1 rounded-lg text-xs font-black ${auctionState.phase === 'BIDDING' ? 'bg-green-500/20 text-green-400 border border-green-500/40' : 'bg-red-500/20 text-red-400'
                         }`}>
-                        {auctionState.status}
+                        {auctionState.phase}
                     </div>
                 </motion.div>
 
@@ -485,12 +491,12 @@ function HeroAuctionCard({ auctionState, team }: { auctionState: AuctionState | 
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent blur-xl" />
                             <div className="text-xs text-white/40 font-bold tracking-[0.3em] uppercase mb-1">Current Bid</div>
                             <motion.div
-                                key={auctionState.currentBid}
+                                key={auctionState.current_bid}
                                 initial={{ scale: 1.4, filter: 'blur(10px)' }}
                                 animate={{ scale: 1, filter: 'blur(0px)' }}
                                 className="flex items-baseline justify-center gap-2"
                             >
-                                <span className="text-8xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">₹{auctionState.currentBid}</span>
+                                <span className="text-8xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">₹{auctionState.current_bid}</span>
                                 <span className="text-4xl font-bold text-white/50">CR</span>
                             </motion.div>
                         </div>
@@ -625,7 +631,39 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
         return () => { unsubscribe(); clearInterval(teamsInterval); };
     }, [teamId]);
 
-    if (loading) return <div className="min-h-screen animated-gradient-bg flex items-center justify-center"><motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }} className="text-6xl">🏏</motion.div></div>;
+    if (loading) return (
+        <div className="min-h-screen flex items-center justify-center overflow-hidden relative" style={{ background: 'radial-gradient(ellipse at center, #0a1628, #040b14)' }}>
+            {/* Background particles */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {Array.from({ length: 20 }, (_, i) => (
+                    <div key={i} className="absolute rounded-full"
+                        style={{
+                            width: `${Math.random() * 4 + 1}px`,
+                            height: `${Math.random() * 4 + 1}px`,
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            background: ['#2bb5cc', '#d4af37', '#2dd4a0'][i % 3],
+                            opacity: Math.random() * 0.4 + 0.1,
+                            animation: `floatUp ${Math.random() * 6 + 4}s ease-in-out infinite`,
+                            animationDelay: `${Math.random() * 3}s`,
+                        }}
+                    />
+                ))}
+            </div>
+
+            <div className="relative flex flex-col items-center z-10">
+                {/* 3D GLB Logo Model */}
+                <div style={{ width: '280px', height: '280px' }}>
+                    <Logo3D />
+                </div>
+
+                {/* Loading text */}
+                <div className="coin-loading-text" style={{ marginTop: '-1rem' }}>
+                    <span>L</span><span>O</span><span>A</span><span>D</span><span>I</span><span>N</span><span>G</span>
+                </div>
+            </div>
+        </div>
+    );
     if (!team) return <div className="min-h-screen animated-gradient-bg flex items-center justify-center"><div className="text-center"><div className="text-6xl mb-4">❌</div><div className="text-2xl text-white font-bold mb-2">Team Not Found</div><Link href="/" className="btn-primary">Back to Home</Link></div></div>;
 
     const purchasedPlayers = allPlayers.filter(p => team.players.includes(p.rank));

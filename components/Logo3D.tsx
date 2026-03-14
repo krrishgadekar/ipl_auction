@@ -15,7 +15,7 @@ function LogoModel() {
             groupRef.current.rotation.y += delta * 0.4;
             
             // Entrance pop animation: smoothly scale up to 1.65 (bigger logo)
-            groupRef.current.scale.lerp(new THREE.Vector3(1.65, 1.65, 1.65), delta * 4.5);
+            groupRef.current.scale.lerp(new THREE.Vector3(1.5, 1.5, 1.5), delta * 4.5);
         }
     });
 
@@ -39,7 +39,7 @@ export default function Logo3D() {
         <div className="logo3d-container">
             <Suspense fallback={<LoadingFallback />}>
                 <Canvas
-                    camera={{ position: [0, 0, 5.2], fov: 40 }}
+                    camera={{ position: [0, 0, 6.5], fov: 40 }}
                     gl={{ antialias: true, alpha: true }}
                     dpr={[1, 1.5]}
                     style={{ background: 'transparent' }}

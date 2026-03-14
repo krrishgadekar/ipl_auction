@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { LeaderboardEntry } from '@/lib/mockData/finalTeamState';
-import { fetchLeaderboard } from '@/lib/api/finalTeam';
+import { getLeaderboard, type LeaderboardEntry } from '@/lib/api/finalTeam';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
@@ -112,7 +111,7 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                 {/* Team info */}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                        <span className="text-2xl">{entry.team.logo}</span>
+                        <span className="text-2xl">{entry.teamName.charAt(0)}</span>
                         <h3
                             className="font-black text-lg truncate"
                             style={{
@@ -120,25 +119,25 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                                 fontFamily: "'Cinzel', serif",
                             }}
                         >
-                            {entry.team.name}
+                            {entry.teamName}
                         </h3>
                         <span
                             className="text-xs px-2 py-0.5 rounded-full font-bold"
                             style={{
-                                background: `${entry.team.primaryColor}30`,
-                                color: entry.team.primaryColor,
-                                border: `1px solid ${entry.team.primaryColor}50`,
+                                background: '#2bb5cc30',
+                                color: '#2bb5cc',
+                                border: '1px solid #2bb5cc50',
                             }}
                         >
-                            {entry.team.shortName}
+                            {entry.brandKey || entry.teamName.slice(0, 3).toUpperCase()}
                         </span>
                     </div>
                     <div className="flex items-center gap-4 mt-1">
                         <span className="text-xs" style={{ color: 'rgba(122,148,176,0.7)' }}>
-                            ©️ {entry.captain.player}
+                            ©️ {entry.captain.name}
                         </span>
                         <span className="text-xs" style={{ color: 'rgba(122,148,176,0.5)' }}>
-                            VC: {entry.viceCaptain.player}
+                            VC: {entry.viceCaptain.name}
                         </span>
                     </div>
                 </div>
@@ -205,9 +204,9 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                                     PLAYING XI
                                 </h4>
                                 <div className="space-y-1.5 max-h-64 overflow-y-auto pr-2">
-                                    {entry.players.map(p => {
-                                        const isCaptain = p.rank === entry.submission.captainRank;
-                                        const isVC = p.rank === entry.submission.viceCaptainRank;
+                                    {entry.top11.map(p => {
+                                        const isCaptain = p.id === entry.captain.id;
+                                        const isVC = p.id === entry.viceCaptain.id;
                                         return (
                                             <div
                                                 key={p.rank}
@@ -228,7 +227,7 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                                                     className="flex-1 text-sm font-medium truncate"
                                                     style={{ color: isCaptain ? '#f5d569' : isVC ? '#7eeaf5' : '#c8d8e8' }}
                                                 >
-                                                    {p.player}
+                                                    {p.name}
                                                     {isCaptain && <span className="ml-1 text-xs font-bold text-yellow-400">(C)</span>}
                                                     {isVC && <span className="ml-1 text-xs font-bold text-cyan-400">(VC)</span>}
                                                 </span>
@@ -260,7 +259,7 @@ export default function LeaderboardPage() {
 
     const loadData = useCallback(async () => {
         try {
-            const data = await fetchLeaderboard();
+            const data = await getLeaderboard();
             setEntries(data);
         } catch (err) {
             console.error(err);
@@ -355,12 +354,12 @@ export default function LeaderboardPage() {
                                 CHAMPION
                             </div>
                             <div className="flex items-center justify-center gap-3">
-                                <span className="text-3xl">{winner.team.logo}</span>
+                                <span className="text-3xl">{winner.teamName.charAt(0)}</span>
                                 <h2
                                     className="font-black text-3xl"
                                     style={{ fontFamily: "'Cinzel', serif", color: '#f5d569' }}
                                 >
-                                    {winner.team.name}
+                                    {winner.teamName}
                                 </h2>
                             </div>
                             <div
@@ -374,8 +373,8 @@ export default function LeaderboardPage() {
                                 {winner.score.finalScore.toFixed(1)} PTS
                             </div>
                             <div className="mt-2 flex items-center justify-center gap-6 text-sm" style={{ color: 'rgba(212,175,55,0.6)' }}>
-                                <span>©️ {winner.captain.player}</span>
-                                <span>VC: {winner.viceCaptain.player}</span>
+                                <span>©️ {winner.captain.name}</span>
+                                <span>VC: {winner.viceCaptain.name}</span>
                             </div>
                         </div>
                     </motion.div>
@@ -405,7 +404,7 @@ export default function LeaderboardPage() {
                 {/* Rankings */}
                 <div className="space-y-3">
                     {entries.map((entry, i) => (
-                        <LeaderboardCard key={entry.team.id} entry={entry} index={i} />
+                        <LeaderboardCard key={entry.teamId} entry={entry} index={i} />
                     ))}
                 </div>
 

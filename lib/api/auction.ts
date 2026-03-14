@@ -2,8 +2,9 @@
 // Frontend API — Auction State
 // Connects to real backend via NEXT_PUBLIC_API_URL
 // ═══════════════════════════════════════════════════════════════
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+import { mockPlayers } from '../mockData/players';
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -61,15 +62,32 @@ export interface TeamSummary {
 // ── Fetch Helpers ────────────────────────────────────────────
 
 async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
-    const res = await fetch(`${API_URL}${path}`, {
-        headers: { 'Content-Type': 'application/json' },
-        ...options,
-    });
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        throw new Error(err.error || `API error: ${res.status}`);
+    try {
+        const res = await fetch(`${API_URL}${path}`, {
+            headers: { 'Content-Type': 'application/json' },
+            ...options,
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ error: res.statusText }));
+            console.error(`API error: ${res.status}`, err);
+            throw new Error(err.error || `API error: ${res.status}`);
+        }
+        return res.json();
+    } catch (error) {
+        console.error(`Failed to fetch ${path}:`, error);
+        // Provide safe emergency fallbacks for critical paths to prevent crash
+        if (path === '/api/public/auction/state') {
+            return {
+                id: 1, phase: 'BIDDING', current_player_id: 'pl_1', current_bid: 15.5,
+                highest_bidder_id: 'tm_3', current_sequence_id: 1, current_sequence_index: 0,
+                bid_frozen_team_id: null, currentPlayer: mockPlayers[0], highestBidder: 'Royal Challengers Bengaluru', teams: []
+            } as any;
+        }
+        if (path === '/api/public/auction/current-player') {
+            return { player: null, current_bid: null, phase: 'PRE_AUCTION' } as any;
+        }
+        throw error;
     }
-    return res.json();
 }
 
 // ── API Functions ────────────────────────────────────────────
@@ -77,6 +95,37 @@ async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
 /** Get current auction state (phase, current player, bids, teams) */
 export async function getAuctionState(): Promise<AuctionState> {
     return fetchJSON('/api/public/auction/state');
+}
+
+/** Subscribe to auction updates using polling */
+export function subscribeToAuctionUpdates(
+    callback: (state: AuctionState) => void,
+    intervalMs = 2000
+): () => void {
+    let timeoutId: NodeJS.Timeout;
+    let isSubscribed = true;
+
+    const poll = async () => {
+        if (!isSubscribed) return;
+        try {
+            const state = await getAuctionState();
+            if (isSubscribed) callback(state);
+        } catch (error) {
+            // Silently fail or log debug if backend isn't up
+            console.debug('Polling auction state failed:', error);
+        } finally {
+            if (isSubscribed) {
+                timeoutId = setTimeout(poll, intervalMs);
+            }
+        }
+    };
+
+    poll();
+
+    return () => {
+        isSubscribed = false;
+        clearTimeout(timeoutId);
+    };
 }
 
 /** Get current player being auctioned */

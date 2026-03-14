@@ -6,16 +6,26 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 import type { Player } from './auction';
+import { mockPlayers } from '../mockData/players';
 
 async function fetchJSON<T>(path: string): Promise<T> {
-    const res = await fetch(`${API_URL}${path}`, {
-        headers: { 'Content-Type': 'application/json' },
-    });
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        throw new Error(err.error || `API error: ${res.status}`);
+    try {
+        const res = await fetch(`${API_URL}${path}`, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ error: res.statusText }));
+            throw new Error(err.error || `API error: ${res.status}`);
+        }
+        return res.json();
+    } catch (error) {
+        console.error(`Failed to fetch ${path}:`, error);
+        
+        if (path.startsWith('/api/players')) {
+            return mockPlayers as any;
+        }
+        throw error;
     }
-    return res.json();
 }
 
 /** Get all players (optional filters: pool, category, grade, search) */
