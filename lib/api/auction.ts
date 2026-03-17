@@ -5,59 +5,12 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 import { mockPlayers } from '../mockData/players';
+import type { Player } from '../mockData/players';
+import type { Team as TeamSummary } from '../mockData/teams';
+import type { AuctionState } from '../mockData/auctionState';
+import { getMockAuctionState } from '../mockData/auctionState';
 
-// ── Types ────────────────────────────────────────────────────
-
-export interface AuctionState {
-    id: number;
-    phase: string;
-    current_player_id: string | null;
-    current_bid: number | null;
-    highest_bidder_id: string | null;
-    current_sequence_id: number | null;
-    current_sequence_index: number;
-    bid_frozen_team_id: string | null;
-    currentPlayer: Player | null;
-    highestBidder: { id: string; name: string; brand_key: string } | null;
-    teams: TeamSummary[];
-}
-
-export interface Player {
-    id: string;
-    rank: number;
-    name: string;
-    team: string;
-    role: string;
-    category: string;
-    pool: string;
-    grade: string;
-    rating: number;
-    nationality: string;
-    base_price: number;
-    legacy: number;
-    is_riddle: boolean;
-    url?: string;
-    image_url?: string;
-    matches?: number;
-    bat_runs?: number;
-    bat_sr?: number;
-    bat_average?: number;
-    bowl_wickets?: number;
-    bowl_eco?: number;
-    bowl_avg?: number;
-}
-
-export interface TeamSummary {
-    id: string;
-    name: string;
-    brand_key: string | null;
-    franchise_name: string | null;
-    purse_remaining: number;
-    squad_count: number;
-    overseas_count: number;
-    logo: string | null;
-    primary_color: string | null;
-}
+export type { AuctionState, Player, TeamSummary };
 
 // ── Fetch Helpers ────────────────────────────────────────────
 
@@ -77,14 +30,10 @@ async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
         console.error(`Failed to fetch ${path}:`, error);
         // Provide safe emergency fallbacks for critical paths to prevent crash
         if (path === '/api/public/auction/state') {
-            return {
-                id: 1, phase: 'BIDDING', current_player_id: 'pl_1', current_bid: 15.5,
-                highest_bidder_id: 'tm_3', current_sequence_id: 1, current_sequence_index: 0,
-                bid_frozen_team_id: null, currentPlayer: mockPlayers[0], highestBidder: 'Royal Challengers Bengaluru', teams: []
-            } as any;
+            return getMockAuctionState() as any;
         }
         if (path === '/api/public/auction/current-player') {
-            return { player: null, current_bid: null, phase: 'PRE_AUCTION' } as any;
+            return { player: null, current_bid: null, phase: 'PRE_AUCTION', status: 'PRE_AUCTION' } as any;
         }
         throw error;
     }
@@ -130,7 +79,7 @@ export function subscribeToAuctionUpdates(
 
 /** Get current player being auctioned */
 export async function getCurrentPlayer() {
-    return fetchJSON<{ player: Player | null; current_bid: number | null; phase: string }>('/api/public/auction/current-player');
+    return fetchJSON<{ player: Player | null; current_bid: number | null; phase: string; status: string }>('/api/public/auction/current-player');
 }
 
 /** Get last sold player info */
@@ -146,4 +95,48 @@ export async function getLeaderboard() {
 /** Health check */
 export async function checkHealth() {
     return fetchJSON<{ status: string; timestamp: string }>('/api/health');
+}
+
+// ── Admin Functions ───────────────────────────────────────────
+
+export async function placeBid(teamId: string, teamName: string, amount: number) {
+    return fetchJSON('/api/auction/bid', {
+        method: 'POST',
+        body: JSON.stringify({ teamId, teamName, amount }),
+    });
+}
+
+export async function updateAuctionStatus(status: string) {
+    return fetchJSON('/api/auction/status', {
+        method: 'POST',
+        body: JSON.stringify({ status }),
+    });
+}
+
+export async function setCurrentPlayer(playerId: string) {
+    return fetchJSON('/api/auction/current-player', {
+        method: 'POST',
+        body: JSON.stringify({ playerId }),
+    });
+}
+
+export async function markPlayerSold(playerId: string, teamId: string, amount: number) {
+    return fetchJSON('/api/auction/sold', {
+        method: 'POST',
+        body: JSON.stringify({ playerId, teamId, amount }),
+    });
+}
+
+export async function markPlayerUnsold(playerId: string) {
+    return fetchJSON('/api/auction/unsold', {
+        method: 'POST',
+        body: JSON.stringify({ playerId }),
+    });
+}
+
+export async function triggerPowerCard(teamId: string, cardType: string, targetTeamId?: string) {
+    return fetchJSON('/api/auction/power-card', {
+        method: 'POST',
+        body: JSON.stringify({ teamId, cardType, targetTeamId }),
+    });
 }

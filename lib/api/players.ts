@@ -5,7 +5,7 @@
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-import type { Player } from './auction';
+import type { Player } from '../mockData/players';
 import { mockPlayers } from '../mockData/players';
 
 async function fetchJSON<T>(path: string): Promise<T> {

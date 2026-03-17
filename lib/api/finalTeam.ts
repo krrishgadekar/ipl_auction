@@ -71,6 +71,22 @@ export async function lockLineup(
     });
 }
 
+/** Submit a team's lineup (alias for lockLineup but for ranks) */
+export async function submitTeam(
+    teamId: number,
+    playerRanks: number[],
+    captainRank: number,
+    viceCaptainRank: number,
+): Promise<any> {
+    return fetchJSON('/api/scoring/submit-team', {
+        method: 'POST',
+        body: JSON.stringify({ teamId, playerRanks, captainRank, viceCaptainRank }),
+    });
+}
+
+/** Alias for validateTop11 */
+export const validateSelection = validateTop11;
+
 /** Get scored leaderboard */
 export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
     return fetchJSON('/api/scoring/leaderboard');

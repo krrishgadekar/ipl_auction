@@ -8,29 +8,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 import { mockTeams } from '../mockData/teams';
 import { mockPlayers } from '../mockData/players';
 
-export interface Team {
-    id: string;
-    name: string;
-    brand_key: string | null;
-    franchise_name: string | null;
-    purse_remaining: number;
-    squad_count: number;
-    overseas_count: number;
-    logo: string | null;
-    primary_color: string | null;
-    brand_score: number;
-}
+import { Team, PowerCard } from '../mockData/teams';
+
+export type { Team, PowerCard };
 
 export interface TeamWithSquad extends Team {
-    power_cards: PowerCard[];
-    team_players: { player: import('./auction').Player; price_paid: number }[];
-}
-
-export interface PowerCard {
-    id: string;
-    team_id: string;
-    type: string;
-    is_used: boolean;
+    team_players: { player: import('../mockData/players').Player; price_paid: number }[];
 }
 
 async function fetchJSON<T>(path: string): Promise<T> {
