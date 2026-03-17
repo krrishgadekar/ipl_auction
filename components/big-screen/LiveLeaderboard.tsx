@@ -37,7 +37,7 @@ export default function LiveLeaderboard({ teams }: LiveLeaderboardProps) {
                         {/* Content */}
                         <div className="ml-14 flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <span className="text-3xl">{team.logo}</span>
+                                <img src={team.logo} alt={team.shortName} className="w-10 h-10 object-contain drop-shadow-md" />
                                 <div>
                                     <h3 className="text-xl font-bold text-white">{team.name}</h3>
                                     <p className="text-sm text-white/60">Squad: {team.squadCount}/{team.squadLimit}</p>

@@ -129,9 +129,9 @@ export default function SuperAdminPage() {
                         >
                             {/* Team Header */}
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-2xl">
-                                    {team.logo}
-                                </div>
+                                    <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-2xl mr-4 shadow-lg overflow-hidden p-1.5">
+                                        <img src={team.logo} alt={team.shortName} className="w-full h-full object-contain" />
+                                    </div>
                                 <div className="flex-1">
                                     <h3 className="font-bold text-white text-lg">{team.name}</h3>
                                     <p className="text-white/60 text-sm">{team.shortName}</p>

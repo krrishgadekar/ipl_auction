@@ -361,7 +361,7 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
                         className="glass-card p-6 mb-8"
                     >
                         <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                            <span className="text-2xl">{currentTeam.logo}</span>
+                            <img src={currentTeam.logo} alt={currentTeam.shortName} className="w-10 h-10 object-contain drop-shadow-md" />
                             Your Power Cards Status
                         </h2>
                         <div className="grid grid-cols-5 gap-3">
@@ -438,7 +438,7 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
                                     <tr key={team.id} className="border-b border-white/5 hover:bg-white/5">
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-2">
-                                                <span className="text-xl">{team.logo}</span>
+                                                <img src={team.logo} alt={team.shortName} className="w-6 h-6 object-contain drop-shadow-md" />
                                                 <span className="text-white font-medium">{team.shortName}</span>
                                             </div>
                                         </td>

@@ -23,8 +23,8 @@ export default function TeamHeader({ team }: TeamHeaderProps) {
             <div className="flex items-center justify-between">
                 {/* Team Info */}
                 <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl" style={{ background: 'linear-gradient(135deg, #0e4d5e, #1a8a9e)', border: '2px solid rgba(43,181,204,0.3)' }}>
-                        {team.logo}
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl overflow-hidden p-2" style={{ background: 'linear-gradient(135deg, #0e4d5e, #1a8a9e)', border: '2px solid rgba(43,181,204,0.3)' }}>
+                        <img src={team.logo} alt={team.shortName} className="w-full h-full object-contain drop-shadow-md" />
                     </div>
                     <div>
                         <h1 className="text-4xl font-black text-white mb-1" style={{ fontFamily: "'Cinzel', serif" }}>{team.name}</h1>
