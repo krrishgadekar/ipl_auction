@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// IPL Auction 2026 — Server Entry Point
+// IPL Auction 2026 — Modular Server Entry Point
 // ═══════════════════════════════════════════════════════════════
 import 'dotenv/config';
 import express from 'express';
@@ -15,7 +15,7 @@ import playerRoutes from './src/routes/playerRoutes.js';
 import publicRoutes from './src/routes/publicRoutes.js';
 import authRoutes from './src/routes/authRoutes.js';
 import scoringRoutes from './src/routes/scoringRoutes.js';
-import socketHandler from './src/websocket/socketHandler.js';
+import socketHandler from './src/sockets/socketHandler.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -27,13 +27,14 @@ const io = new SocketIOServer(server, {
 app.use(cors());
 app.use(express.json());
 
-// Inject io into every route
+// Inject io into every route to allow controllers to emit events
 app.use((req, res, next) => {
     req.io = io;
     next();
 });
 
 // ── API Routes ───────────────────────────────────────────────
+// Mapped to Controller-driven stubs
 app.use('/api/admin/auction', adminRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/players', playerRoutes);

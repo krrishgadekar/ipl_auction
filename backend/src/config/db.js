@@ -1,10 +1,13 @@
-// Prisma Client singleton for IPL Auction backend
-// Uses the generated client from `prisma generate`
-import 'dotenv/config';
-import { PrismaClient } from '../../generated/prisma/client.js';
+import pkg from 'pg';
+const { Pool } = pkg;
 
-const prisma = new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'warn', 'error'] : ['error'],
+// Basic PostgreSQL connection pool setup
+// Schema and models will be defined in future prompts
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
 });
 
-export default prisma;
+export default pool;

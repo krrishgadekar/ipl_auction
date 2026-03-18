@@ -45,7 +45,7 @@ services:
   # ── Frontend ────────────────────────────────────────────────
   frontend:
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: "http://${CLASSROOM_IP:-localhost}:${BACKEND_PORT:-5000}"
