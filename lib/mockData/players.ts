@@ -3,7 +3,7 @@
 // TODO: Replace with real API calls to backend when ready
 
 export type PlayerPool = 'BAT_WK' | 'BOWL' | 'AR';
-export type PlayerGrade = 'A' | 'B' | 'C' | 'D';
+export type PlayerGrade = 'A' | 'B' | 'C';
 export type PlayerCategory = 'Batsmen' | 'Bowlers' | 'All-rounders' | 'Wicketkeepers';
 export type PlayerNationality = 'Indian' | 'Overseas';
 
@@ -12,7 +12,6 @@ export const GRADE_BASE_PRICE: Record<PlayerGrade, number> = {
     A: 2.0,
     B: 1.0,
     C: 0.5,
-    D: 0.2,
 };
 
 export interface Player {
@@ -118,7 +117,7 @@ export const mockPlayers: Player[] = [
         sub_versatility: 62,
     },
 
-    // ── GRADE D — Slate / Prospect ──
+    // ── GRADE C (formerly D) — Slate / Prospect ──
     {
         rank: 72,
         player: 'Arjun Tendulkar',
@@ -130,8 +129,8 @@ export const mockPlayers: Player[] = [
         imageUrl: '/players/arjun-tendulkar.png',
         nationality: 'Indian',
         rating: 48,
-        grade: 'D',
-        basePrice: 0.2,
+        grade: 'C',
+        basePrice: 0.5,
         legacy: 1,
         sub_experience: 20,
         sub_wickettaking: 45,
