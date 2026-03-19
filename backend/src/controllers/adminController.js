@@ -210,6 +210,47 @@ class AdminController {
             res.status(400).json({ success: false, error: error.message });
         }
     }
+
+    async sellFranchise(req, res) {
+        try {
+            const { teamId, franchiseId, price } = req.body;
+            const result = await adminControlService.sellFranchise(teamId, franchiseId, Number(price));
+            
+            req.io.emit(SOCKET_EVENTS.TEAM_UPDATED, { teamId, franchiseId, franchiseName: result.franchiseName });
+            req.io.emit(SOCKET_EVENTS.TEAM_PURSE_UPDATED, { team: result.team });
+            
+            res.json({ success: true, data: result });
+        } catch (error) {
+            res.status(400).json({ success: false, error: error.message });
+        }
+    }
+
+    async sellPowercard(req, res) {
+        try {
+            const { teamId, cardType, price } = req.body;
+            const powercardService = (await import('../services/powercardService.js')).default;
+            const result = await powercardService.sellPowercard(teamId, cardType, Number(price));
+            
+            req.io.emit(SOCKET_EVENTS.POWERCARD_GRANTED, result.card);
+            req.io.emit(SOCKET_EVENTS.TEAM_PURSE_UPDATED, { team: result.team });
+            
+            res.json({ success: true, data: result });
+        } catch (error) {
+            res.status(400).json({ success: false, error: error.message });
+        }
+    }
+
+    async deletePowercard(req, res) {
+        try {
+            const { cardId } = req.body;
+            const card = await adminControlService.deletePowercard(cardId);
+            
+            req.io.emit(SOCKET_EVENTS.POWERCARD_REMOVED, { cardId, teamId: card.team_id });
+            res.json({ success: true, data: card });
+        } catch (error) {
+            res.status(400).json({ success: false, error: error.message });
+        }
+    }
 }
 
 export default new AdminController();

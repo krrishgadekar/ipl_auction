@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import playerController from '../controllers/playerController.js';
 import adminController from '../controllers/adminController.js';
 // Public routes
 

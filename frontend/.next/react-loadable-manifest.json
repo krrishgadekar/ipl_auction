@@ -1,0 +1,38 @@
+{
+  "app\\big-screen\\page.tsx -> canvas-confetti": {
+    "id": 1708,
+    "files": [
+      "static/chunks/708.740eb0cb11cab9f8.js"
+    ]
+  },
+  "app\\page.tsx -> @/components/Logo3D": {
+    "id": 1490,
+    "files": [
+      "static/chunks/b536a0f1.d1b33f1d8aa9bc78.js",
+      "static/chunks/bd904a5c.1ef0d6cda87f035e.js",
+      "static/chunks/51749ec1.6a31a7922f633f07.js",
+      "static/chunks/539.7b524b92cbf4a05a.js",
+      "static/chunks/490.31868102f67a653a.js"
+    ]
+  },
+  "node_modules\\@react-three\\drei\\core\\VideoTexture.js -> hls.js": {
+    "id": null,
+    "files": []
+  },
+  "node_modules\\@react-three\\drei\\web\\FaceLandmarker.js -> @mediapipe/tasks-vision": {
+    "id": null,
+    "files": []
+  },
+  "node_modules\\next\\dist\\client\\index.js -> ../pages/_app": {
+    "id": 5139,
+    "files": [
+      "static/chunks/139.e8e07991ffedd534.js"
+    ]
+  },
+  "node_modules\\next\\dist\\client\\index.js -> ../pages/_error": {
+    "id": 1646,
+    "files": [
+      "static/chunks/646.a702bf538bb261ec.js"
+    ]
+  }
+}

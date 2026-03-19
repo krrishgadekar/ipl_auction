@@ -178,6 +178,79 @@ class AdminControlService {
 
         return { teamId: team_id, powercardType: powercard_type, usageId };
     }
+
+    /**
+     * Sells a franchise (MI, CSK, RCB) to a team at a bid price.
+     * Deducts purse and assigns the brand.
+     */
+    async sellFranchise(teamId, franchiseId, price) {
+        const franchiseResult = await SquadModel.pool.query('SELECT * FROM franchises WHERE franchise_id = $1', [franchiseId]);
+        if (franchiseResult.rows.length === 0) throw new Error("Franchise not found");
+        const franchise = franchiseResult.rows[0];
+
+        // 1. Deduct Purse
+        const { team, transaction } = await purseAccountingService.deductPurse(
+            teamId,
+            price,
+            'FRANCHISE_PURCHASE',
+            `Purchased franchise ${franchise.franchise_name} for ${price} Cr`,
+            false
+        );
+
+        // 2. Assign Franchise
+        await SquadModel.pool.query(
+            'UPDATE teams SET franchise_id = $1, brand_score = $2 WHERE team_id = $3',
+            [franchiseId, franchise.bonus_points, teamId]
+        );
+
+        await AuditService.logAction(
+            'SELL_FRANCHISE',
+            'team',
+            teamId,
+            null,
+            { franchise_id: franchiseId, name: franchise.franchise_name, price },
+            `Team ${teamId} bought franchise ${franchise.franchise_name} for ${price} Cr`
+        );
+
+        return { team, franchiseName: franchise.franchise_name, price };
+    }
+    /**
+     * Assigns a franchise (MI, CSK, etc) to a participant team.
+     */
+    async assignFranchise(teamId, franchiseId) {
+        const franchiseResult = await SquadModel.pool.query('SELECT * FROM franchises WHERE franchise_id = $1', [franchiseId]);
+        if (franchiseResult.rows.length === 0) throw new Error("Franchise not found");
+        const franchise = franchiseResult.rows[0];
+
+        await SquadModel.pool.query(
+            'UPDATE teams SET franchise_id = $1 WHERE team_id = $2',
+            [franchiseId, teamId]
+        );
+
+        await AuditService.logAction(
+            'ASSIGN_FRANCHISE',
+            'team',
+            teamId,
+            null,
+            { franchise_id: franchiseId, name: franchise.franchise_name },
+            `Admin assigned franchise ${franchise.franchise_name} to team ${teamId}`
+        );
+
+        return { teamId, franchiseId, franchiseName: franchise.franchise_name };
+    }
+
+    /**
+     * Physically removes a powercard from a team's account.
+     */
+    async deletePowercard(cardId) {
+        const result = await SquadModel.pool.query('DELETE FROM team_powercards WHERE id = $1 RETURNING *', [cardId]);
+        if (result.rows.length === 0) throw new Error("Card not found");
+        
+        const card = result.rows[0];
+        await AuditService.logAction('DELETE_POWERCARD', 'card', cardId, card, null, `Admin physically deleted card ${card.powercard_type} from team ${card.team_id}`);
+        
+        return card;
+    }
 }
 
 export default new AdminControlService();

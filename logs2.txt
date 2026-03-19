@@ -1,0 +1,8 @@
+🏏 Running Prisma migrations...
+Datasource "db": PostgreSQL database "ipl_auction", schema "public" at "postgres:5432"
+
+1 migration found in prisma/migrations
+
+
+No pending migrations to apply.
+🌱 Checking if seed needed...

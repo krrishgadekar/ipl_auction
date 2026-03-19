@@ -98,3 +98,50 @@ export async function getLeaderboard() {
 export async function checkHealth() {
     return fetchJSON<{ status: string; timestamp: string }>('/api/health');
 }
+export async function markPlayerUnsold() {
+    return fetchJSON('/api/admin/auction/unsold', {
+        method: 'POST',
+    });
+}
+
+/** Set the current player being auctioned (by rank) */
+export async function setCurrentPlayer(rank: number) {
+    return fetchJSON('/api/admin/auction/set-player', {
+        method: 'POST',
+        body: JSON.stringify({ rank }),
+    });
+}
+
+/** Trigger a power card for a team */
+export async function triggerPowerCard(teamId: string | number, cardType: string) {
+    return fetchJSON('/api/admin/auction/power-card', {
+        method: 'POST',
+        body: JSON.stringify({ teamId, cardType }),
+    });
+}
+
+// ── WebSocket ───────────────────────────────────────────────
+
+const socket = io(API_URL, { autoConnect: false });
+
+let socketConnected = false;
+
+function ensureSocket() {
+    if (!socketConnected) {
+        socket.connect();
+        socketConnected = true;
+    }
+}
+
+/** Subscribe to real-time auction state updates */
+export function subscribeToAuctionUpdates(callback: (state: AuctionState) => void) {
+    ensureSocket();
+
+    socket.on('STATE_UPDATE', (data: AuctionState) => {
+        callback(data);
+    });
+
+    return () => {
+        socket.off('STATE_UPDATE');
+    };
+}

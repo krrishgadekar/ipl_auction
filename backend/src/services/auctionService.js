@@ -1,6 +1,7 @@
 import AuctionStateModel from '../models/AuctionStateModel.js';
 import QueueModel from '../models/QueueModel.js';
 import SquadModel from '../models/SquadModel.js';
+import PlayerModel from '../models/PlayerModel.js';
 import playerQueueService from './playerQueueService.js';
 import purseAccountingService from './purseAccountingService.js';
 import squadValidationService from './squadValidationService.js';
@@ -127,6 +128,9 @@ class AuctionService {
         await QueueModel.moveToBack(playerId);
         await QueueModel.updateStatus(playerId, 'UNSOLD');
 
+        // Riddle players lose their status when going to back of queue
+        await PlayerModel.clearRiddleStatus(playerId);
+
         // Clear active player
         const updatedState = await AuctionStateModel.updateState('PLAYER_AUCTION', null);
 
@@ -159,6 +163,9 @@ class AuctionService {
             // Move to back of queue and set status RELEASED
             await QueueModel.moveToBack(playerId);
             await QueueModel.updateStatus(playerId, 'RELEASED');
+
+            // Riddle players lose their status when going to back of queue
+            await PlayerModel.clearRiddleStatus(playerId);
             
             return {
                 releasedTeam: updatedTeam,

@@ -20,29 +20,7 @@ class PurseAccountingService {
             throw new Error(`Insufficient purse. Required: ${amount} Cr, Available: ${currentPurse} Cr`);
         }
 
-        // Validate Minimum Purse Rule (15 players @ 0.2 Cr minimum)
-        const squad = await SquadModel.getSquadByTeam(teamId);
-        const currentSquadSize = squad ? squad.length : 0;
-        
-        if (currentSquadSize < 15) {
-            let playersNeeded = 15 - currentSquadSize;
-            if (isPlayerPurchase) {
-                playersNeeded -= 1; // This purchase will occupy one of the needed slots
-            }
-            
-            // Cannot have negative slots needed if they are above 15
-            playersNeeded = Math.max(0, playersNeeded);
-
-            const minimumReservedPurse = playersNeeded * 0.2;
-            const amountAfterPurchase = currentPurse - amount;
-
-            if (amountAfterPurchase < minimumReservedPurse) {
-                throw new Error(
-                    `Minimum purse rule violation. Team needs ${playersNeeded} more players after this. Required reserve: ${minimumReservedPurse.toFixed(2)} Cr, Remaining after purchase: ${amountAfterPurchase.toFixed(2)} Cr`
-                );
-            }
-        }
-
+        // Minimum Reserve Rule Removed (User requested freedom to spend)
         return team;
     }
 

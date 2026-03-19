@@ -10,7 +10,7 @@ WORKDIR /app
 
 # Install deps
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm install
 
 # Copy source
 COPY . .

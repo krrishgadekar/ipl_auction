@@ -3,7 +3,11 @@
 // Seeds: Franchises, Teams, 246 Players, AuctionState, PowerCards
 // Idempotent: skips if data exists unless --force flag is used
 // ═══════════════════════════════════════════════════════════════
-import { PrismaClient } from '../generated/prisma/client.js';
+import { PrismaClient } from '../generated/prisma/client/index.js';
+import { PrismaPg } from '@prisma/adapter-pg';
+import pkg from 'pg';
+const { Pool } = pkg;
+
 import bcrypt from 'bcrypt';
 import fs from 'fs';
 import path from 'path';
@@ -12,7 +16,11 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const prisma = new PrismaClient();
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 const FORCE = process.argv.includes('--force');
 const SALT_ROUNDS = 10;
 
@@ -162,7 +170,6 @@ async function main() {
     const team = await prisma.team.create({
       data: {
         name: def.name,
-        username: def.username,
         password_hash: passwordHash,
         purse_remaining: 120,
         squad_count: 0,
@@ -208,6 +215,7 @@ async function main() {
     if (!rank) continue;
 
     const grade = mapGrade(row.Grade);
+    if (grade === 'D') continue;
     const player = await prisma.player.create({
       data: {
         rank,
@@ -320,7 +328,11 @@ async function main() {
     }
 
     await prisma.auctionSequence.create({
-      data: { id: i + 1, name: sequenceNames[i], player_ids: order },
+      data: {
+        id: i + 1,
+        name: sequenceNames[i],
+        players: order.map((rank) => ({ rank, isRiddlePlayer: false })),
+      },
     });
     console.log(`  ✅ ${sequenceNames[i]} (${order.length} players)`);
   }
