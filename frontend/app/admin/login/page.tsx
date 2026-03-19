@@ -25,12 +25,15 @@ export default function AdminLoginPage() {
         setLoading(true);
 
         try {
+            if (username.toLowerCase() !== 'admin') {
+                throw new Error('Invalid administrative username');
+            }
             await verifyAdminToken(password);
             localStorage.setItem('ipl_admin_token', password);
             localStorage.setItem('ipl_admin_auth', 'true');
             router.push('/admin');
-        } catch (err) {
-            setError('Invalid administrative credentials');
+        } catch (err: any) {
+            setError(err.message || 'Invalid administrative credentials');
             setShake(true);
             setTimeout(() => setShake(false), 600);
             setLoading(false);

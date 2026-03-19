@@ -38,7 +38,7 @@ const FRANCHISE_DEFINITIONS = [
 // 10 Participant teams (pre-seeded, one username/password each)
 // Teams start without a franchise (assigned during FRANCHISE_PHASE)
 const TEAM_DEFINITIONS = [
-  { name: 'Team Alpha',   username: 'team1',  password: 'auction2026' },
+  { name: 'Team Alpha',   username: 'admin',  password: 'admin123' },
   { name: 'Team Bravo',   username: 'team2',  password: 'auction2026' },
   { name: 'Team Charlie', username: 'team3',  password: 'auction2026' },
   { name: 'Team Delta',   username: 'team4',  password: 'auction2026' },
