@@ -1,15 +1,20 @@
 // ═══════════════════════════════════════════════════════════════
 // Admin API Service
 // Wraps all admin actions and automatically injects the auth token.
+// Token format: base64(username:password)
 // ═══════════════════════════════════════════════════════════════
 
 const API_BASE = 'http://localhost:5000/api/admin/auction';
 
+function getAuthToken(): string {
+    if (typeof window === 'undefined') return '';
+    return localStorage.getItem('ipl_admin_token') || '';
+}
+
 function getHeaders() {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('ipl_admin_token') : '';
     return {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${getAuthToken()}`
     };
 }
 
@@ -29,10 +34,28 @@ async function fetchAdmin(endpoint: string, options: RequestInit = {}) {
     return data;
 }
 
-// ── Authentication Check ─────────────────────────────────────
+// ── Authentication ───────────────────────────────────────────
+
+/**
+ * Verify admin credentials by hitting the dedicated /verify endpoint.
+ * Encodes username:password as base64 for the Bearer token.
+ */
+export async function verifyAdminCredentials(username: string, password: string) {
+    const token = btoa(`${username}:${password}`);
+    const res = await fetch(`${API_BASE}/verify`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!res.ok) throw new Error('Invalid credentials');
+    return token; // Return the token to store in localStorage
+}
+
+// Legacy alias (kept for compatibility, but prefer verifyAdminCredentials)
 export async function verifyAdminToken(token: string) {
-    // A simple GET to a protected route to verify the token
-    const res = await fetch(`${API_BASE}/sequences`, {
+    const res = await fetch(`${API_BASE}/verify`, {
+        method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -92,4 +115,10 @@ export async function assignPowerCard(teamId: string, type: string) {
 
 export async function deassignPowerCard(teamId: string, type: string) {
     return fetchAdmin('/deassign-powercard', { method: 'POST', body: JSON.stringify({ teamId, type }) });
+}
+
+// ── Riddle Player ────────────────────────────────────────────
+
+export async function unveilRiddlePlayer(playerId: string) {
+    return fetchAdmin('/unveil-riddle', { method: 'POST', body: JSON.stringify({ playerId }) });
 }

@@ -29,7 +29,7 @@ export function serializePlayer(p) {
         // camelCase aliases for frontend
         player: p.name,
         basePrice: Number(p.base_price),
-        imageUrl: p.image_url,
+        imageUrl: `/player_photos/${p.rank}.avif`,
         isRiddle: p.is_riddle,
         // Display category/nationality
         category: CATEGORY_DISPLAY[p.category] || p.category,

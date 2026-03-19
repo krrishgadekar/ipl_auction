@@ -107,6 +107,7 @@ export default function BigScreenPage() {
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
     const [showSold, setShowSold] = useState(false);
+    const [showReveal, setShowReveal] = useState(false);
     const [isAuth, setIsAuth] = useState<boolean | null>(null);
     const router = useRouter();
 
@@ -143,6 +144,12 @@ export default function BigScreenPage() {
         load();
         const unsub = subscribeToAuctionUpdates((ns) => {
             if (auctionState?.status === 'BIDDING' && ns.status === 'SOLD') { setShowSold(true); confetti(); setTimeout(() => setShowSold(false), 3200); }
+            // Detect riddle → revealed transition
+            if (auctionState?.currentPlayer?.isRiddle && ns.currentPlayer && !ns.currentPlayer.isRiddle && ns.currentPlayer.rank === auctionState.currentPlayer.rank) {
+                setShowReveal(true);
+                confetti();
+                setTimeout(() => setShowReveal(false), 4000);
+            }
             setAuctionState(ns);
             if (ns.currentPlayerRank !== null) {
                 const idx = mockPlayers.findIndex(p => p.rank === ns.currentPlayerRank);
@@ -197,6 +204,23 @@ export default function BigScreenPage() {
                             style={{ fontSize: 'clamp(5rem, 14vw, 11rem)', color: theme.accent, fontFamily: "'Cinzel', serif", fontWeight: 900,
                                 textShadow: `0 0 60px ${theme.accentGlow}, 0 0 120px ${theme.accentGlow}` }}>
                             SOLD! 🔨
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* RIDDLE REVEALED overlay */}
+            <AnimatePresence>
+                {showReveal && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+                        style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)' }}>
+                        <motion.div initial={{ scale: 0, rotate: -15 }} animate={{ scale: 1, rotate: 0 }}
+                            exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 300 }}
+                            style={{ fontSize: 'clamp(4rem, 12vw, 9rem)', fontFamily: "'Cinzel', serif", fontWeight: 900,
+                                color: '#d4af37',
+                                textShadow: '0 0 60px rgba(212,175,55,0.6), 0 0 120px rgba(212,175,55,0.3)' }}>
+                            🎭 REVEALED!
                         </motion.div>
                     </motion.div>
                 )}
@@ -470,7 +494,7 @@ export default function BigScreenPage() {
                                                             className="flex items-center gap-1.5 px-2 py-1 rounded-lg relative overflow-hidden"
                                                             style={{
                                                                 background: i < 3 ? `${theme.accent}08` : 'rgba(255,255,255,0.02)',
-                                                                borderLeft: `2px solid ${team.primaryColor || theme.glassBorder}`,
+                                                                borderLeft: `2px solid ${team.primaryColor || GLASS_BORDER}`,
                                                             }}>
                                                             {/* Rank */}
                                                             <span className="text-[0.65rem] font-black w-4 text-center"

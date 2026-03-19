@@ -7,7 +7,8 @@ import { AuctionState } from '@/lib/mockData/auctionState';
 import { 
     setPhase, setAuctionDay, advanceToNextPlayer, 
     assignFranchise, assignPlayer, deassignPlayer,
-    assignPowerCard, deassignPowerCard, markUnsold 
+    assignPowerCard, deassignPowerCard, markUnsold,
+    unveilRiddlePlayer 
 } from '@/lib/api/admin';
 
 interface AdminDashboardControlsProps {
@@ -136,6 +137,21 @@ export default function AdminDashboardControls({ teams, state }: AdminDashboardC
                     >
                         ✗ Mark Unsold
                     </button>
+                    {/* Unveil Riddle Player — only visible when current player is a riddle */}
+                    {state.currentPlayer?.isRiddle && (
+                        <button 
+                            onClick={() => {
+                                const playerId = state.currentPlayer?.id || '';
+                                if (!playerId) { setError('No current player to unveil'); return; }
+                                if (!window.confirm('🎭 Unveil this riddle player? Their real identity will be revealed to everyone!')) return;
+                                withLoading(() => unveilRiddlePlayer(playerId));
+                            }}
+                            disabled={loading}
+                            className="py-4 px-6 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-black rounded-xl font-bold shadow-lg shadow-yellow-500/20 transform transition-all hover:scale-[1.02] active:scale-95 text-lg animate-pulse"
+                        >
+                            ✨ Unveil Riddle Player
+                        </button>
+                    )}
                 </div>
             </div>
 
