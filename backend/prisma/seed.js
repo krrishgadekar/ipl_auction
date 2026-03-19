@@ -3,7 +3,8 @@
 // Seeds: Franchises, Teams, 246 Players, AuctionState, PowerCards
 // Idempotent: skips if data exists unless --force flag is used
 // ═══════════════════════════════════════════════════════════════
-import { PrismaClient } from '../generated/prisma/client.js';
+import 'dotenv/config';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import fs from 'fs';
 import path from 'path';
@@ -122,7 +123,6 @@ async function main() {
   if (FORCE) {
     console.log('🧹 Force flag detected — cleaning existing data...');
     await prisma.auditLog.deleteMany();
-    await prisma.sealedBid.deleteMany();
     await prisma.top11Selection.deleteMany();
     await prisma.teamPlayer.deleteMany();
     await prisma.auctionPlayer.deleteMany();
@@ -159,19 +159,24 @@ async function main() {
 
   for (const def of TEAM_DEFINITIONS) {
     const passwordHash = await bcrypt.hash(def.password, SALT_ROUNDS);
-    const team = await prisma.team.create({
-      data: {
-        name: def.name,
-        username: def.username,
-        password_hash: passwordHash,
-        purse_remaining: 120,
-        squad_count: 0,
-        overseas_count: 0,
-        // brand_key, franchise_name, brand_score remain null/0 until FRANCHISE_PHASE
-      },
-    });
-    teamMap[def.username] = team;
-    console.log(`  ✅ ${def.name} (user: ${def.username})`);
+    try {
+        const team = await prisma.team.create({
+          data: {
+            name: def.name,
+            username: def.username,
+            password_hash: passwordHash,
+            purse_remaining: 120,
+            squad_count: 0,
+            overseas_count: 0,
+          },
+        });
+        teamMap[def.username] = team;
+        console.log(`  ✅ ${def.name} (user: ${def.username})`);
+    } catch (e) {
+        console.error('FAILED TEAM:', def.name);
+        console.error(e.message);
+        throw e;
+    }
   }
 
   // ── STEP 3: Seed Players from CSV ─────────────────────────

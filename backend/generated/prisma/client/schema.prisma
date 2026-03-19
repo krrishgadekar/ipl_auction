@@ -154,10 +154,10 @@ model AuctionState {
 
 // 5 pre-defined player orderings (deterministic, selected before auction)
 model AuctionSequence {
-  id      Int    @id // 1–5
-  name    String // "Sequence Alpha", etc.
+  id         Int    @id // 1–5
+  name       String // "Sequence Alpha", etc.
   // Array of { rank: Int, isRiddlePlayer: Boolean }
-  players Json   @default("[]")
+  player_ids Json   @default("[]")
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -245,7 +245,6 @@ enum AuctionPhase {
   FRANCHISE_PHASE
   POWER_CARD_PHASE
   LIVE
-  CLOSED_BIDDING
   POST_AUCTION
   COMPLETED
 }

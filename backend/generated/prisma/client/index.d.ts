@@ -110,7 +110,6 @@ export const AuctionPhase: {
   FRANCHISE_PHASE: 'FRANCHISE_PHASE',
   POWER_CARD_PHASE: 'POWER_CARD_PHASE',
   LIVE: 'LIVE',
-  CLOSED_BIDDING: 'CLOSED_BIDDING',
   POST_AUCTION: 'POST_AUCTION',
   COMPLETED: 'COMPLETED'
 };
@@ -8259,7 +8258,7 @@ export namespace Prisma {
   export type AuctionSequenceCountAggregateOutputType = {
     id: number
     name: number
-    players: number
+    player_ids: number
     _all: number
   }
 
@@ -8285,7 +8284,7 @@ export namespace Prisma {
   export type AuctionSequenceCountAggregateInputType = {
     id?: true
     name?: true
-    players?: true
+    player_ids?: true
     _all?: true
   }
 
@@ -8378,7 +8377,7 @@ export namespace Prisma {
   export type AuctionSequenceGroupByOutputType = {
     id: number
     name: string
-    players: JsonValue
+    player_ids: JsonValue
     _count: AuctionSequenceCountAggregateOutputType | null
     _avg: AuctionSequenceAvgAggregateOutputType | null
     _sum: AuctionSequenceSumAggregateOutputType | null
@@ -8403,28 +8402,28 @@ export namespace Prisma {
   export type AuctionSequenceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    players?: boolean
+    player_ids?: boolean
   }, ExtArgs["result"]["auctionSequence"]>
 
   export type AuctionSequenceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    players?: boolean
+    player_ids?: boolean
   }, ExtArgs["result"]["auctionSequence"]>
 
   export type AuctionSequenceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    players?: boolean
+    player_ids?: boolean
   }, ExtArgs["result"]["auctionSequence"]>
 
   export type AuctionSequenceSelectScalar = {
     id?: boolean
     name?: boolean
-    players?: boolean
+    player_ids?: boolean
   }
 
-  export type AuctionSequenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "players", ExtArgs["result"]["auctionSequence"]>
+  export type AuctionSequenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "player_ids", ExtArgs["result"]["auctionSequence"]>
 
   export type $AuctionSequencePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AuctionSequence"
@@ -8432,7 +8431,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       name: string
-      players: Prisma.JsonValue
+      player_ids: Prisma.JsonValue
     }, ExtArgs["result"]["auctionSequence"]>
     composites: {}
   }
@@ -8858,7 +8857,7 @@ export namespace Prisma {
   interface AuctionSequenceFieldRefs {
     readonly id: FieldRef<"AuctionSequence", 'Int'>
     readonly name: FieldRef<"AuctionSequence", 'String'>
-    readonly players: FieldRef<"AuctionSequence", 'Json'>
+    readonly player_ids: FieldRef<"AuctionSequence", 'Json'>
   }
     
 
@@ -13472,7 +13471,7 @@ export namespace Prisma {
   export const AuctionSequenceScalarFieldEnum: {
     id: 'id',
     name: 'name',
-    players: 'players'
+    player_ids: 'player_ids'
   };
 
   export type AuctionSequenceScalarFieldEnum = (typeof AuctionSequenceScalarFieldEnum)[keyof typeof AuctionSequenceScalarFieldEnum]
@@ -14325,13 +14324,13 @@ export namespace Prisma {
     NOT?: AuctionSequenceWhereInput | AuctionSequenceWhereInput[]
     id?: IntFilter<"AuctionSequence"> | number
     name?: StringFilter<"AuctionSequence"> | string
-    players?: JsonFilter<"AuctionSequence">
+    player_ids?: JsonFilter<"AuctionSequence">
   }
 
   export type AuctionSequenceOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
-    players?: SortOrder
+    player_ids?: SortOrder
   }
 
   export type AuctionSequenceWhereUniqueInput = Prisma.AtLeast<{
@@ -14340,13 +14339,13 @@ export namespace Prisma {
     OR?: AuctionSequenceWhereInput[]
     NOT?: AuctionSequenceWhereInput | AuctionSequenceWhereInput[]
     name?: StringFilter<"AuctionSequence"> | string
-    players?: JsonFilter<"AuctionSequence">
+    player_ids?: JsonFilter<"AuctionSequence">
   }, "id">
 
   export type AuctionSequenceOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
-    players?: SortOrder
+    player_ids?: SortOrder
     _count?: AuctionSequenceCountOrderByAggregateInput
     _avg?: AuctionSequenceAvgOrderByAggregateInput
     _max?: AuctionSequenceMaxOrderByAggregateInput
@@ -14360,7 +14359,7 @@ export namespace Prisma {
     NOT?: AuctionSequenceScalarWhereWithAggregatesInput | AuctionSequenceScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"AuctionSequence"> | number
     name?: StringWithAggregatesFilter<"AuctionSequence"> | string
-    players?: JsonWithAggregatesFilter<"AuctionSequence">
+    player_ids?: JsonWithAggregatesFilter<"AuctionSequence">
   }
 
   export type PowerCardWhereInput = {
@@ -15242,43 +15241,43 @@ export namespace Prisma {
   export type AuctionSequenceCreateInput = {
     id: number
     name: string
-    players?: JsonNullValueInput | InputJsonValue
+    player_ids?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceUncheckedCreateInput = {
     id: number
     name: string
-    players?: JsonNullValueInput | InputJsonValue
+    player_ids?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    players?: JsonNullValueInput | InputJsonValue
+    player_ids?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    players?: JsonNullValueInput | InputJsonValue
+    player_ids?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceCreateManyInput = {
     id: number
     name: string
-    players?: JsonNullValueInput | InputJsonValue
+    player_ids?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceUpdateManyMutationInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    players?: JsonNullValueInput | InputJsonValue
+    player_ids?: JsonNullValueInput | InputJsonValue
   }
 
   export type AuctionSequenceUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    players?: JsonNullValueInput | InputJsonValue
+    player_ids?: JsonNullValueInput | InputJsonValue
   }
 
   export type PowerCardCreateInput = {
@@ -16296,7 +16295,7 @@ export namespace Prisma {
   export type AuctionSequenceCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    players?: SortOrder
+    player_ids?: SortOrder
   }
 
   export type AuctionSequenceAvgOrderByAggregateInput = {

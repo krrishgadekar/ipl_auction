@@ -215,7 +215,7 @@ exports.Prisma.AuctionStateScalarFieldEnum = {
 exports.Prisma.AuctionSequenceScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  players: 'players'
+  player_ids: 'player_ids'
 };
 
 exports.Prisma.PowerCardScalarFieldEnum = {
@@ -308,7 +308,6 @@ exports.AuctionPhase = exports.$Enums.AuctionPhase = {
   FRANCHISE_PHASE: 'FRANCHISE_PHASE',
   POWER_CARD_PHASE: 'POWER_CARD_PHASE',
   LIVE: 'LIVE',
-  CLOSED_BIDDING: 'CLOSED_BIDDING',
   POST_AUCTION: 'POST_AUCTION',
   COMPLETED: 'COMPLETED'
 };

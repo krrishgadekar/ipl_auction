@@ -21,11 +21,5 @@ RUN apk add --no-cache curl
 
 EXPOSE 5000
 
-# Startup: migrate → conditional seed → start server
-CMD sh -c "\
-  echo '🏏 Running Prisma migrations...' && \
-  npx prisma migrate deploy && \
-  echo '🌱 Checking if seed needed...' && \
-  node prisma/seed.js && \
-  echo '🚀 Starting server...' && \
-  node server.js"
+# Startup: push → conditional seed → start server
+CMD ["sh", "-c", "echo '🏏 Syncing Prisma schema...' && npx prisma db push --accept-data-loss && echo '🌱 Checking if seed needed...' && node prisma/seed.js && echo '🚀 Starting server...' && node server.js"]
