@@ -13,26 +13,32 @@ interface PlayerCardProps {
 export default function PlayerCard({ player, currentBid = 0, isRiddle = false, showReveal = false }: PlayerCardProps) {
     // Determine which sub-ratings to show based on pool
     const getSubRatings = () => {
+        const exp = { label: 'Experience', value: player.sub_experience || 0, color: '#00ff88' };
+        const rat = { label: 'Overall Rating', value: player.rating || 0, color: '#ffffff' };
+
         if (player.pool === 'BAT_WK') {
             return [
                 { label: 'Scoring', value: player.sub_scoring || 0, color: '#00d9ff' },
                 { label: 'Impact', value: player.sub_impact || 0, color: '#b537f2' },
                 { label: 'Consistency', value: player.sub_consistency || 0, color: '#ffd700' },
-                { label: 'Experience', value: player.sub_experience || 0, color: '#00ff88' },
+                exp,
+                rat
             ];
         } else if (player.pool === 'BOWL') {
             return [
                 { label: 'Wicket Taking', value: player.sub_wickettaking || 0, color: '#00d9ff' },
                 { label: 'Economy', value: player.sub_economy || 0, color: '#b537f2' },
                 { label: 'Efficiency', value: player.sub_efficiency || 0, color: '#ffd700' },
-                { label: 'Experience', value: player.sub_experience || 0, color: '#00ff88' },
+                exp,
+                rat
             ];
         } else if (player.pool === 'AR') {
             return [
                 { label: 'Batting', value: player.sub_batting || 0, color: '#00d9ff' },
                 { label: 'Bowling', value: player.sub_bowling || 0, color: '#b537f2' },
                 { label: 'Versatility', value: player.sub_versatility || 0, color: '#ffd700' },
-                { label: 'Experience', value: player.sub_experience || 0, color: '#00ff88' },
+                exp,
+                rat
             ];
         }
         return [];

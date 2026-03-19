@@ -21,6 +21,8 @@ export default function SubRatingsDisplay({ player, animate = true }: SubRatings
     // Get pool-specific sub-ratings
     const getSubRatings = (): SubRating[] => {
         const ratings: SubRating[] = [];
+        const exp = { label: 'Experience', value: player.sub_experience, color: '#9333ea' };
+        const rat = { label: 'Overall Rating', value: player.rating, color: '#ffffff' };
 
         switch (player.pool) {
             case 'BAT_WK':
@@ -33,6 +35,7 @@ export default function SubRatingsDisplay({ player, animate = true }: SubRatings
                 if (player.sub_consistency !== undefined) {
                     ratings.push({ label: 'Consistency', value: player.sub_consistency, color: '#ffd700' });
                 }
+                ratings.push(exp, rat);
                 break;
 
             case 'BOWL':
@@ -45,6 +48,7 @@ export default function SubRatingsDisplay({ player, animate = true }: SubRatings
                 if (player.sub_efficiency !== undefined) {
                     ratings.push({ label: 'Efficiency', value: player.sub_efficiency, color: '#ffd700' });
                 }
+                ratings.push(exp, rat);
                 break;
 
             case 'AR':
@@ -57,11 +61,9 @@ export default function SubRatingsDisplay({ player, animate = true }: SubRatings
                 if (player.sub_versatility !== undefined) {
                     ratings.push({ label: 'Versatility', value: player.sub_versatility, color: '#ffd700' });
                 }
+                ratings.push(exp, rat);
                 break;
         }
-
-        // Always add experience last
-        ratings.push({ label: 'Experience', value: player.sub_experience, color: '#9333ea' });
 
         return ratings;
     };

@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Player, mockPlayers } from '@/lib/mockData/players';
 import { Team } from '@/lib/mockData/teams';
 import { AuctionState } from '@/lib/mockData/auctionState';
+import { AUCTIONABLE_POWER_CARDS } from '@/lib/mockData/powercards';
 import { getAuctionState, subscribeToAuctionUpdates } from '@/lib/api/auction';
 import { getAllTeams } from '@/lib/api/teams';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -42,21 +43,30 @@ const TEXT_SEC = 'rgba(122,148,176,0.5)';
    SPIDER CHART
    ═══════════════════════════════════════════════════════════ */
 function getStats(p: Player): { label: string; value: number; display: string }[] {
-    const leg = { label: 'LEG', value: Math.min(p.legacy * 10, 100), display: String(p.legacy) };
     const rat = { label: 'RAT', value: p.rating, display: String(p.rating) };
     const exp = { label: 'EXP', value: p.sub_experience, display: String(p.sub_experience) };
+    
     if (p.pool === 'BAT_WK') return [
         { label: 'SCR', value: p.sub_scoring ?? 0, display: String(p.sub_scoring ?? 0) },
         { label: 'IMP', value: p.sub_impact ?? 0, display: String(p.sub_impact ?? 0) },
-        rat, { label: 'CON', value: p.sub_consistency ?? 0, display: String(p.sub_consistency ?? 0) }, leg, exp ];
+        { label: 'CON', value: p.sub_consistency ?? 0, display: String(p.sub_consistency ?? 0) },
+        exp,
+        rat
+    ];
     if (p.pool === 'BOWL') return [
         { label: 'WKT', value: p.sub_wickettaking ?? 0, display: String(p.sub_wickettaking ?? 0) },
         { label: 'ECO', value: p.sub_economy ?? 0, display: String(p.sub_economy ?? 0) },
-        rat, { label: 'EFF', value: p.sub_efficiency ?? 0, display: String(p.sub_efficiency ?? 0) }, leg, exp ];
+        { label: 'EFF', value: p.sub_efficiency ?? 0, display: String(p.sub_efficiency ?? 0) },
+        exp,
+        rat
+    ];
     return [
         { label: 'BAT', value: p.sub_batting ?? 0, display: String(p.sub_batting ?? 0) },
         { label: 'BWL', value: p.sub_bowling ?? 0, display: String(p.sub_bowling ?? 0) },
-        rat, { label: 'VRS', value: p.sub_versatility ?? 0, display: String(p.sub_versatility ?? 0) }, leg, exp ];
+        { label: 'VRS', value: p.sub_versatility ?? 0, display: String(p.sub_versatility ?? 0) },
+        exp,
+        rat
+    ];
 }
 
 function SpiderChart({ stats, theme }: { stats: { label: string; value: number; display: string }[]; theme: typeof THEMES.A }) {
@@ -228,7 +238,88 @@ export default function BigScreenPage() {
                     boxShadow: `0 8px 40px rgba(0,0,0,0.4), 0 0 80px ${theme.accentGlow}20`,
                 }}>
                     <AnimatePresence mode="wait">
-                        {player ? (
+                        {(auctionState as any).phase === 'POWER_CARD_PHASE' ? (() => {
+                            const powerCardId = (auctionState as any).active_power_card;
+                            const card = AUCTIONABLE_POWER_CARDS.find(c => c.id === powerCardId) || AUCTIONABLE_POWER_CARDS[0];
+                            const currentBidAmount = (auctionState as any).current_bid || 0;
+                            const highestBidderTeam = teams.find(t => t.id === (auctionState as any).highest_bidder_id);
+                            
+                            return (
+                                <motion.div key="power-card-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                    className="h-full flex flex-col pt-8">
+                                    <div className="absolute top-8 left-8 text-5xl opacity-20 filter blur-[2px]">{card.icon}</div>
+                                    <div className="absolute bottom-8 right-8 text-7xl opacity-10 filter blur-[4px]">{card.icon}</div>
+                                    
+                                    <div className="text-center mb-6">
+                                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', bounce: 0.5 }} 
+                                            className="inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.2em] mb-4 border"
+                                            style={{ background: `${card.color}20`, color: card.color, borderColor: `${card.color}50` }}>
+                                            POWER CARD AUCTION
+                                        </motion.div>
+                                        <h2 className="text-6xl font-black mb-4 drop-shadow-lg" style={{ fontFamily: "'Cinzel', serif", color: card.color, textShadow: `0 0 30px ${card.color}80` }}>
+                                            {card.name}
+                                        </h2>
+                                        <p className="text-2xl text-white/80 max-w-2xl mx-auto font-medium">
+                                            {card.description}
+                                        </p>
+                                    </div>
+
+                                    <div className="flex-1 flex gap-8 px-12 pb-12">
+                                        {/* Left Side: Rules */}
+                                        <div className="flex-1 rounded-2xl p-8 border backdrop-blur-md flex flex-col justify-center"
+                                            style={{ background: 'rgba(0,0,0,0.4)', borderColor: `${card.color}30` }}>
+                                            <h3 className="text-xl font-bold mb-6 flex items-center gap-3" style={{ color: card.color }}>
+                                                <span>📋</span> RULEBOOK
+                                            </h3>
+                                            <ul className="space-y-4">
+                                                {card.rules.map((rule: string, idx: number) => (
+                                                    <li key={idx} className="flex gap-4 items-start text-white/80 text-lg">
+                                                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: card.color }}></span>
+                                                        <span className="leading-relaxed">{rule}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+
+                                        {/* Right Side: Live Auction Stats */}
+                                        <div className="flex-1 rounded-2xl p-8 border backdrop-blur-md flex flex-col justify-center items-center text-center relative overflow-hidden"
+                                            style={{ background: `linear-gradient(135deg, ${card.color}15, rgba(0,0,0,0.6))` , borderColor: `${card.color}30` }}>
+                                            {/* decorative icon glow */}
+                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[15rem] opacity-5 pointer-events-none filter blur-sm">
+                                                {card.icon}
+                                            </div>
+
+                                            <div className="relative z-10 w-full space-y-8">
+                                                <div>
+                                                    <div className="text-sm font-bold tracking-widest uppercase mb-2 text-white/50">Current Highest Bid</div>
+                                                    <div className="text-7xl font-black drop-shadow-xl" style={{ fontFamily: "'Cinzel', serif", color: '#d4af37', textShadow: '0 0 40px rgba(212,175,55,0.4)' }}>
+                                                        ₹{currentBidAmount ? Number(currentBidAmount).toFixed(1) : "0.0"} <span className="text-4xl text-white/60">CR</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="pt-8 border-t border-white/10 w-full">
+                                                    <div className="text-sm font-bold tracking-widest uppercase mb-4 text-white/50">Highest Bidder</div>
+                                                    {highestBidderTeam ? (
+                                                        <div className="flex items-center justify-center gap-4">
+                                                            {highestBidderTeam.logo && (
+                                                                <div className="w-16 h-16 relative bg-white/5 rounded-full p-2 border border-white/10 shadow-xl">
+                                                                    <Image src={highestBidderTeam.logo} alt={highestBidderTeam.shortName} fill className="object-contain" />
+                                                                </div>
+                                                            )}
+                                                            <div className="text-3xl font-bold text-white tracking-wide" style={{ fontFamily: "'Cinzel', serif" }}>
+                                                                {highestBidderTeam.name}
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-xl text-white/30 font-medium italic">Awaiting bids...</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        })() : player ? (
                             <motion.div key={player.rank} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                 className="h-full flex flex-col">
 
@@ -307,47 +398,28 @@ export default function BigScreenPage() {
 
                                         {/* Name */}
                                         <motion.h2 initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
-                                            className="font-black text-white leading-[0.95] mb-1"
+                                            className="font-black text-white leading-[0.95] mb-2"
                                             style={{ fontSize: 'clamp(1.6rem, 3.5vw, 3rem)', fontFamily: "'Cinzel', serif" }}>
                                             {player.isRiddle ? '???' : player.player}
                                         </motion.h2>
                                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.22 }}
-                                            className="flex items-center gap-1.5 mb-4">
-                                            <span className="text-[0.75rem]" style={{ color: TEXT_SEC }}>{player.category}</span>
-                                            <span style={{ color: `${theme.accent}40` }}>·</span>
-                                            <span className="text-[0.75rem]" style={{ color: TEXT_SEC }}>{player.team}</span>
+                                            className="mb-8">
+                                            <span className="text-xl font-medium tracking-wide" style={{ color: TEXT_SEC }}>
+                                                {player.role}
+                                            </span>
                                         </motion.div>
 
-                                        {/* 3 Stat Cards */}
-                                        <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.28 }}
-                                            className="grid grid-cols-3 gap-2 mb-3">
-                                            {[
-                                                { icon: '⭐', lbl: 'Rating', val: String(player.rating) },
-                                                { icon: '🏆', lbl: 'Legacy', val: String(player.legacy) },
-                                                { icon: '💰', lbl: 'Base', val: `₹${player.basePrice}CR` },
-                                            ].map((c) => (
-                                                <div key={c.lbl} className="rounded-xl p-2.5 text-center"
-                                                    style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
-                                                    <div className="text-sm mb-0.5">{c.icon}</div>
-                                                    <div className="text-[0.5rem] uppercase tracking-wider mb-0.5" style={{ color: TEXT_SEC }}>{c.lbl}</div>
-                                                    <div className="text-xl font-black" style={{ color: theme.accentLight, fontFamily: "'Cinzel', serif" }}>{c.val}</div>
-                                                </div>
-                                            ))}
-                                        </motion.div>
-
-                                        {/* 2×2 Info Grid */}
+                                        {/* Stats Grid */}
                                         <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
-                                            className="grid grid-cols-2 gap-1.5">
+                                            className="grid grid-cols-2 gap-3">
                                             {[
-                                                { lbl: 'Nationality', val: player.nationality === 'Indian' ? '🇮🇳 Indian' : '🌍 Overseas' },
-                                                { lbl: 'Pool', val: player.pool },
                                                 { lbl: 'Grade', val: `Grade ${player.grade}` },
-                                                { lbl: 'Rank', val: `#${player.rank}` },
+                                                { lbl: 'Nationality', val: player.nationality === 'Indian' ? '🇮🇳 Indian' : '🌍 Overseas' },
                                             ].map((c) => (
-                                                <div key={c.lbl} className="rounded-lg p-2 text-center"
+                                                <div key={c.lbl} className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
                                                     style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
-                                                    <div className="text-[0.45rem] uppercase tracking-wider" style={{ color: TEXT_SEC }}>{c.lbl}</div>
-                                                    <div className="text-[0.8rem] font-bold text-white">{c.val}</div>
+                                                    <div className="text-[0.65rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEXT_SEC }}>{c.lbl}</div>
+                                                    <div className="text-xl font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>{c.val}</div>
                                                 </div>
                                             ))}
                                         </motion.div>
@@ -355,12 +427,12 @@ export default function BigScreenPage() {
 
                                     {/* OVR circle — top right of the info area */}
                                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: 'spring' }}
-                                        className="absolute top-4 right-5 z-20">
-                                        <div className="w-14 h-14 rounded-full flex flex-col items-center justify-center"
+                                        className="absolute top-5 right-6 z-20">
+                                        <div className="w-16 h-16 rounded-full flex flex-col items-center justify-center"
                                             style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`,
                                                 boxShadow: `0 4px 20px ${theme.accentGlow}` }}>
-                                            <span className="font-black leading-none" style={{ fontSize: '1.3rem', color: theme.badgeText, fontFamily: "'Cinzel', serif" }}>{player.rating}</span>
-                                            <span className="text-[0.35rem] tracking-widest uppercase font-bold" style={{ color: `${theme.badgeText}aa` }}>OVR</span>
+                                            <span className="font-black leading-none" style={{ fontSize: '1.5rem', color: theme.badgeText, fontFamily: "'Cinzel', serif" }}>{player.rating}</span>
+                                            <span className="text-[0.4rem] tracking-widest uppercase font-bold" style={{ color: `${theme.badgeText}aa` }}>OVR</span>
                                         </div>
                                     </motion.div>
 
