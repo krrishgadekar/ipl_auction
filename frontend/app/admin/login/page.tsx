@@ -8,7 +8,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { verifyAdminToken } from '@/lib/api/admin';
+import { verifyAdminCredentials } from '@/lib/api/admin';
+
+// Hardcoded credentials for frontend-only testing
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD = 'admin123';
 
 export default function AdminLoginPage() {
     const [username, setUsername] = useState('');
@@ -24,17 +28,20 @@ export default function AdminLoginPage() {
         setError('');
         setLoading(true);
 
-        try {
-            await verifyAdminToken(password);
-            localStorage.setItem('ipl_admin_token', password);
-            localStorage.setItem('ipl_admin_auth', 'true');
-            router.push('/admin');
-        } catch (err) {
+        // Frontend credential check
+        if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
             setError('Invalid administrative credentials');
             setShake(true);
             setTimeout(() => setShake(false), 600);
             setLoading(false);
+            return;
         }
+
+        // Credentials match — store token and proceed
+        const token = btoa(`${username}:${password}`);
+        localStorage.setItem('ipl_admin_token', token);
+        localStorage.setItem('ipl_admin_auth', 'true');
+        router.push('/admin');
     };
 
     return (

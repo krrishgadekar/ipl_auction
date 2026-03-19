@@ -1,4 +1,4 @@
-// File: C:\Users\Tanuj\Desktop\Ipl auction\IPL_AUCTION\frontend\app\big-screen\page.tsx
+// File: C:\advait\IPL_AUCTION\frontend\app\big-screen\page.tsx
 import * as entry from '../../../../app/big-screen/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

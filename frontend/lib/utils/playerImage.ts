@@ -1,29 +1,15 @@
 /**
  * Player Image Utility
  *
- * Convention for local images (zero-delay, no CDN):
- *   Place images in:  /public/players/<slug>.png
- *   Where slug       = player name, lowercase, spaces→hyphens, dots removed
- *   Example:         "Virat Kohli" → /players/virat-kohli.png
- *                    "M.S. Dhoni"  → /players/ms-dhoni.png
+ * Convention: images are stored as /public/player_photos/<rank>.avif
+ * where rank is the player's unique rank (1–159).
  *
- * When you provide the player images folder, just drop files with these slugs.
- * The imageUrl on the Player object should be set to this local path.
+ * The rank acts as the primary key linking DB records to image files.
  */
 
-/** Convert a player name to the standard image file slug */
-export function playerImageSlug(name: string): string {
-    return name
-        .toLowerCase()
-        .replace(/\./g, '')        // remove dots (M.S. → ms)
-        .replace(/\s+/g, '-')     // spaces → hyphens
-        .replace(/[^a-z0-9-]/g, '') // strip other special chars
-        .replace(/-+/g, '-');      // collapse multiple hyphens
-}
-
-/** Returns the local /public/players/ path for a given player name */
-export function localPlayerImagePath(name: string): string {
-    return `/players/${playerImageSlug(name)}.png`;
+/** Returns the local image path for a player by rank */
+export function playerImagePath(rank: number): string {
+    return `/player_photos/${rank}.avif`;
 }
 
 /**

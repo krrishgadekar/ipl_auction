@@ -13,6 +13,17 @@ const router = Router();
 // Apply admin auth to ALL routes in this router
 router.use(adminAuth);
 
+// ── Verify Credentials ──────────────────────────────────────
+
+/**
+ * POST /api/admin/auction/verify
+ * A lightweight endpoint to verify admin credentials.
+ * If the middleware passes, credentials are valid.
+ */
+router.post('/verify', (req, res) => {
+    res.json({ success: true, message: 'Authenticated' });
+});
+
 // ── Phase Transitions ────────────────────────────────────────
 
 /**
@@ -308,6 +319,52 @@ router.post('/set-riddle', async (req, res) => {
         }
 
         res.json({ success: true, message: 'Riddle players updated' });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
+ * POST /api/admin/auction/unveil-riddle
+ * Unveil a riddle player — sets is_riddle to false, revealing their identity.
+ * Body: { playerId: uuid } or { rank: number }
+ * Emits RIDDLE_UNVEILED + STATE_SYNC so big screen animates the reveal.
+ */
+router.post('/unveil-riddle', async (req, res) => {
+    try {
+        const { playerId, rank } = req.body;
+
+        let player;
+        if (rank) {
+            player = await prisma.player.findFirst({ where: { rank: parseInt(rank) } });
+        } else if (playerId) {
+            player = await prisma.player.findUnique({ where: { id: playerId } });
+        }
+
+        if (!player) {
+            return res.status(404).json({ error: 'Player not found' });
+        }
+        if (!player.is_riddle) {
+            return res.status(400).json({ error: 'Player is not a riddle player' });
+        }
+
+        // Flip the riddle flag
+        const updated = await prisma.player.update({
+            where: { id: player.id },
+            data: { is_riddle: false },
+        });
+
+        // Broadcast reveal to all clients
+        req.io.emit('RIDDLE_UNVEILED', {
+            playerId: updated.id,
+            rank: updated.rank,
+            name: updated.name,
+            imageUrl: `/player_photos/${updated.rank}.avif`,
+        });
+        // Also trigger full state sync so polling clients get the update immediately
+        req.io.emit('STATE_SYNC');
+
+        res.json({ success: true, player: updated });
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
