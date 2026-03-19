@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { Team } from '@/lib/mockData/teams';
 import { Player } from '@/lib/mockData/players';
-import { markPlayerSold, markPlayerUnsold, setCurrentPlayer } from '@/lib/api/auction';
+import { advanceToNextPlayer, sellPlayer, markUnsold } from '@/lib/api/admin';
 import { getAllPlayers } from '@/lib/api/players';
 
 // Composition rules from rulebook §5
@@ -27,6 +27,7 @@ interface PlayerActionsProps {
     highestBidder: string | null;
     highestBidderId?: number | null;
     totalPlayers: number;
+    currentBid: number;
 }
 
 export default function PlayerActions({
@@ -35,7 +36,8 @@ export default function PlayerActions({
     teams,
     highestBidder,
     highestBidderId,
-    totalPlayers = 246
+    totalPlayers = 246,
+    currentBid
 }: PlayerActionsProps) {
     const [processing, setProcessing] = useState(false);
 
@@ -43,8 +45,7 @@ export default function PlayerActions({
         if (!currentPlayerRank) return;
         setProcessing(true);
         try {
-            const nextRank = currentPlayerRank < totalPlayers ? currentPlayerRank + 1 : 1;
-            await setCurrentPlayer(nextRank);
+            await advanceToNextPlayer();
         } catch (error) {
             console.error('Failed to set next player:', error);
         } finally {
@@ -103,7 +104,8 @@ export default function PlayerActions({
 
         setProcessing(true);
         try {
-            await markPlayerSold(team.id, team.name);
+            const playerId = currentPlayer?.id || currentPlayer?.rank?.toString() || '';
+            await sellPlayer(playerId, team.id.toString(), currentBid);
             // Auto-advance to next player after a delay
             setTimeout(() => handleNextPlayer(), 2000);
         } catch (error) {
@@ -121,7 +123,10 @@ export default function PlayerActions({
 
         setProcessing(true);
         try {
-            await markPlayerUnsold();
+            const playerId = currentPlayer?.id || currentPlayer?.rank?.toString() || '';
+            if (playerId) {
+                await markUnsold(playerId);
+            }
             // Auto-advance to next player after a delay
             setTimeout(() => handleNextPlayer(), 2000);
         } catch (error) {

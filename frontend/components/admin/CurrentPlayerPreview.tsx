@@ -1,5 +1,5 @@
 // Current Player Preview Component
-// Compact player card for admin panel
+// Compact text-only player card for admin panel (no images)
 
 'use client';
 
@@ -22,7 +22,7 @@ export default function CurrentPlayerPreview({ player }: CurrentPlayerPreviewPro
         );
     }
 
-    const gradeColors = {
+    const gradeColors: Record<string, string> = {
         A: 'from-green-500 to-emerald-500',
         B: 'from-blue-500 to-cyan-500',
         C: 'from-yellow-500 to-orange-500',
@@ -31,32 +31,32 @@ export default function CurrentPlayerPreview({ player }: CurrentPlayerPreviewPro
 
     return (
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-            <div className="flex items-start gap-4 mb-4">
-                {/* Player Avatar */}
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-3xl font-bold text-white">
-                    {player.player.charAt(0)}
-                </div>
-
-                {/* Player Info */}
+            {/* Player Header */}
+            <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                     <h3 className="text-2xl font-bold text-white mb-1">{player.player}</h3>
                     <div className="flex items-center gap-3 text-sm text-white/70 mb-2">
                         <span>{player.category}</span>
                         <span>•</span>
                         <span>{player.team}</span>
+                        <span>•</span>
+                        <span>{player.nationality}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <div className={`px-3 py-1 rounded-full bg-gradient-to-r ${gradeColors[player.grade]} text-white text-sm font-bold`}>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <div className={`px-3 py-1 rounded-full bg-gradient-to-r ${gradeColors[player.grade] || gradeColors.C} text-white text-sm font-bold`}>
                             Grade {player.grade}
                         </div>
                         <div className="px-3 py-1 rounded-full bg-white/10 text-white text-sm font-bold">
                             Pool: {player.pool}
                         </div>
+                        <div className="px-3 py-1 rounded-full bg-white/10 text-white text-sm font-bold">
+                            Role: {player.role}
+                        </div>
                     </div>
                 </div>
 
                 {/* Rating Badge */}
-                <div className="text-center">
+                <div className="text-center ml-4">
                     <div className="text-5xl font-black bg-gradient-to-br from-yellow-400 to-orange-500 bg-clip-text text-transparent">
                         {player.rating}
                     </div>
@@ -65,7 +65,7 @@ export default function CurrentPlayerPreview({ player }: CurrentPlayerPreviewPro
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-4 gap-3 mb-4">
                 <div className="text-center p-3 bg-white/5 rounded-xl">
                     <div className="text-white/60 text-xs mb-1">Rank</div>
                     <div className="text-xl font-bold text-white">#{player.rank}</div>
@@ -76,7 +76,11 @@ export default function CurrentPlayerPreview({ player }: CurrentPlayerPreviewPro
                 </div>
                 <div className="text-center p-3 bg-white/5 rounded-xl">
                     <div className="text-white/60 text-xs mb-1">Base Price</div>
-                    <div className="text-xl font-bold text-yellow-400">₹2 CR</div>
+                    <div className="text-xl font-bold text-yellow-400">₹{player.basePrice} CR</div>
+                </div>
+                <div className="text-center p-3 bg-white/5 rounded-xl">
+                    <div className="text-white/60 text-xs mb-1">UUID</div>
+                    <div className="text-[10px] font-mono text-white/50 break-all">{player.id || '—'}</div>
                 </div>
             </div>
 

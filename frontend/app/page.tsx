@@ -84,7 +84,7 @@ const NAV_LINKS = [
     {
         title: 'Big Screen',
         description: 'Projector display for live audience viewing',
-        href: '/big-screen',
+        href: '/big-screen/login',
         Icon: IconMonitor,
         accent: '#2bb5cc',
         tag: '1920×1080',
@@ -93,7 +93,7 @@ const NAV_LINKS = [
     {
         title: 'Admin Panel',
         description: 'Auctioneer control center and bid management',
-        href: '/admin',
+        href: '/admin/login',
         Icon: IconCog,
         accent: '#6c8aff',
         tag: 'Control',
@@ -102,7 +102,7 @@ const NAV_LINKS = [
     {
         title: 'Team Dashboard',
         description: 'Real-time squad builder for team owners',
-        href: '/team/1',
+        href: '/login',
         Icon: IconUsers,
         accent: '#2dd4a0',
         tag: 'Live',

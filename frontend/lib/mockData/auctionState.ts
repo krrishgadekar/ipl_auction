@@ -9,14 +9,13 @@ export type AuctionStatus =
     | 'IDLE'
     | 'ANNOUNCING'
     | 'BIDDING'
-    | 'CLOSED_BIDDING'   // triggered when bid hits MAX_BID (25 CR)
     | 'SOLD'
     | 'UNSOLD';
 
 export type PlayerStatus = 'AVAILABLE' | 'SOLD' | 'UNSOLD';
 export type AuctionDay = 'Day 1' | 'Day 2';
 
-export const MAX_BID = 25; // Rulebook §4: max open bid before closed bidding
+
 
 export interface Bid {
     teamId: number;
@@ -53,11 +52,7 @@ export interface AuctionState {
     // Power Cards
     activePowerCard: string | null;
     activePowerCardTeam: string | null;
-    bidFreezerTargetTeam: string | null; // which team is blocked by Bid Freezer
-
-    // Closed Bidding (triggered at MAX_BID = 25 CR)
-    sealedBids: Record<number, number>; // teamId -> sealed bid amount
-    godsEyeRevealed: boolean;
+    bidFreezerTargetTeam: string | null;
 }
 
 // Initial mock auction state
@@ -87,8 +82,6 @@ export const mockAuctionState: AuctionState = {
     activePowerCard: null,
     activePowerCardTeam: null,
     bidFreezerTargetTeam: null,
-    sealedBids: {},
-    godsEyeRevealed: false,
 };
 
 // Helper to update auction state (for mock purposes)

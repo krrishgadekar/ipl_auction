@@ -16,6 +16,7 @@ export const GRADE_BASE_PRICE: Record<PlayerGrade, number> = {
 
 export interface Player {
     // Core Fields
+    id?: string;               // UUID from backend (optional, not in mock data)
     rank: number;              // unique
     player: string;            // name
     team: string;              // IPL franchise

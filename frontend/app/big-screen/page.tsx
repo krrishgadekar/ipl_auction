@@ -8,6 +8,7 @@ import { getAuctionState, subscribeToAuctionUpdates } from '@/lib/api/auction';
 import { getAllTeams } from '@/lib/api/teams';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { preloadImages } from '@/lib/utils/playerImage';
 
 /* ═══════════════════════════════════════════════════════════
@@ -96,6 +97,19 @@ export default function BigScreenPage() {
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
     const [showSold, setShowSold] = useState(false);
+    const [isAuth, setIsAuth] = useState<boolean | null>(null);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const auth = localStorage.getItem('ipl_screen_auth');
+            if (auth === 'true') {
+                setIsAuth(true);
+            } else {
+                router.push('/big-screen/login');
+            }
+        }
+    }, [router]);
 
     const confetti = useCallback(() => {
         import('canvas-confetti').then((c) => {
@@ -128,6 +142,8 @@ export default function BigScreenPage() {
         const ti = setInterval(async () => { setTeams(await getAllTeams()); }, 2000);
         return () => { unsub(); clearInterval(ti); };
     }, [auctionState?.status, confetti]);
+
+    if (!isAuth) return null;
 
     if (loading || !auctionState) return (
         <div className="h-screen w-screen animated-gradient-bg flex items-center justify-center">

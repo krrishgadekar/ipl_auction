@@ -339,6 +339,8 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
         return () => clearInterval(teamsInterval);
     }, [teamId]);
 
+    if (!authLoading && !isAuthenticated) return null;
+
     if (authLoading || loading) return (
         <div className="min-h-screen flex items-center justify-center overflow-hidden relative" style={{ background: 'radial-gradient(ellipse at center, #0a1628, #040b14)' }}>
             <div className="absolute inset-0 pointer-events-none overflow-hidden">

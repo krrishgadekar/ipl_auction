@@ -10,20 +10,30 @@ import { getAuctionState, subscribeToAuctionUpdates } from '@/lib/api/auction';
 import { getAllTeams } from '@/lib/api/teams';
 import { getAllPlayers } from '@/lib/api/players';
 import CurrentPlayerPreview from '@/components/admin/CurrentPlayerPreview';
-import BidControls from '@/components/admin/BidControls';
-import PlayerActions from '@/components/admin/PlayerActions';
+import AdminDashboardControls from '@/components/admin/AdminDashboardControls';
 import TeamBudgets from '@/components/admin/TeamBudgets';
-import PowerCardPanel from '@/components/admin/PowerCardPanel';
-import FinalTeamPanel from '@/components/admin/FinalTeamPanel';
 import AuctionTimer from '@/components/AuctionTimer';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function AdminPage() {
     const [auctionState, setAuctionState] = useState<AuctionState | null>(null);
     const [teams, setTeams] = useState<Team[]>([]);
     const [totalPlayers, setTotalPlayers] = useState(8);
     const [loading, setLoading] = useState(true);
+    const [isAuth, setIsAuth] = useState<boolean | null>(null);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const auth = localStorage.getItem('ipl_admin_auth');
+            if (auth === 'true') {
+                setIsAuth(true);
+            } else {
+                router.push('/admin/login');
+            }
+        }
+    }, [router]);
 
     useEffect(() => {
         // Load initial data
@@ -34,9 +44,8 @@ export default function AdminPage() {
                     getAllTeams(),
                     getAllPlayers(),
                 ]);
-
                 setAuctionState(state);
-                setTeams(teamsData);
+                setTeams(teamsData as any);
                 setTotalPlayers(playersData.length);
                 setLoading(false);
             } catch (error) {
@@ -55,7 +64,7 @@ export default function AdminPage() {
         // Refresh teams data periodically
         const teamsInterval = setInterval(async () => {
             const teamsData = await getAllTeams();
-            setTeams(teamsData);
+            setTeams(teamsData as any);
         }, 2000);
 
         return () => {
@@ -63,6 +72,8 @@ export default function AdminPage() {
             clearInterval(teamsInterval);
         };
     }, []);
+
+    if (!isAuth) return null;
 
     if (loading || !auctionState) {
         return (
@@ -89,27 +100,6 @@ export default function AdminPage() {
                             <p className="text-white/70">Admin Control Panel</p>
                         </div>
                         <div className="flex items-center gap-3">
-                            <Link
-                                href="/big-screen"
-                                target="_blank"
-                                className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white transition-all"
-                            >
-                                📺 Open Big Screen
-                            </Link>
-                            <Link
-                                href="/display"
-                                target="_blank"
-                                className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white transition-all"
-                            >
-                                🖥️ Open Display
-                            </Link>
-                            <Link
-                                href="/leaderboard"
-                                target="_blank"
-                                className="px-4 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 rounded-xl text-yellow-400 transition-all font-bold"
-                            >
-                                🏆 Leaderboard
-                            </Link>
                             <div className="flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/50 rounded-xl">
                                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                                 <span className="font-bold text-red-400">LIVE</span>
@@ -142,7 +132,6 @@ export default function AdminPage() {
                             </div>
                         </div>
 
-
                         {auctionState.timerActive && (
                             <div className="flex flex-col items-end">
                                 <div className="text-white/60 text-xs mb-1">Time Remaining</div>
@@ -156,32 +145,23 @@ export default function AdminPage() {
                     </div>
                 </motion.div>
 
-                {/* Main Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    {/* Left Column - Current Player */}
-                    <div className="lg:col-span-2">
-                        <CurrentPlayerPreview player={auctionState.currentPlayer} />
-                    </div>
+                {/* Admin Master Controls */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mb-6"
+                >
+                    <AdminDashboardControls teams={teams} state={auctionState} />
+                </motion.div>
 
-                    {/* Right Column - Controls */}
-                    <div className="space-y-6">
-                        <BidControls
-                            teams={teams}
-                            currentBid={auctionState.currentBid}
-                            baseBid={auctionState.baseBid}
-                            status={auctionState.status}
-                        />
-                        <PowerCardPanel teams={teams} />
-                        <PlayerActions
-                            currentPlayerRank={auctionState.currentPlayerRank}
-                            currentPlayer={auctionState.currentPlayer}
-                            teams={teams}
-                            highestBidder={auctionState.highestBidder}
-                            highestBidderId={auctionState.boughtByTeamId ?? null}
-                            totalPlayers={totalPlayers}
-                        />
-                    </div>
-                </div>
+                {/* Current Player Preview (full width) */}
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6"
+                >
+                    <CurrentPlayerPreview player={auctionState.currentPlayer} />
+                </motion.div>
 
                 {/* Team Budgets */}
                 <motion.div
@@ -190,51 +170,6 @@ export default function AdminPage() {
                     transition={{ delay: 0.2 }}
                 >
                     <TeamBudgets teams={teams} />
-                </motion.div>
-
-                {/* Bid History */}
-                {auctionState.bidHistory.length > 0 && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="mt-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6"
-                    >
-                        <h2 className="text-2xl font-bold text-white mb-4">Bid History</h2>
-                        <div className="space-y-2 max-h-60 overflow-y-auto">
-                            {auctionState.bidHistory.slice().reverse().map((bid, index) => (
-                                <div
-                                    key={`${bid.timestamp}-${index}`}
-                                    className="flex items-center justify-between p-3 bg-white/5 rounded-xl"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                                            {bid.teamName.split(' ').map(w => w[0]).join('')}
-                                        </div>
-                                        <div>
-                                            <div className="font-bold text-white">{bid.teamName}</div>
-                                            <div className="text-xs text-white/60">
-                                                {new Date(bid.timestamp).toLocaleTimeString()}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="text-xl font-bold text-yellow-400">
-                                        ₹{bid.amount} CR
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
-
-                {/* Final Team Submission */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="mt-6"
-                >
-                    <FinalTeamPanel teams={teams} />
                 </motion.div>
             </div>
         </div>

@@ -148,17 +148,13 @@ router.post('/bid', async (req, res) => {
         const result = await auctionService.placeBid(teamId, bidAmount);
         const team = await prisma.team.findUnique({ where: { id: teamId } });
         req.io.emit('BID_UPDATED', { ...result, teamName: team?.name, teamBrandKey: team?.brand_key });
-
-        if (result.closedBiddingTriggered) {
-            req.io.emit('CLOSED_BIDDING_TRIGGERED', { currentBid: bidAmount, teamId, teamName: team?.name });
-        }
         res.json(result);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 });
 
-// ── Sale / Unsold ────────────────────────────────────────────
+// ── Sale / Unsold / Deassign ─────────────────────────────────
 
 /**
  * POST /api/admin/auction/sell
@@ -188,6 +184,22 @@ router.post('/unsold', async (req, res) => {
         const { playerId } = req.body;
         const result = await auctionService.markUnsold(playerId);
         req.io.emit('PLAYER_UNSOLD', { playerId });
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
+ * POST /api/admin/auction/deassign-player
+ * Deassigns a currently sold player. Body: { playerId }
+ */
+router.post('/deassign-player', async (req, res) => {
+    try {
+        const { playerId } = req.body;
+        const result = await auctionService.deassignPlayer(playerId);
+        req.io.emit('PLAYER_UNSOLD', { playerId });
+        req.io.emit('STATE_SYNC');
         res.json(result);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -238,17 +250,15 @@ router.post('/rtm', async (req, res) => {
     }
 });
 
-// ── Sealed Bids (Closed Bidding) ─────────────────────────────
-
 /**
- * POST /api/admin/auction/sealed-bid
- * Submit a sealed bid. Body: { teamId, amount }
+ * POST /api/admin/auction/assign-powercard
+ * Assign a powercard to a team manually. Body: { teamId, type }
  */
-router.post('/sealed-bid', async (req, res) => {
+router.post('/assign-powercard', async (req, res) => {
     try {
-        const { teamId, amount } = req.body;
-        const result = await auctionService.submitSealedBid(teamId, amount);
-        // Do NOT broadcast sealed bids — they are secret
+        const { teamId, type } = req.body;
+        const result = await auctionService.assignPowerCard(teamId, type);
+        req.io.emit('STATE_SYNC');
         res.json(result);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -256,20 +266,21 @@ router.post('/sealed-bid', async (req, res) => {
 });
 
 /**
- * POST /api/admin/auction/resolve-sealed-bids
- * Resolve sealed bids and determine winner
+ * POST /api/admin/auction/deassign-powercard
+ * Deassign an unused powercard from a team. Body: { teamId, type }
  */
-router.post('/resolve-sealed-bids', async (req, res) => {
+router.post('/deassign-powercard', async (req, res) => {
     try {
-        const result = await auctionService.resolveSealedBids();
-        if (result.winner) {
-            req.io.emit('SEALED_BIDS_RESOLVED', result);
-        }
+        const { teamId, type } = req.body;
+        const result = await auctionService.deassignPowerCard(teamId, type);
+        req.io.emit('STATE_SYNC');
         res.json(result);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 });
+
+
 
 // ── Riddle Player Configuration ──────────────────────────────
 

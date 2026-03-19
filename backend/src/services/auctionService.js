@@ -35,8 +35,7 @@ const VALID_TRANSITIONS = {
     'NOT_STARTED': ['FRANCHISE_PHASE'],
     'FRANCHISE_PHASE': ['POWER_CARD_PHASE'],
     'POWER_CARD_PHASE': ['LIVE'],
-    'LIVE': ['CLOSED_BIDDING', 'POST_AUCTION'],
-    'CLOSED_BIDDING': ['LIVE'],
+    'LIVE': ['POST_AUCTION'],
     'POST_AUCTION': ['COMPLETED'],
     'COMPLETED': [],
 };
@@ -129,8 +128,8 @@ async function sellPlayer(playerId, teamId, pricePaid) {
     return await prisma.$transaction(async (tx) => {
         // 1. Validate auction phase
         const auctionState = await tx.auctionState.findUnique({ where: { id: 1 } });
-        if (auctionState.phase !== 'LIVE' && auctionState.phase !== 'CLOSED_BIDDING') {
-            throw new Error('Auction is not LIVE or in CLOSED_BIDDING');
+        if (auctionState.phase !== 'LIVE') {
+            throw new Error('Auction is not LIVE');
         }
 
         // 2. Validate player not already SOLD
@@ -250,7 +249,7 @@ async function sellPlayer(playerId, teamId, pricePaid) {
 async function markUnsold(playerId) {
     return await prisma.$transaction(async (tx) => {
         const state = await tx.auctionState.findUnique({ where: { id: 1 } });
-        if (state.phase !== 'LIVE' && state.phase !== 'CLOSED_BIDDING') {
+        if (state.phase !== 'LIVE') {
             throw new Error(`Cannot mark unsold in phase: ${state.phase}`);
         }
 
@@ -351,9 +350,7 @@ async function usePowerCard(teamId, type, targetTeamId = null) {
         // Type-specific validations
         switch (type) {
             case 'GOD_EYE':
-                if (state.phase !== 'CLOSED_BIDDING') {
-                    throw new Error("God's Eye can only be used during CLOSED_BIDDING");
-                }
+                throw new Error("God's Eye is disabled as closed bidding has been removed");
                 break;
 
             case 'MULLIGAN':
@@ -414,18 +411,7 @@ async function usePowerCard(teamId, type, targetTeamId = null) {
             effect.frozenTeamId = targetTeamId;
         }
 
-        if (type === 'GOD_EYE') {
-            // Reveal highest sealed bid to the team that used God's Eye
-            const sealedBids = await tx.sealedBid.findMany({
-                where: { player_id: state.current_player_id },
-                orderBy: { amount: 'desc' },
-                take: 1,
-                include: { team: { select: { name: true } } },
-            });
-            effect.revealedBid = sealedBids.length > 0
-                ? { amount: sealedBids[0].amount, teamName: sealedBids[0].team.name }
-                : null;
-        }
+
 
         if (type === 'MULLIGAN') {
             // Reset current player's auction — send back to sequence
@@ -727,12 +713,6 @@ async function placeBid(teamId, bidAmount) {
         if (bidAmount < currentBid + requiredIncrement) {
             throw new Error(`Bid must be at least ₹${(currentBid + requiredIncrement).toFixed(2)} CR (current ₹${currentBid} + increment ₹${requiredIncrement})`);
         }
-
-        // Cannot bid more than MAX_BID in open bidding
-        if (bidAmount > MAX_BID) {
-            throw new Error(`Open bid cannot exceed ₹${MAX_BID} CR. Closed bidding will be triggered at ₹${MAX_BID} CR.`);
-        }
-
         // Validate team purse
         const team = await tx.team.findUnique({ where: { id: teamId } });
         if (!team) throw new Error('Team not found');
@@ -740,140 +720,27 @@ async function placeBid(teamId, bidAmount) {
             throw new Error(`Insufficient purse: ₹${team.purse_remaining} CR remaining`);
         }
 
-        // Check if bid hits MAX_BID threshold → trigger CLOSED_BIDDING
-        const shouldTriggerClosedBidding = bidAmount >= MAX_BID;
-
         await tx.auctionState.update({
             where: { id: 1 },
             data: {
                 current_bid: bidAmount,
                 highest_bidder_id: teamId,
-                phase: shouldTriggerClosedBidding ? 'CLOSED_BIDDING' : 'LIVE',
             }
         });
 
         await logAudit(tx, 'PLACE_BID', {
-            teamId, bidAmount, previousBid: currentBid,
-            closedBiddingTriggered: shouldTriggerClosedBidding,
+            teamId, bidAmount, previousBid: currentBid
         });
 
         return {
             success: true,
             currentBid: bidAmount,
             teamId,
-            closedBiddingTriggered: shouldTriggerClosedBidding,
         };
     });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SEALED BID: Submit during CLOSED_BIDDING
-// ═══════════════════════════════════════════════════════════════
 
-async function submitSealedBid(teamId, amount) {
-    return await prisma.$transaction(async (tx) => {
-        const state = await tx.auctionState.findUnique({ where: { id: 1 } });
-        if (state.phase !== 'CLOSED_BIDDING') {
-            throw new Error('Sealed bids can only be submitted during CLOSED_BIDDING');
-        }
-        if (!state.current_player_id) {
-            throw new Error('No player currently being auctioned');
-        }
-
-        // Validate team
-        const team = await tx.team.findUnique({ where: { id: teamId } });
-        if (!team) throw new Error('Team not found');
-
-        // Validate amount >= current bid
-        const currentBid = Number(state.current_bid);
-        if (amount < currentBid) {
-            throw new Error(`Sealed bid must be at least ₹${currentBid} CR (current bid)`);
-        }
-
-        // Validate purse
-        if (Number(team.purse_remaining) < amount) {
-            throw new Error(`Insufficient purse: ₹${team.purse_remaining} CR remaining`);
-        }
-
-        // Upsert sealed bid (one per team per player)
-        await tx.sealedBid.upsert({
-            where: {
-                team_id_player_id: { team_id: teamId, player_id: state.current_player_id },
-            },
-            create: {
-                team_id: teamId,
-                player_id: state.current_player_id,
-                amount: amount,
-            },
-            update: { amount: amount },
-        });
-
-        await logAudit(tx, 'SUBMIT_SEALED_BID', { teamId, playerId: state.current_player_id, amount });
-
-        return { success: true, teamId, amount };
-    });
-}
-
-// ═══════════════════════════════════════════════════════════════
-// RESOLVE SEALED BIDS: Determine winner
-// ═══════════════════════════════════════════════════════════════
-
-async function resolveSealedBids() {
-    return await prisma.$transaction(async (tx) => {
-        const state = await tx.auctionState.findUnique({ where: { id: 1 } });
-        if (state.phase !== 'CLOSED_BIDDING') {
-            throw new Error('Can only resolve sealed bids during CLOSED_BIDDING');
-        }
-        if (!state.current_player_id) {
-            throw new Error('No player currently being auctioned');
-        }
-
-        const bids = await tx.sealedBid.findMany({
-            where: { player_id: state.current_player_id },
-            orderBy: { amount: 'desc' },
-            include: { team: { select: { id: true, name: true } } },
-        });
-
-        if (bids.length === 0) {
-            // No sealed bids — revert to LIVE with highest bidder from open round
-            await tx.auctionState.update({
-                where: { id: 1 },
-                data: { phase: 'LIVE' },
-            });
-            return { success: true, winner: null, message: 'No sealed bids submitted' };
-        }
-
-        const winner = bids[0];
-
-        // Update auction state with winning sealed bid
-        await tx.auctionState.update({
-            where: { id: 1 },
-            data: {
-                current_bid: winner.amount,
-                highest_bidder_id: winner.team_id,
-                phase: 'LIVE', // Transition back to LIVE for admin to confirm sale
-            },
-        });
-
-        // Clean up sealed bids for this player
-        await tx.sealedBid.deleteMany({
-            where: { player_id: state.current_player_id },
-        });
-
-        await logAudit(tx, 'RESOLVE_SEALED_BIDS', {
-            playerId: state.current_player_id,
-            winnerId: winner.team_id,
-            winningBid: Number(winner.amount),
-            totalBids: bids.length,
-        });
-
-        return {
-            success: true,
-            winner: { teamId: winner.team_id, teamName: winner.team.name, amount: Number(winner.amount) },
-            totalBids: bids.length,
-        };
-    });
-}
 
 // ═══════════════════════════════════════════════════════════════
 // FRANCHISE: Assign franchise to team (during FRANCHISE_PHASE)
@@ -1015,6 +882,118 @@ async function updateDisplayState(updates) {
     });
 }
 
+// ═══════════════════════════════════════════════════════════════
+// DEASSIGN PLAYER — Admin Only
+// ═══════════════════════════════════════════════════════════════
+async function deassignPlayer(playerId) {
+    return await prisma.$transaction(async (tx) => {
+        const state = await tx.auctionState.findUnique({ where: { id: 1 } });
+        
+        const auctionPlayer = await tx.auctionPlayer.findUnique({ where: { player_id: playerId } });
+        if (!auctionPlayer || auctionPlayer.status !== 'SOLD') {
+            throw new Error('Player is not sold yet or not found');
+        }
+
+        const teamId = auctionPlayer.sold_to_team_id;
+        const pricePaid = Number(auctionPlayer.sold_price);
+        
+        const team = await tx.team.findUnique({ where: { id: teamId } });
+        const player = await tx.player.findUnique({ where: { id: playerId } });
+        
+        // 1. Refund purse & update squad counts
+        await tx.team.update({
+            where: { id: teamId },
+            data: {
+                purse_remaining: { increment: pricePaid },
+                squad_count: { decrement: 1 },
+                overseas_count: player.nationality === 'OVERSEAS' ? { decrement: 1 } : undefined,
+            }
+        });
+
+        // 2. Remove team_player link
+        await tx.teamPlayer.deleteMany({
+            where: { team_id: teamId, player_id: playerId }
+        });
+
+        // 3. Set auctionPlayer back to UNSOLD
+        await tx.auctionPlayer.update({
+            where: { player_id: playerId },
+            data: {
+                status: 'UNSOLD',
+                sold_price: null,
+                sold_to_team_id: null,
+            }
+        });
+
+        // 4. Push player back to the end of the current sequence
+        if (state.current_sequence_id) {
+            const sequence = await tx.auctionSequence.findUnique({
+                where: { id: state.current_sequence_id }
+            });
+            if (sequence) {
+                const hasPlayerIdsField = sequence.player_ids !== undefined;
+                let currentRanks = hasPlayerIdsField ? sequence.player_ids : (sequence.players || []);
+                if (!Array.isArray(currentRanks)) {
+                    currentRanks = [];
+                }
+                currentRanks.push(player.rank);
+                
+                if (hasPlayerIdsField) {
+                    await tx.auctionSequence.update({
+                        where: { id: sequence.id },
+                        data: { player_ids: currentRanks }
+                    });
+                } else {
+                    await tx.auctionSequence.update({
+                        where: { id: sequence.id },
+                        data: { players: currentRanks }
+                    });
+                }
+            }
+        }
+
+        await logAudit(tx, 'DEASSIGN_PLAYER', { playerId, teamId, refunded: pricePaid, playerName: player.name });
+
+        return { success: true, message: 'Player deassigned', playerId, teamId };
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ASSIGN & DEASSIGN POWERCARD — Admin Only
+// ═══════════════════════════════════════════════════════════════
+async function assignPowerCard(teamId, type) {
+    return await prisma.$transaction(async (tx) => {
+        const team = await tx.team.findUnique({ where: { id: teamId } });
+        if (!team) throw new Error('Team not found');
+
+        const card = await tx.powerCard.create({
+            data: { team_id: teamId, type, is_used: false }
+        });
+
+        await logAudit(tx, 'ASSIGN_POWERCARD', { teamId, type, teamName: team.name });
+        return { success: true, card };
+    });
+}
+
+async function deassignPowerCard(teamId, type) {
+    return await prisma.$transaction(async (tx) => {
+        const team = await tx.team.findUnique({ where: { id: teamId } });
+        if (!team) throw new Error('Team not found');
+
+        const card = await tx.powerCard.findFirst({
+            where: { team_id: teamId, type, is_used: false }
+        });
+        if (!card) throw new Error('Unused powercard not found for team');
+
+        await tx.powerCard.delete({
+            where: { id: card.id }
+        });
+
+        await logAudit(tx, 'DEASSIGN_POWERCARD', { teamId, type, teamName: team.name });
+        return { success: true, message: 'Powercard deassigned' };
+    });
+}
+
 export default {
     sellPlayer,
     markUnsold,
@@ -1025,18 +1004,18 @@ export default {
     advanceToNextPlayer,
     selectSequence,
     placeBid,
-    submitSealedBid,
-    resolveSealedBids,
     assignFranchise,
     loginTeam,
     addBidToHistory,
     setAuctionDay,
     updateDisplayState,
     getRequiredIncrement,
-    MAX_BID,
     MAX_SQUAD_SIZE,
     MAX_OVERSEAS,
     MIN_OVERSEAS,
     ROLE_LIMITS,
     POWER_CARD_COST,
+    deassignPlayer,
+    assignPowerCard,
+    deassignPowerCard,
 };

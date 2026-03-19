@@ -144,7 +144,6 @@ export function serializeAuctionState(state, currentPlayer, highestBidder, teams
 function mapPhaseToStatus(phase, currentPlayer) {
     if (phase === 'LIVE' && currentPlayer) return 'BIDDING';
     if (phase === 'LIVE' && !currentPlayer) return 'IDLE';
-    if (phase === 'CLOSED_BIDDING') return 'CLOSED_BIDDING';
     if (phase === 'POST_AUCTION') return 'POST_AUCTION';
     if (phase === 'COMPLETED') return 'COMPLETED';
     return phase; // NOT_STARTED, FRANCHISE_PHASE, POWER_CARD_PHASE
