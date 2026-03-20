@@ -82,7 +82,7 @@ export default function PowerCardPanel({ teams }: PowerCardPanelProps) {
         if (window.confirm(confirmMsg)) {
             setActivating(true);
             try {
-                await triggerPowerCard(selectedTeam.id, selectedCard, targetTeam?.id);
+                await triggerPowerCard(String(selectedTeam.id), selectedCard, targetTeam ? String(targetTeam.id) : undefined);
                 toast.success(`${card.icon} ${card.name} activated for ${selectedTeam.shortName}!`);
             } catch (error) {
                 console.error('Failed to activate card:', error);

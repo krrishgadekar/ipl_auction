@@ -73,11 +73,11 @@ export default function BidControls({ teams, currentBid, baseBid, status }: BidC
         try {
             // Auto-trigger Closed Bidding if hitting 25 CR
             if (bidAmount >= MAX_BID) {
-                await placeBid(selectedTeam.id, selectedTeam.name, MAX_BID);
+                await placeBid(String(selectedTeam.id), selectedTeam.name, MAX_BID);
                 await updateAuctionStatus('CLOSED_BIDDING');
                 return;
             }
-            await placeBid(selectedTeam.id, selectedTeam.name, bidAmount);
+            await placeBid(String(selectedTeam.id), selectedTeam.name, bidAmount);
         } catch (error) {
             console.error('Failed to place bid:', error);
         } finally {
@@ -106,7 +106,7 @@ export default function BidControls({ teams, currentBid, baseBid, status }: BidC
         if (isNaN(amount) || amount <= 0) return;
         setSubmittingSealed(team.id);
         try {
-            await placeBid(team.id, team.name, amount);
+            await placeBid(String(team.id), team.name, amount);
         } catch (e) {
             console.error('Failed to submit sealed bid:', e);
         } finally {
