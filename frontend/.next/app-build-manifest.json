@@ -1,9 +1,0 @@
-{
-  "pages": {
-    "/api/mock/state/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/mock/state/route.js"
-    ]
-  }
-}
