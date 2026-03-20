@@ -860,15 +860,6 @@ async function assignFranchise(teamId, franchiseId) {
 // AUTH: Login
 // ═══════════════════════════════════════════════════════════════
 
-async function loginTeam(username, password) {
-    const team = await prisma.team.findUnique({ where: { username } });
-    if (!team) throw new Error('Invalid username');
-
-    const valid = await bcrypt.compare(password, team.password_hash);
-    if (!valid) throw new Error('Invalid password');
-
-    return team;
-}
 
 async function loginTeam(username, password) {
     const team = await prisma.team.findUnique({ where: { username } });

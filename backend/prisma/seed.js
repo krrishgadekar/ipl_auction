@@ -82,7 +82,7 @@ function shuffle(array) {
 async function main() {
   console.log('🏏 Starting IPL Auction 2026 seeding...\n');
 
-  const resourcesDir = path.resolve(__dirname, '..', '..', 'resources');
+  const resourcesDir = path.resolve(__dirname, '..', 'resources');
   const playersCsvPath = path.resolve(resourcesDir, 'ipl2026_rated_players_auction.csv');
   const franchisesTxtPath = path.resolve(resourcesDir, 'Franchises.txt');
   const sequenceCsvPath = path.resolve(resourcesDir, 'sequence_1.csv');
