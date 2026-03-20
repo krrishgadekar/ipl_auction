@@ -115,16 +115,18 @@ router.get('/sequences', async (req, res) => {
 // ── Player Management ────────────────────────────────────────
 
 /**
- * POST /api/admin/auction/next-player
- * Advance to next unsold player in the selected sequence
+ * POST /api/admin/auction/next-item
+ * Advance to next item in the selected sequence (Player/Franchise/PowerCard)
  */
-router.post('/next-player', async (req, res) => {
+router.post('/next-item', async (req, res) => {
     try {
-        const result = await auctionService.advanceToNextPlayer();
+        const result = await auctionService.advanceToNextInSequence();
         if (result.finished) {
             req.io.emit('AUCTION_FINISHED', result);
         } else {
-            req.io.emit('PLAYER_ANNOUNCED', result);
+            // Mapping for compatibility with frontend events
+            const eventName = result.type === 'PLAYER' ? 'PLAYER_ANNOUNCED' : 'ITEM_ANNOUNCED';
+            req.io.emit(eventName, result);
         }
         res.json(result);
     } catch (err) {

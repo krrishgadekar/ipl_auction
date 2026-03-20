@@ -1,7 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// IPL Auction 2026 — Database Seed Script (Normalized Schema)
-// Seeds: Franchises, Teams, 246 Players, AuctionState, PowerCards
-// Idempotent: skips if data exists unless --force flag is used
+// IPL Auction 2026 — Database Seed Script (Final Fixed)
 // ═══════════════════════════════════════════════════════════════
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
@@ -9,229 +7,181 @@ import bcrypt from 'bcrypt';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const prisma = new PrismaClient();
-const FORCE = process.argv.includes('--force');
 const SALT_ROUNDS = 10;
 
-// ── CONSTANTS ────────────────────────────────────────────────
+// ── FRANCHISE METADATA (From Frontend) ─────────────────────────
+const FRANCHISE_META = {
+    'MI':   { logo: '/teams/mi.png',   color: '#004BA0' },
+    'CSK':  { logo: '/teams/csk.png',  color: '#FCBD02' },
+    'RCB':  { logo: '/teams/rcb.png',  color: '#EC1C24' },
+    'KKR':  { logo: '/teams/kkr.png',  color: '#3A225D' },
+    'DC':   { logo: '/teams/dc.png',   color: '#0078BC' },
+    'PBKS': { logo: '/teams/pbks.png', color: '#ED1B24' },
+    'RR':   { logo: '/teams/rr.png',   color: '#254AA5' },
+    'GT':   { logo: '/teams/gt.png',   color: '#1D5E84' },
+    'SRH':  { logo: '/teams/srh.png',  color: '#F7A721' },
+    'LSG':  { logo: '/teams/lsg.png',  color: '#A72056' },
+};
 
 const GRADE_BASE_PRICE = { A: 2.0, B: 1.0, C: 0.5, D: 0.2 };
-
-// 10 IPL Franchises — available for teams to purchase during FRANCHISE_PHASE
-// brand_score is based on social media following + trophy count (normalized 0–100)
-const FRANCHISE_DEFINITIONS = [
-  { id: 1,  short_name: 'MI',   name: 'Mumbai Indians',              brand_score: 95, logo: '🔵', primary_color: '#004BA0' },
-  { id: 2,  short_name: 'CSK',  name: 'Chennai Super Kings',         brand_score: 98, logo: '🦁', primary_color: '#FCBD02' },
-  { id: 3,  short_name: 'RCB',  name: 'Royal Challengers Bengaluru', brand_score: 85, logo: '🔴', primary_color: '#EC1C24' },
-  { id: 4,  short_name: 'KKR',  name: 'Kolkata Knight Riders',       brand_score: 80, logo: '⚔️', primary_color: '#3A225D' },
-  { id: 5,  short_name: 'DC',   name: 'Delhi Capitals',              brand_score: 60, logo: '💙', primary_color: '#0078BC' },
-  { id: 6,  short_name: 'PBKS', name: 'Punjab Kings',                brand_score: 45, logo: '🦅', primary_color: '#ED1B24' },
-  { id: 7,  short_name: 'RR',   name: 'Rajasthan Royals',            brand_score: 70, logo: '💗', primary_color: '#254AA5' },
-  { id: 8,  short_name: 'GT',   name: 'Gujarat Titans',              brand_score: 65, logo: '💎', primary_color: '#1D5E84' },
-  { id: 9,  short_name: 'SRH',  name: 'Sunrisers Hyderabad',         brand_score: 55, logo: '🧡', primary_color: '#F7A721' },
-  { id: 10, short_name: 'LSG',  name: 'Lucknow Super Giants',        brand_score: 40, logo: '🦊', primary_color: '#A72056' },
-];
-
-// 10 Participant teams (pre-seeded, one username/password each)
-// Teams start without a franchise (assigned during FRANCHISE_PHASE)
-const TEAM_DEFINITIONS = [
-  { name: 'Team Alpha',   username: 'admin',  password: 'admin123' },
-  { name: 'Team Bravo',   username: 'team2',  password: 'auction2026' },
-  { name: 'Team Charlie', username: 'team3',  password: 'auction2026' },
-  { name: 'Team Delta',   username: 'team4',  password: 'auction2026' },
-  { name: 'Team Echo',    username: 'team5',  password: 'auction2026' },
-  { name: 'Team Foxtrot', username: 'team6',  password: 'auction2026' },
-  { name: 'Team Golf',    username: 'team7',  password: 'auction2026' },
-  { name: 'Team Hotel',   username: 'team8',  password: 'auction2026' },
-  { name: 'Team India',   username: 'team9',  password: 'auction2026' },
-  { name: 'Team Juliet',  username: 'team10', password: 'auction2026' },
-];
-
-// All 5 power card types (including RTM granted with franchise)
-const POWER_CARD_TYPES = ['GOD_EYE', 'MULLIGAN', 'FINAL_STRIKE', 'BID_FREEZER', 'RIGHT_TO_MATCH'];
+const POWER_CARDS_FOR_BIDDING = ['MULLIGAN', 'FINAL_STRIKE', 'BID_FREEZER', 'GOD_EYE'];
 
 // ── HELPERS ──────────────────────────────────────────────────
 
+function generateStrongPassword() {
+  return crypto.randomBytes(6).toString('hex');
+}
+
 function mapNationality(raw) {
-  if (!raw) return 'OVERSEAS';
-  return raw.trim().toLowerCase() === 'indian' ? 'INDIAN' : 'OVERSEAS';
-}
-
-function mapCategory(cat) {
-  const map = { BAT: 'BAT', BOWL: 'BOWL', AR: 'AR', WK: 'WK' };
-  return map[cat?.trim()] || 'BAT';
-}
-
-function mapPool(pool) {
-  const map = { BAT_WK: 'BAT_WK', BOWL: 'BOWL', AR: 'AR' };
-  return map[pool?.trim()] || 'BAT_WK';
-}
-
-function mapGrade(grade) {
-  const map = { A: 'A', B: 'B', C: 'C', D: 'D' };
-  return map[grade?.trim()] || 'D';
+  if (!raw) return 'INDIAN';
+  const r = raw.trim().toLowerCase();
+  return (r === 'indian' || r === 'india') ? 'INDIAN' : 'OVERSEAS';
 }
 
 function parseCSV(csvPath) {
+  if (!fs.existsSync(csvPath)) return [];
   const content = fs.readFileSync(csvPath, 'utf-8');
   const lines = content.split(/\r?\n/).filter(line => line.trim());
+  if (lines.length < 2) return [];
   const headers = lines[0].split(',').map(h => h.trim());
-  const rows = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',');
+  return lines.slice(1).map(line => {
+    const values = line.split(',');
     const row = {};
-    headers.forEach((header, idx) => {
-      row[header] = values[idx]?.trim() || '';
-    });
-    rows.push(row);
-  }
-  return rows;
+    headers.forEach((h, i) => row[h] = values[i]?.trim() || '');
+    return row;
+  });
 }
 
 function safeInt(val) {
-  if (!val || val === '') return null;
   const n = parseInt(val, 10);
   return isNaN(n) ? null : n;
 }
 
 function safeFloat(val) {
-  if (!val || val === '') return null;
   const n = parseFloat(val);
   return isNaN(n) ? null : n;
 }
 
-// ── MAIN SEED FUNCTION ───────────────────────────────────────
+function shuffle(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── MAIN ─────────────────────────────────────────────────────
 
 async function main() {
-  console.log('🏏 Starting IPL Auction 2026 seed...\n');
+  console.log('🏏 Starting IPL Auction 2026 seeding...\n');
 
-  // ── Check if seed already ran ──────────────────────────────
-  if (!FORCE) {
-    const existingTeams = await prisma.team.count();
-    if (existingTeams > 0) {
-      console.log('⚠️  Database already seeded. Use --force to re-seed.');
-      return;
-    }
-  }
+  const resourcesDir = path.resolve(__dirname, '..', '..', 'resources');
+  const playersCsvPath = path.resolve(resourcesDir, 'ipl2026_rated_players_auction.csv');
+  const franchisesTxtPath = path.resolve(resourcesDir, 'Franchises.txt');
+  const sequenceCsvPath = path.resolve(resourcesDir, 'sequence_1.csv');
+  const credentialsFilePath = path.resolve(__dirname, '..', 'team_credentials.txt');
 
-  // ── STEP 0: Clean existing data ────────────────────────────
-  if (FORCE) {
-    console.log('🧹 Force flag detected — cleaning existing data...');
-    await prisma.auditLog.deleteMany();
-    await prisma.top11Selection.deleteMany();
-    await prisma.teamPlayer.deleteMany();
-    await prisma.auctionPlayer.deleteMany();
-    await prisma.powerCard.deleteMany();
-    await prisma.auctionSequence.deleteMany();
-    await prisma.auctionState.deleteMany();
-    await prisma.player.deleteMany();
-    await prisma.team.deleteMany();
-    await prisma.franchise.deleteMany();
-    console.log('  ✅ Cleaned\n');
-  }
+  // 0. Clean
+  console.log('🧹 Cleaning database...');
+  await prisma.auditLog.deleteMany();
+  await prisma.top11Selection.deleteMany();
+  await prisma.teamPlayer.deleteMany();
+  await prisma.auctionPlayer.deleteMany();
+  await prisma.powerCard.deleteMany();
+  await prisma.auctionSequence.deleteMany();
+  await prisma.auctionState.deleteMany();
+  await prisma.player.deleteMany();
+  await prisma.adminUser.deleteMany();
+  await prisma.team.deleteMany();
+  await prisma.franchise.deleteMany();
 
-  // ── STEP 1: Seed Franchises ────────────────────────────────
-  console.log('📋 Seeding 10 IPL Franchises...');
-  for (const def of FRANCHISE_DEFINITIONS) {
-    await prisma.franchise.upsert({
-      where: { id: def.id },
-      update: { brand_score: def.brand_score },
-      create: {
-        id: def.id,
-        name: def.name,
-        short_name: def.short_name,
-        brand_score: def.brand_score,
-        logo: def.logo,
-        primary_color: def.primary_color,
-      },
+  // 1. Franchises
+  console.log('📋 Seeding Franchises...');
+  const franchiseLines = fs.readFileSync(franchisesTxtPath, 'utf-8')
+    .split(/\r?\n/)
+    .filter(l => l.trim() && !l.startsWith('Team') && !l.startsWith('NOTE'));
+
+  const franchiseIds = [];
+  const franchiseMap = {
+      'CSK': 'Chennai Super Kings',
+      'MI': 'Mumbai Indians',
+      'RCB': 'Royal Challengers Bengaluru',
+      'KKR': 'Kolkata Knight Riders',
+      'SRH': 'Sunrisers Hyderabad',
+      'RR': 'Rajasthan Royals',
+      'GT': 'Gujarat Titans',
+      'DC': 'Delhi Capitals',
+      'PBKS': 'Punjab Kings',
+      'LSG': 'Lucknow Super Giants'
+  };
+
+  for (let i = 0; i < franchiseLines.length; i++) {
+    const parts = franchiseLines[i].split('\t').filter(p => p.trim());
+    const shortName = parts[0].trim();
+    const bonus = safeFloat(parts[parts.length - 1]);
+    const meta = FRANCHISE_META[shortName] || { logo: '🏏', color: '#808080' };
+
+    const created = await prisma.franchise.create({
+      data: {
+        id: i + 1,
+        short_name: shortName,
+        name: franchiseMap[shortName] || shortName,
+        brand_score: Math.round(bonus || 50),
+        logo: meta.logo,
+        primary_color: meta.color
+      }
     });
-    console.log(`  ✅ ${def.short_name} — ${def.name} (brand: ${def.brand_score})`);
+    franchiseIds.push(created.id);
   }
+  console.log(`  ✅ ${franchiseIds.length} franchises seeded`);
 
-  // ── STEP 2: Seed Participant Teams ─────────────────────────
-  console.log('\n📋 Seeding 10 Participant Teams...');
-  const teamMap = {};
-
-  for (const def of TEAM_DEFINITIONS) {
-    const passwordHash = await bcrypt.hash(def.password, SALT_ROUNDS);
-    try {
-        const team = await prisma.team.create({
-          data: {
-            name: def.name,
-            username: def.username,
-            password_hash: passwordHash,
-            purse_remaining: 120,
-            squad_count: 0,
-            overseas_count: 0,
-          },
-        });
-        teamMap[def.username] = team;
-        console.log(`  ✅ ${def.name} (user: ${def.username})`);
-    } catch (e) {
-        console.error('FAILED TEAM:', def.name);
-        console.error(e.message);
-        throw e;
-    }
+  // 2. Teams
+  console.log('📋 Seeding 10 Participant Teams...');
+  const teams = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliet'];
+  const credentials = [];
+  for (const t of teams) {
+    const pass = generateStrongPassword();
+    await prisma.team.create({
+      data: {
+        name: `Team ${t}`,
+        username: t.toLowerCase(),
+        password_hash: await bcrypt.hash(pass, SALT_ROUNDS),
+        purse_remaining: 120,
+        squad_count: 0
+      }
+    });
+    credentials.push(`${t.toLowerCase()}:${pass}`);
   }
+  fs.writeFileSync(credentialsFilePath, credentials.join('\n'));
+  console.log(`  🔑 Team credentials saved to team_credentials.txt`);
 
-  // ── STEP 3: Seed Players from CSV ─────────────────────────
-  console.log('\n📋 Seeding 246 players from CSV...');
-
-  const csvPaths = [
-    path.resolve(__dirname, '..', 'data', 'ipl2026_rated_players_auction.csv'),
-    path.resolve(__dirname, '..', '..', '..', 'IPL AUCTION OCULUS', 'ipl2026_rated_players_auction.csv'),
-  ];
-
-  let csvPath = null;
-  for (const p of csvPaths) {
-    if (fs.existsSync(p)) {
-      csvPath = p;
-      break;
-    }
-  }
-
-  if (!csvPath) {
-    console.error('❌ CSV file not found! Tried:', csvPaths);
-    console.error('   Place ipl2026_rated_players_auction.csv in backend/data/');
-    process.exit(1);
-  }
-
-  console.log(`  📂 Using CSV: ${csvPath}`);
-  const rows = parseCSV(csvPath);
-  console.log(`  📊 Parsed ${rows.length} player rows\n`);
-
-  let playerCount = 0;
-  const playerMap = {};
-
-  for (const row of rows) {
+  // 3. Players
+  console.log('📋 Seeding 159 Players...');
+  const playerRows = parseCSV(playersCsvPath).slice(0, 159);
+  for (const row of playerRows) {
     const rank = safeInt(row.Rank);
-    if (!rank) continue;
-
-    const grade = mapGrade(row.Grade);
-    const player = await prisma.player.create({
+    const grade = ['A','B','C','D'].includes(row.Grade) ? row.Grade : 'D';
+    const p = await prisma.player.create({
       data: {
         rank,
         name: row.Player,
         team: row.Team || '',
         role: row.Role || '',
-        category: mapCategory(row.Category),
-        pool: mapPool(row.Pool),
+        category: row.Category || 'BAT',
+        pool: row.Pool || 'BAT_WK',
         grade,
-        rating: safeInt(row.Rating) || 40,
+        rating: safeInt(row.Rating) || 50,
         nationality: mapNationality(row.Nationality),
-        nationality_raw: row.Nationality || null,
         base_price: GRADE_BASE_PRICE[grade],
         legacy: safeInt(row.Legacy) || 0,
-        url: row.URL || null,
-        image_url: null,
-        is_riddle: false, // Admin can set riddle players later via API
-
-        // Match stats
+        is_riddle: (rank === 20 || rank === 21),
         matches: safeInt(row.Matches),
         bat_runs: safeInt(row.Bat_Runs),
         bat_sr: safeFloat(row.Bat_SR),
@@ -239,8 +189,6 @@ async function main() {
         bowl_wickets: safeInt(row.Bowl_Wickets),
         bowl_eco: safeFloat(row.Bowl_Eco),
         bowl_avg: safeFloat(row.Bowl_Avg),
-
-        // Sub-ratings
         sub_experience: safeInt(row.Sub_Experience),
         sub_scoring: safeInt(row.Sub_Scoring),
         sub_impact: safeInt(row.Sub_Impact),
@@ -250,103 +198,46 @@ async function main() {
         sub_efficiency: safeInt(row.Sub_Efficiency),
         sub_batting: safeInt(row.Sub_Batting),
         sub_bowling: safeInt(row.Sub_Bowling),
-        sub_versatility: safeInt(row.Sub_Versatility),
-      },
-    });
-
-    playerMap[rank] = player;
-    playerCount++;
-    if (playerCount % 50 === 0) console.log(`  ... seeded ${playerCount} players`);
-  }
-  console.log(`  ✅ Seeded ${playerCount} players total\n`);
-
-  // ── STEP 4: Create AuctionPlayer records ──────────────────
-  console.log('📋 Creating AuctionPlayer records...');
-  const playerIds = Object.values(playerMap).map(p => p.id);
-
-  for (const playerId of playerIds) {
-    await prisma.auctionPlayer.create({
-      data: { player_id: playerId, status: 'UNSOLD' },
-    });
-  }
-  console.log(`  ✅ Created ${playerIds.length} AuctionPlayer records\n`);
-
-  // ── STEP 5: Create PowerCards (5 per team, including RTM) ──
-  console.log('📋 Creating Power Cards...');
-  const teams = Object.values(teamMap);
-  for (const team of teams) {
-    for (const cardType of POWER_CARD_TYPES) {
-      await prisma.powerCard.create({
-        data: { team_id: team.id, type: cardType, is_used: false },
-      });
-    }
-  }
-  console.log(`  ✅ Created ${teams.length * POWER_CARD_TYPES.length} Power Cards (${POWER_CARD_TYPES.length} per team)\n`);
-
-  // ── STEP 6: Create AuctionState ───────────────────────────
-  console.log('📋 Creating AuctionState...');
-  await prisma.auctionState.create({
-    data: {
-      id: 1,
-      phase: 'NOT_STARTED',
-      current_player_id: null,
-      current_bid: null,
-      highest_bidder_id: null,
-      current_sequence_id: null,
-      current_sequence_index: 0,
-      bid_frozen_team_id: null,
-    },
-  });
-  console.log('  ✅ AuctionState created\n');
-
-  // ── STEP 7: Create 5 Auction Sequences ────────────────────
-  console.log('📋 Creating 5 Auction Sequences...');
-  const defaultOrder = Object.keys(playerMap).map(Number).sort((a, b) => a - b);
-
-  const sequenceNames = [
-    'Sequence Alpha',
-    'Sequence Bravo',
-    'Sequence Charlie',
-    'Sequence Delta',
-    'Sequence Echo',
-  ];
-
-  for (let i = 0; i < 5; i++) {
-    let order;
-    if (i === 0) {
-      order = [...defaultOrder];
-    } else {
-      // Deterministic seeded shuffle
-      order = [...defaultOrder];
-      for (let j = order.length - 1; j > 0; j--) {
-        const seed = ((j * (i + 1) * 2654435761) >>> 0) % (j + 1);
-        [order[j], order[seed]] = [order[seed], order[j]];
+        sub_versatility: safeInt(row.Sub_Versatility)
       }
-    }
-
-    await prisma.auctionSequence.create({
-      data: { id: i + 1, name: sequenceNames[i], player_ids: order },
     });
-    console.log(`  ✅ ${sequenceNames[i]} (${order.length} players)`);
+    await prisma.auctionPlayer.create({ data: { player_id: p.id, status: 'UNSOLD' } });
   }
+  console.log(`  ✅ 159 players and auction records seeded`);
 
-  // ── Summary ────────────────────────────────────────────────
-  console.log('\n═══════════════════════════════════════════════════');
-  console.log('🏆  SEED COMPLETE!');
-  console.log(`    Franchises:     ${FRANCHISE_DEFINITIONS.length}`);
-  console.log(`    Teams:          ${TEAM_DEFINITIONS.length}`);
-  console.log(`    Players:        ${playerCount}`);
-  console.log(`    AuctionPlayers: ${playerIds.length}`);
-  console.log(`    PowerCards:     ${teams.length * POWER_CARD_TYPES.length}`);
-  console.log(`    Sequences:      5`);
-  console.log('═══════════════════════════════════════════════════');
+  // 4. Admin Users
+  await prisma.adminUser.create({
+    data: { username: 'admin', password_hash: await bcrypt.hash('admin123', SALT_ROUNDS), role: 'ADMIN' }
+  });
+  await prisma.adminUser.create({
+    data: { username: 'screen', password_hash: await bcrypt.hash('screen123', SALT_ROUNDS), role: 'SCREEN' }
+  });
+  console.log('  ✅ Admin users seeded');
+
+  // 5. Sequences
+  const shuffledFranchises = shuffle(franchiseIds);
+  await prisma.auctionSequence.create({
+    data: { id: 1, name: 'Franchise Sequence', type: 'FRANCHISE', sequence_items: shuffledFranchises.map(String) }
+  });
+
+  const shuffledCards = shuffle(POWER_CARDS_FOR_BIDDING);
+  await prisma.auctionSequence.create({
+    data: { id: 2, name: 'Power Card Sequence', type: 'POWER_CARD', sequence_items: shuffledCards }
+  });
+
+  const sequenceRows = parseCSV(sequenceCsvPath);
+  const ranks = sequenceRows.map(r => r.Rank).filter(Boolean);
+  await prisma.auctionSequence.create({
+    data: { id: 3, name: 'Main Player Sequence', type: 'PLAYER', sequence_items: ranks.map(String) }
+  });
+  console.log('  ✅ Sequences initialized');
+
+  // 6. State
+  await prisma.auctionState.create({
+    data: { id: 1, phase: 'NOT_STARTED', auction_day: 'Day 1', bid_history: [] }
+  });
+  console.log('  ✅ Auction state initialized');
+  console.log('\n🏆 SEEDING COMPLETE!');
 }
 
-main()
-  .catch((e) => {
-    console.error('❌ Seed failed:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main().catch(e => { console.error('❌ Seed failed:', e); process.exit(1); }).finally(() => prisma.$disconnect());

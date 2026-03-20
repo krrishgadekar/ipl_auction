@@ -449,9 +449,16 @@ async function useRTM(teamId, playerId, finalBid) {
         });
         if (!rtmCard) throw new Error('RTM card not available or already used');
 
-        // Validate team has franchise
+        // FRANCHISE VALIDATION: Only the franchisor can RTM their own player
+        const foundPlayer = await tx.player.findUnique({ where: { id: playerId } });
+        if (!foundPlayer) throw new Error('Player not found');
+
         const team = await tx.team.findUnique({ where: { id: teamId } });
         if (!team) throw new Error('Team not found');
+
+        if (player.team !== team.brand_key) {
+            throw new Error(`RTM Violation: Team ${team.brand_key} cannot RTM a player from ${player.team}`);
+        }
 
         // Validate purse for RTM (must match final bid + card cost)
         const purse = Number(team.purse_remaining);
@@ -474,10 +481,10 @@ async function useRTM(teamId, playerId, finalBid) {
             throw new Error(`Team already has max ${MAX_SQUAD_SIZE} players`);
         }
 
-        const player = await tx.player.findUnique({ where: { id: playerId } });
-        if (!player) throw new Error('Player not found');
+        const p = await tx.player.findUnique({ where: { id: playerId } });
+        if (!p) throw new Error('Player not found');
 
-        if (player.nationality === 'OVERSEAS' && team.overseas_count >= MAX_OVERSEAS) {
+        if (p.nationality === 'OVERSEAS' && team.overseas_count >= MAX_OVERSEAS) {
             throw new Error(`Team already has max ${MAX_OVERSEAS} overseas players`);
         }
 
@@ -586,13 +593,9 @@ async function updateAuctionPhase(newPhase) {
 // SEQUENCE: Advance to next player in active sequence
 // ═══════════════════════════════════════════════════════════════
 
-async function advanceToNextPlayer() {
+async function advanceToNextInSequence() {
     return await prisma.$transaction(async (tx) => {
         const state = await tx.auctionState.findUnique({ where: { id: 1 } });
-
-        if (state.phase !== 'LIVE') {
-            throw new Error(`Cannot advance player in phase: ${state.phase}`);
-        }
 
         if (!state.current_sequence_id) {
             throw new Error('No auction sequence selected. Admin must select a sequence first.');
@@ -603,60 +606,115 @@ async function advanceToNextPlayer() {
         });
         if (!sequence) throw new Error('Selected sequence not found');
 
-        // Find next UNSOLD player in sequence
         let nextIndex = state.current_sequence_index;
-        let foundPlayer = null;
+        const items = sequence.sequence_items;
 
-        while (nextIndex < sequence.player_ids.length) {
-            const rank = sequence.player_ids[nextIndex];
-            const player = await tx.player.findUnique({ where: { rank } });
-            if (player) {
-                const ap = await tx.auctionPlayer.findUnique({ where: { player_id: player.id } });
-                if (ap && ap.status === 'UNSOLD') {
-                    foundPlayer = player;
-                    break;
+        if (sequence.type === 'PLAYER') {
+            if (state.phase !== 'LIVE') throw new Error('Player sequences can only be run in LIVE phase');
+            
+            let foundPlayer = null;
+            while (nextIndex < items.length) {
+                const rank = items[nextIndex];
+                const player = await tx.player.findUnique({ where: { rank } });
+                if (player) {
+                    const ap = await tx.auctionPlayer.findUnique({ where: { player_id: player.id } });
+                    if (ap && ap.status === 'UNSOLD') {
+                        foundPlayer = player;
+                        break;
+                    }
                 }
+                nextIndex++;
             }
-            nextIndex++;
+
+            if (!foundPlayer) {
+                await tx.auctionState.update({
+                    where: { id: 1 },
+                    data: {
+                        current_player_id: null,
+                        current_item_id: null,
+                        current_bid: null,
+                        highest_bidder_id: null,
+                        current_sequence_index: nextIndex,
+                        phase: 'POST_AUCTION',
+                    }
+                });
+                return { success: true, finished: true, message: 'All players in sequence have been auctioned' };
+            }
+
+            await tx.auctionState.update({
+                where: { id: 1 },
+                data: {
+                    current_player_id: foundPlayer.id,
+                    current_item_id: null,
+                    current_bid: Number(foundPlayer.base_price),
+                    highest_bidder_id: null,
+                    current_sequence_index: nextIndex + 1,
+                    bid_frozen_team_id: null,
+                }
+            });
+
+            await logAudit(tx, 'ADVANCE_PLAYER', {
+                playerId: foundPlayer.id,
+                playerName: foundPlayer.name,
+                sequencePosition: nextIndex + 1,
+            });
+
+            return {
+                success: true,
+                finished: false,
+                item: foundPlayer,
+                type: 'PLAYER',
+                sequencePosition: nextIndex + 1,
+                totalInSequence: items.length,
+            };
         }
 
-        if (!foundPlayer) {
+        // Generic handling for FRANCHISE and POWER_CARD
+        if (nextIndex >= items.length) {
+            const nextPhaseMap = { 'FRANCHISE_PHASE': 'POWER_CARD_PHASE', 'POWER_CARD_PHASE': 'LIVE' };
+            const nextPhase = nextPhaseMap[state.phase] || state.phase;
+
             await tx.auctionState.update({
                 where: { id: 1 },
                 data: {
                     current_player_id: null,
+                    current_item_id: null,
                     current_bid: null,
                     highest_bidder_id: null,
-                    current_sequence_index: nextIndex,
-                    phase: 'POST_AUCTION',
+                    phase: nextPhase,
+                    current_sequence_id: null, // Reset for next phase
+                    current_sequence_index: 0,
                 }
             });
-            return { success: true, finished: true, message: 'All players in sequence have been auctioned' };
+            return { success: true, finished: true, message: 'Sequence finished' };
         }
 
+        const currentItem = items[nextIndex];
+        
         await tx.auctionState.update({
             where: { id: 1 },
             data: {
-                current_player_id: foundPlayer.id,
-                current_bid: Number(foundPlayer.base_price),
+                current_player_id: null,
+                current_item_id: String(currentItem),
+                current_bid: sequence.type === 'FRANCHISE' ? 20 : 0, // Franchises start at 20 CR? No, usually fixed or bidded.
                 highest_bidder_id: null,
                 current_sequence_index: nextIndex + 1,
-                bid_frozen_team_id: null, // Reset bid freeze for new player
             }
         });
 
-        await logAudit(tx, 'ADVANCE_PLAYER', {
-            playerId: foundPlayer.id,
-            playerName: foundPlayer.name,
+        await logAudit(tx, 'ADVANCE_SEQUENCE_ITEM', {
+            type: sequence.type,
+            item: currentItem,
             sequencePosition: nextIndex + 1,
         });
 
         return {
             success: true,
             finished: false,
-            player: foundPlayer,
+            item: currentItem,
+            type: sequence.type,
             sequencePosition: nextIndex + 1,
-            totalInSequence: sequence.player_ids.length,
+            totalInSequence: items.length,
         };
     });
 }
@@ -685,7 +743,7 @@ async function selectSequence(sequenceId) {
 
         await logAudit(tx, 'SELECT_SEQUENCE', { sequenceId, sequenceName: sequence.name });
 
-        return { success: true, sequence: sequence.name, totalPlayers: sequence.player_ids.length };
+        return { success: true, sequence: sequence.name, totalItems: sequence.sequence_items.length };
     });
 }
 
@@ -768,7 +826,7 @@ async function assignFranchise(teamId, franchiseId) {
             throw new Error(`Team ${team.name} already has franchise ${team.brand_key}`);
         }
 
-        await tx.team.update({
+        const updatedTeam = await tx.team.update({
             where: { id: teamId },
             data: {
                 brand_key: franchise.short_name,
@@ -779,9 +837,19 @@ async function assignFranchise(teamId, franchiseId) {
             },
         });
 
+        // AUTO-RTM: Assign one RTM card of this franchise to the team
+        await tx.powerCard.create({
+            data: {
+                team_id: teamId,
+                type: 'RIGHT_TO_MATCH',
+                is_used: false
+            }
+        });
+
         await logAudit(tx, 'ASSIGN_FRANCHISE', {
             teamId, franchiseId,
             teamName: team.name, franchiseName: franchise.name,
+            rtmAssigned: true
         });
 
         return { success: true, teamId, franchise: franchise.name };
@@ -791,6 +859,16 @@ async function assignFranchise(teamId, franchiseId) {
 // ═══════════════════════════════════════════════════════════════
 // AUTH: Login
 // ═══════════════════════════════════════════════════════════════
+
+async function loginTeam(username, password) {
+    const team = await prisma.team.findUnique({ where: { username } });
+    if (!team) throw new Error('Invalid username');
+
+    const valid = await bcrypt.compare(password, team.password_hash);
+    if (!valid) throw new Error('Invalid password');
+
+    return team;
+}
 
 async function loginTeam(username, password) {
     const team = await prisma.team.findUnique({ where: { username } });
@@ -815,6 +893,17 @@ async function loginTeam(username, password) {
         brandKey: team.brand_key,
         franchiseName: team.franchise_name,
     };
+}
+
+// Admin login
+async function loginAdmin(username, password) {
+    const admin = await prisma.adminUser.findUnique({ where: { username } });
+    if (!admin) throw new Error('Invalid admin username');
+
+    const valid = await bcrypt.compare(password, admin.password_hash);
+    if (!valid) throw new Error('Invalid password');
+
+    return admin;
 }
 // ═══════════════════════════════════════════════════════════════
 // DISPLAY CONTROLS — Admin uses these to update frontend display
@@ -930,25 +1019,15 @@ async function deassignPlayer(playerId) {
             const sequence = await tx.auctionSequence.findUnique({
                 where: { id: state.current_sequence_id }
             });
+
             if (sequence) {
-                const hasPlayerIdsField = sequence.player_ids !== undefined;
-                let currentRanks = hasPlayerIdsField ? sequence.player_ids : (sequence.players || []);
-                if (!Array.isArray(currentRanks)) {
-                    currentRanks = [];
-                }
-                currentRanks.push(player.rank);
+                let currentItems = Array.isArray(sequence.sequence_items) ? sequence.sequence_items : [];
+                currentItems.push(player.rank);
                 
-                if (hasPlayerIdsField) {
-                    await tx.auctionSequence.update({
-                        where: { id: sequence.id },
-                        data: { player_ids: currentRanks }
-                    });
-                } else {
-                    await tx.auctionSequence.update({
-                        where: { id: sequence.id },
-                        data: { players: currentRanks }
-                    });
-                }
+                await tx.auctionSequence.update({
+                    where: { id: sequence.id },
+                    data: { sequence_items: currentItems }
+                });
             }
         }
 
@@ -1001,7 +1080,7 @@ export default {
     usePowerCard,
     useRTM,
     updateAuctionPhase,
-    advanceToNextPlayer,
+    advanceToNextInSequence,
     selectSequence,
     placeBid,
     assignFranchise,
@@ -1018,4 +1097,5 @@ export default {
     deassignPlayer,
     assignPowerCard,
     deassignPowerCard,
+    loginAdmin,
 };
