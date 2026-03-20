@@ -12,6 +12,14 @@ export type AuctionStatus =
     | 'SOLD'
     | 'UNSOLD';
 
+export type AuctionPhase =
+    | 'NOT_STARTED'
+    | 'FRANCHISE_PHASE'
+    | 'POWER_CARD_PHASE'
+    | 'LIVE'
+    | 'POST_AUCTION'
+    | 'COMPLETED';
+
 export type PlayerStatus = 'AVAILABLE' | 'SOLD' | 'UNSOLD';
 export type AuctionDay = 'Day 1' | 'Day 2';
 
@@ -26,6 +34,7 @@ export interface Bid {
 
 export interface AuctionState {
     // Meta
+    phase: AuctionPhase;
     auctionDay: AuctionDay;
     status: AuctionStatus;
 
@@ -49,14 +58,20 @@ export interface AuctionState {
     timerSeconds: number;
     timerActive: boolean;
 
-    // Power Cards
+    // Power Cards (in-game usage)
     activePowerCard: string | null;
     activePowerCardTeam: string | null;
     bidFreezerTargetTeam: string | null;
+
+    // Power Card Auction Phase
+    active_power_card?: string;       // ID of the power card being auctioned
+    highest_bidder_id?: number;       // team ID of current highest bidder
+    current_bid?: number;             // current bid for the power card
 }
 
 // Initial mock auction state
 export const mockAuctionState: AuctionState = {
+    phase: 'LIVE',
     auctionDay: 'Day 1',
     status: 'BIDDING',
 
@@ -82,6 +97,11 @@ export const mockAuctionState: AuctionState = {
     activePowerCard: null,
     activePowerCardTeam: null,
     bidFreezerTargetTeam: null,
+
+    // Power Card Auction — test data
+    active_power_card: 'gods_eye',
+    highest_bidder_id: 1,
+    current_bid: 3.5,
 };
 
 // Helper to update auction state (for mock purposes)
@@ -144,5 +164,13 @@ export function markMockPlayerUnsold(): void {
         ...currentState,
         status: 'UNSOLD',
         playerStatus: 'UNSOLD',
+    };
+}
+
+export function setMockPhase(phase: AuctionPhase, activePowerCard?: string): void {
+    currentState = {
+        ...currentState,
+        phase,
+        active_power_card: activePowerCard,
     };
 }
