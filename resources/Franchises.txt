@@ -1,0 +1,14 @@
+Team	Followers (M)	Trophies	Runner-ups	franchiseBonus
+CSK	20.7		5		1		67.84
+MI	18.6		5		1		66.46
+RCB	21.7		1		1		56.50
+KKR	7.1		3		1		52.87
+SRH	5.2		1		2		47.12
+RR	5.2		1		1		45.62
+GT	4.7		1		1		45.29
+DC	4.6		0		1		42.23
+PBKS	4.5		0		1		42.16
+LSG	3.5		0		0		40.00
+
+
+NOTE:The team logos,primary keys are available somewhere inside the frontend directory,search for them
