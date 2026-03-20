@@ -6,9 +6,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Team } from '@/lib/mockData/teams';
-import { Player } from '@/lib/mockData/players';
 import { getAllTeams } from '@/lib/api/teams';
-import { getAllPlayers } from '@/lib/api/players';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
@@ -123,20 +121,14 @@ function TeamDetailCard({ team, index }: {
 
 export default function AllTeamsPage() {
     const [teams, setTeams] = useState<Team[]>([]);
-    const [allPlayers, setAllPlayers] = useState<Player[]>([]);
     const [loading, setLoading] = useState(true);
-    const [expandedTeam, setExpandedTeam] = useState<number | null>(null);
     const [sortBy, setSortBy] = useState<'budget' | 'squad' | 'name'>('budget');
 
     useEffect(() => {
         const loadData = async () => {
             try {
-                const [teamsData, playersData] = await Promise.all([
-                    getAllTeams(),
-                    getAllPlayers(),
-                ]);
+                const teamsData = await getAllTeams();
                 setTeams(teamsData);
-                setAllPlayers(playersData);
                 setLoading(false);
             } catch (error) {
                 console.error('Error loading teams:', error);
@@ -148,12 +140,8 @@ export default function AllTeamsPage() {
 
         // Poll for updates
         const interval = setInterval(async () => {
-            const [teamsData, playersData] = await Promise.all([
-                getAllTeams(),
-                getAllPlayers(),
-            ]);
+            const teamsData = await getAllTeams();
             setTeams(teamsData);
-            setAllPlayers(playersData);
         }, 3000);
 
         return () => clearInterval(interval);
@@ -282,10 +270,7 @@ export default function AllTeamsPage() {
                         <TeamDetailCard
                             key={team.id}
                             team={team}
-                            allPlayers={allPlayers}
                             index={index}
-                            isExpanded={expandedTeam === team.id}
-                            onToggle={() => setExpandedTeam(expandedTeam === team.id ? null : team.id)}
                         />
                     ))}
                 </div>

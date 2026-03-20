@@ -27,14 +27,20 @@ async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
         }
         return res.json();
     } catch (error) {
-        console.error(`Failed to fetch ${path}:`, error);
         // Provide safe emergency fallbacks for critical paths to prevent crash
         if (path === '/api/public/auction/state') {
+            console.warn(`Backend unreachable for ${path}, falling back to mock API`);
+            try {
+                const mockRes = await fetch('/api/mock/state');
+                if (mockRes.ok) return (await mockRes.json()) as any;
+            } catch {}
             return getMockAuctionState() as any;
         }
         if (path === '/api/public/auction/current-player') {
+            console.warn(`Backend unreachable for ${path}, falling back to mock player`);
             return { player: null, current_bid: null, phase: 'PRE_AUCTION', status: 'PRE_AUCTION' } as any;
         }
+        console.error(`Failed to fetch ${path}:`, error);
         throw error;
     }
 }
@@ -139,4 +145,15 @@ export async function triggerPowerCard(teamId: string, cardType: string, targetT
         method: 'POST',
         body: JSON.stringify({ teamId, cardType, targetTeamId }),
     });
+}
+
+/** Update mock auction state (used when backend is unavailable) */
+export async function updateMockState(updates: Record<string, any>) {
+    const res = await fetch('/api/mock/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+    });
+    if (!res.ok) throw new Error('Failed to update mock state');
+    return res.json();
 }

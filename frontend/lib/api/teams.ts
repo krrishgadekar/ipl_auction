@@ -27,7 +27,7 @@ async function fetchJSON<T>(path: string): Promise<T> {
         }
         return res.json();
     } catch (error) {
-        console.error(`Failed to fetch ${path}:`, error);
+        console.warn(`Backend unreachable for ${path}, falling back to mock data`);
         // Fallback to mock data for the UI to work
         if (path === '/api/teams') return mockTeams as any;
         

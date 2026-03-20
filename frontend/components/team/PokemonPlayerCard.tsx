@@ -67,8 +67,7 @@ export default function PokemonPlayerCard({
                     shimmer: false,
                     holoEffect: false,
                 };
-            case 'D': // COMMON - Gray/White
-            default:
+            default: // COMMON - Gray/White
                 return {
                     wrapper: 'common-card',
                     border: 'border border-white/30',
