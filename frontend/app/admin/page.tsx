@@ -6,7 +6,8 @@
 import { useEffect, useState } from 'react';
 import { AuctionState } from '@/lib/mockData/auctionState';
 import { Team } from '@/lib/mockData/teams';
-import { getAuctionState, subscribeToAuctionUpdates } from '@/lib/api/auction';
+import { getAuctionState, subscribeToAuctionUpdates, updateMockState } from '@/lib/api/auction';
+import { AUCTIONABLE_POWER_CARDS } from '@/lib/mockData/powercards';
 import { getAllTeams } from '@/lib/api/teams';
 import { getAllPlayers } from '@/lib/api/players';
 import CurrentPlayerPreview from '@/components/admin/CurrentPlayerPreview';
@@ -22,6 +23,34 @@ export default function AdminPage() {
     const [totalPlayers, setTotalPlayers] = useState(8);
     const [loading, setLoading] = useState(true);
     const [isAuth, setIsAuth] = useState<boolean | null>(null);
+    const [auctionMode, setAuctionMode] = useState<'LIVE' | 'POWER_CARD_PHASE'>('LIVE');
+    const [selectedCard, setSelectedCard] = useState(AUCTIONABLE_POWER_CARDS[0].id);
+    const [toggling, setToggling] = useState(false);
+
+    const handleModeToggle = async (mode: 'LIVE' | 'POWER_CARD_PHASE') => {
+        setToggling(true);
+        try {
+            await updateMockState({
+                phase: mode,
+                active_power_card: mode === 'POWER_CARD_PHASE' ? selectedCard : undefined,
+                current_bid: mode === 'POWER_CARD_PHASE' ? 0 : undefined,
+                highest_bidder_id: mode === 'POWER_CARD_PHASE' ? undefined : undefined,
+            });
+            setAuctionMode(mode);
+        } catch (err) {
+            console.error('Failed to toggle mode:', err);
+        }
+        setToggling(false);
+    };
+
+    const handleCardChange = async (cardId: string) => {
+        setSelectedCard(cardId);
+        if (auctionMode === 'POWER_CARD_PHASE') {
+            try {
+                await updateMockState({ active_power_card: cardId, current_bid: 0, highest_bidder_id: undefined });
+            } catch {}
+        }
+    };
     const router = useRouter();
 
     useEffect(() => {
@@ -104,6 +133,52 @@ export default function AdminPage() {
                                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                                 <span className="font-bold text-red-400">LIVE</span>
                             </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* ── AUCTION MODE TOGGLE ── */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mb-6 p-4 bg-gradient-to-r from-purple-950/40 to-blue-950/40 backdrop-blur-sm rounded-2xl border border-purple-500/20"
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="text-sm font-bold text-white/50 uppercase tracking-widest">Auction Mode</div>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => handleModeToggle('LIVE')}
+                                disabled={toggling}
+                                className={`px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all ${
+                                    auctionMode === 'LIVE'
+                                        ? 'bg-green-500/25 text-green-400 border-2 border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.15)]'
+                                        : 'bg-white/5 text-white/40 border border-white/10 hover:bg-white/10'
+                                }`}
+                            >
+                                🏏 Main Auction
+                            </button>
+                            <button
+                                onClick={() => handleModeToggle('POWER_CARD_PHASE')}
+                                disabled={toggling}
+                                className={`px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all ${
+                                    auctionMode === 'POWER_CARD_PHASE'
+                                        ? 'bg-purple-500/25 text-purple-400 border-2 border-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.15)]'
+                                        : 'bg-white/5 text-white/40 border border-white/10 hover:bg-white/10'
+                                }`}
+                            >
+                                ⚡ Power Card Auction
+                            </button>
+                            {auctionMode === 'POWER_CARD_PHASE' && (
+                                <select
+                                    value={selectedCard}
+                                    onChange={(e) => handleCardChange(e.target.value)}
+                                    className="bg-purple-950/50 border border-purple-500/30 rounded-lg px-3 py-2.5 text-purple-300 text-sm font-bold focus:outline-none"
+                                >
+                                    {AUCTIONABLE_POWER_CARDS.map(c => (
+                                        <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+                                    ))}
+                                </select>
+                            )}
                         </div>
                     </div>
                 </motion.div>
