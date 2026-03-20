@@ -9,8 +9,12 @@ export type AuctionStatus =
     | 'IDLE'
     | 'ANNOUNCING'
     | 'BIDDING'
+    | 'CLOSED_BIDDING'
     | 'SOLD'
     | 'UNSOLD';
+
+/** Maximum open bid before Closed Bidding is triggered (§4) */
+export const MAX_BID = 25;
 
 export type AuctionPhase =
     | 'NOT_STARTED'

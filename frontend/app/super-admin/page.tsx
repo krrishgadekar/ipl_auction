@@ -159,7 +159,6 @@ export default function SuperAdminPage() {
                                         { card: team.powerCards.bidFreezer, icon: '❄️' },
                                         { card: team.powerCards.godsEye, icon: '👁️' },
                                         { card: team.powerCards.mulligan, icon: '🔄' },
-                                        { card: team.powerCards.rtm, icon: '🎯' },
                                     ].slice(0, 3).map((item, i) => (
                                         <div
                                             key={i}

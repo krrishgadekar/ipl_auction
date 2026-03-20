@@ -16,7 +16,6 @@ export default function PowerCardStatus({ team }: PowerCardStatusProps) {
         { ...team.powerCards.bidFreezer, icon: '❄️' },
         { ...team.powerCards.godsEye, icon: '👁️' },
         { ...team.powerCards.mulligan, icon: '🔄' },
-        { ...team.powerCards.rtm, icon: '🎯' },
     ];
 
     return (

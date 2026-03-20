@@ -1,4 +1,4 @@
-// File: C:\advait\IPL_AUCTION\frontend\app\admin\page.tsx
+// File: K:\IPL_NEW\IPL_AUCTION\frontend\app\admin\page.tsx
 import * as entry from '../../../../app/admin/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
