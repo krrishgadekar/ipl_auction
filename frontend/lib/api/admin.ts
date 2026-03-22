@@ -36,32 +36,17 @@ async function fetchAdmin(endpoint: string, options: RequestInit = {}) {
 
 // ── Authentication ───────────────────────────────────────────
 
-/**
- * Verify admin credentials by hitting the dedicated /verify endpoint.
- * Encodes username:password as base64 for the Bearer token.
- */
-export async function verifyAdminCredentials(username: string, password: string) {
-    const token = btoa(`${username}:${password}`);
-    const res = await fetch(`${API_BASE}/verify`, {
+/** Admin Login */
+export async function verifyAdminCredentials(username: string, password: string): Promise<string> {
+    const res = await fetch('http://localhost:5000/api/admin/auth/login', {
         method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
     });
+    
     if (!res.ok) throw new Error('Invalid credentials');
-    return token; // Return the token to store in localStorage
-}
-
-// Legacy alias (kept for compatibility, but prefer verifyAdminCredentials)
-export async function verifyAdminToken(token: string) {
-    const res = await fetch(`${API_BASE}/verify`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-    if (!res.ok) throw new Error('Invalid password');
-    return true;
+    const data = await res.json();
+    return data.sessionId; 
 }
 
 // ── State Management ─────────────────────────────────────────
@@ -74,14 +59,26 @@ export async function setAuctionDay(day: string) {
     return fetchAdmin('/auction-day', { method: 'POST', body: JSON.stringify({ day }) });
 }
 
-export async function advanceToNextPlayer() {
-    return fetchAdmin('/next-player', { method: 'POST' });
+export async function advanceToNextObject() {
+    return fetchAdmin('/next-item', { method: 'POST' });
+}
+
+export async function selectSequence(sequenceId: number) {
+    return fetchAdmin('/select-sequence', { method: 'POST', body: JSON.stringify({ sequenceId }) });
+}
+
+export async function getAllSequences() {
+    return fetchAdmin('/sequences', { method: 'GET' });
+}
+
+export async function getAllFranchises() {
+    return fetchAdmin('/franchises', { method: 'GET' });
 }
 
 // ── Franchise Assignment ─────────────────────────────────────
 
-export async function assignFranchise(teamId: string, franchiseId: number) {
-    return fetchAdmin('/assign-franchise', { method: 'POST', body: JSON.stringify({ teamId, franchiseId }) });
+export async function assignFranchise(teamId: string, franchiseId: number, price: number) {
+    return fetchAdmin('/assign-franchise', { method: 'POST', body: JSON.stringify({ teamId, franchiseId, price }) });
 }
 
 // ── Player Assignment ────────────────────────────────────────
@@ -102,15 +99,8 @@ export async function markUnsold(playerId: string) {
     return fetchAdmin('/unsold', { method: 'POST', body: JSON.stringify({ playerId }) });
 }
 
-// ── Bidding ──────────────────────────────────────────────────
-export async function logBid(teamId: string, teamName: string, amount: number) {
-    return fetchAdmin('/log-bid', { method: 'POST', body: JSON.stringify({ teamId, teamName, amount }) });
-}
-
-// ── Powercard Assignment ─────────────────────────────────────
-
-export async function assignPowerCard(teamId: string, type: string) {
-    return fetchAdmin('/assign-powercard', { method: 'POST', body: JSON.stringify({ teamId, type }) });
+export async function assignPowerCard(teamId: string, cardType: string, price: number) {
+    return fetchAdmin('/assign-powercard', { method: 'POST', body: JSON.stringify({ teamId, cardType, price }) });
 }
 
 export async function deassignPowerCard(teamId: string, type: string) {
@@ -121,4 +111,12 @@ export async function deassignPowerCard(teamId: string, type: string) {
 
 export async function unveilRiddlePlayer(playerId: string) {
     return fetchAdmin('/unveil-riddle', { method: 'POST', body: JSON.stringify({ playerId }) });
+}
+
+export async function fineTeam(teamId: string, amount: number, reason: string) {
+    return fetchAdmin('/fine-team', { method: 'POST', body: JSON.stringify({ teamId, amount, reason }) });
+}
+
+export async function togglePowerCard(teamId: string, type: string, isUsed: boolean) {
+    return fetchAdmin('/toggle-powercard', { method: 'POST', body: JSON.stringify({ teamId, type, isUsed }) });
 }

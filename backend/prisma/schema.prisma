@@ -162,10 +162,11 @@ model AuctionSequence {
 }
 
 model AdminUser {
-  id            String @id @default(uuid())
-  username      String @unique
-  password_hash String
-  role          String // "ADMIN" or "SCREEN"
+  id                String  @id @default(uuid())
+  username          String  @unique
+  password_hash     String
+  role              String  // "ADMIN" or "SCREEN"
+  active_session_id String? // For session-based auth
 }
 
 // ═══════════════════════════════════════════════════════════════

@@ -7,11 +7,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { loginAdmin } from '@/lib/api/auction';
 import Link from 'next/link';
-
-// Hardcoded credentials for frontend-only testing
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'admin123';
 
 export default function AdminLoginPage() {
     const [username, setUsername] = useState('');
@@ -27,20 +24,27 @@ export default function AdminLoginPage() {
         setError('');
         setLoading(true);
 
-        // Frontend credential check
-        if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
-            setError('Invalid administrative credentials');
+        try {
+            const data = await loginAdmin(username, password);
+            
+            if (data.sessionId) {
+                // Store session token
+                localStorage.setItem('ipl_admin_token', data.sessionId);
+                localStorage.setItem('ipl_admin_user', data.username);
+                localStorage.setItem('ipl_admin_auth', 'true');
+                router.push('/admin');
+            } else {
+                setError('Authentication failed');
+                setShake(true);
+                setTimeout(() => setShake(false), 600);
+            }
+        } catch (err: any) {
+            setError(err.message || 'Connection error');
             setShake(true);
             setTimeout(() => setShake(false), 600);
+        } finally {
             setLoading(false);
-            return;
         }
-
-        // Credentials match — store token and proceed
-        const token = btoa(`${username}:${password}`);
-        localStorage.setItem('ipl_admin_token', token);
-        localStorage.setItem('ipl_admin_auth', 'true');
-        router.push('/admin');
     };
 
     return (

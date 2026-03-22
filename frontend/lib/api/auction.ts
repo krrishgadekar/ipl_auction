@@ -62,17 +62,52 @@ export interface AuctionState {
     bidFreezerTargetTeam?: string | number | null;
 }
 
+import { getMockAuctionState } from '../mockData/auctionState';
+
 async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
-    const res = await fetch(`${API_URL}${path}`, {
-        headers: { 'Content-Type': 'application/json' },
-        ...options,
-    });
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        console.error(`API error: ${res.status}`, err);
-        throw new Error(err.error || `API error: ${res.status}`);
+    try {
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+            ...(options?.headers as Record<string, string>),
+        };
+
+        // Attach admin session token if available
+        if (typeof window !== 'undefined') {
+            const token = localStorage.getItem('ipl_admin_token');
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+        }
+
+        const finalUrl = `${API_URL}${path}`;
+        console.log(`🚀 [API Request] Fetching: ${finalUrl}`, { method: options?.method || 'GET' });
+
+        const res = await fetch(finalUrl, {
+            ...options,
+            headers,
+        });
+        
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ error: res.statusText }));
+            console.error(`API error: ${res.status}`, err);
+            throw new Error(err.error || `API error: ${res.status}`);
+        }
+        return res.json();
+    } catch (error) {
+        // Fallbacks for public data if backend is unreachable
+        if (path === '/api/public/auction/state') {
+            return getMockAuctionState() as any;
+        }
+        throw error;
     }
-    return res.json();
+}
+
+/** Admin Login */
+export async function loginAdmin(username: string, password: string): Promise<{ success: boolean; sessionId: string; username: string; role: string }> {
+    return fetchJSON('/api/admin/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+    });
 }
 
 // ── API Functions ────────────────────────────────────────────
@@ -135,55 +170,57 @@ export async function checkHealth() {
 
 // ── Admin Functions ───────────────────────────────────────────
 
-export async function placeBid(teamId: string, teamName: string, amount: number) {
-    return fetchJSON('/api/auction/bid', {
+export async function placeBid(teamId: string, amount: number) {
+    return fetchJSON('/api/admin/auction/bid', {
         method: 'POST',
-        body: JSON.stringify({ teamId, teamName, amount }),
+        body: JSON.stringify({ teamId, amount }),
     });
 }
 
-export async function updateAuctionStatus(status: string) {
-    return fetchJSON('/api/auction/status', {
+export async function updateAuctionPhase(phase: string) {
+    return fetchJSON('/api/admin/auction/phase', {
         method: 'POST',
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ phase }),
     });
 }
 
-export async function setCurrentPlayer(playerId: string) {
-    return fetchJSON('/api/auction/current-player', {
+export async function selectSequence(sequenceId: number) {
+    return fetchJSON('/api/admin/auction/select-sequence', {
         method: 'POST',
-        body: JSON.stringify({ playerId }),
+        body: JSON.stringify({ sequenceId }),
     });
 }
 
-export async function markPlayerSold(playerId: string, teamId: string, amount: number) {
-    return fetchJSON('/api/auction/sold', {
+export async function advanceToNextItem() {
+    return fetchJSON('/api/admin/auction/next-item', {
         method: 'POST',
-        body: JSON.stringify({ playerId, teamId, amount }),
+    });
+}
+
+export async function markPlayerSold(playerId: string, teamId: string, pricePaid: number) {
+    return fetchJSON('/api/admin/auction/sell', {
+        method: 'POST',
+        body: JSON.stringify({ playerId, teamId, pricePaid }),
     });
 }
 
 export async function markPlayerUnsold(playerId: string) {
-    return fetchJSON('/api/auction/unsold', {
+    return fetchJSON('/api/admin/auction/unsold', {
         method: 'POST',
         body: JSON.stringify({ playerId }),
     });
 }
 
-export async function triggerPowerCard(teamId: string, cardType: string, targetTeamId?: string) {
-    return fetchJSON('/api/auction/power-card', {
+export async function unveilRiddle(rank?: number, playerId?: string) {
+    return fetchJSON('/api/admin/auction/unveil-riddle', {
         method: 'POST',
-        body: JSON.stringify({ teamId, cardType, targetTeamId }),
+        body: JSON.stringify({ rank, playerId }),
     });
 }
 
-/** Update mock auction state (used when backend is unavailable) */
-export async function updateMockState(updates: Record<string, any>) {
-    const res = await fetch('/api/mock/state', {
+export async function triggerPowerCard(teamId: string, type: string, targetTeamId?: string) {
+    return fetchJSON('/api/admin/auction/power-card', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
+        body: JSON.stringify({ teamId, type, targetTeamId }),
     });
-    if (!res.ok) throw new Error('Failed to update mock state');
-    return res.json();
 }

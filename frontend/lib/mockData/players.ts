@@ -18,7 +18,8 @@ export interface Player {
     // Core Fields
     id?: string;               // UUID from backend (optional, not in mock data)
     rank: number;              // unique
-    player: string;            // name
+    player: string;            // name (from CSV)
+    name?: string;             // name (from backend)
     team: string;              // IPL franchise
     role: string;              // raw role string
     category: PlayerCategory;  // categorized role

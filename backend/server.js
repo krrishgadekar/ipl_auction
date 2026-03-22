@@ -10,6 +10,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './src/config/swagger.js';
 
 import adminRoutes from './src/routes/adminRoutes.js';
+import adminAuthRoutes from './src/routes/adminAuthRoutes.js';
 import teamRoutes from './src/routes/teamRoutes.js';
 import playerRoutes from './src/routes/playerRoutes.js';
 import publicRoutes from './src/routes/publicRoutes.js';
@@ -25,6 +26,10 @@ const io = new SocketIOServer(server, {
 
 // ── Middleware ────────────────────────────────────────────────
 app.use(cors());
+app.use((req, res, next) => {
+    console.error(`🚀 [BACKEND] ${req.method} ${req.url}`);
+    next();
+});
 app.use(express.json());
 
 // Inject io into every route
@@ -34,6 +39,7 @@ app.use((req, res, next) => {
 });
 
 // ── API Routes ───────────────────────────────────────────────
+app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin/auction', adminRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/players', playerRoutes);
@@ -45,6 +51,12 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // ── Health Check ─────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// ── 404 Catch-all ────────────────────────────────────────────
+app.use((req, res) => {
+    console.warn(`[404] ${req.method} ${req.url}`);
+    res.status(404).json({ error: 'Not Found', path: req.url });
 });
 
 // ── WebSocket ────────────────────────────────────────────────

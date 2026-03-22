@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { Team } from '@/lib/mockData/teams';
 import { Player } from '@/lib/mockData/players';
-import { advanceToNextPlayer, sellPlayer, markUnsold } from '@/lib/api/admin';
+import { advanceToNextObject, sellPlayer, markUnsold } from '@/lib/api/admin';
 import { getAllPlayers } from '@/lib/api/players';
 
 // Composition rules from rulebook §5
@@ -45,7 +45,7 @@ export default function PlayerActions({
         if (!currentPlayerRank) return;
         setProcessing(true);
         try {
-            await advanceToNextPlayer();
+            await advanceToNextObject();
         } catch (error) {
             console.error('Failed to set next player:', error);
         } finally {

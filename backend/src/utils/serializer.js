@@ -56,6 +56,10 @@ export function serializeTeam(t) {
         squadCount: t.squad_count,
         squadLimit: SQUAD_LIMIT,
         overseasCount: t.overseas_count,
+        batsmanCount: t.batsman_count,
+        bowlerCount: t.bowler_count,
+        allrounderCount: t.allrounder_count,
+        wicketkeeperCount: t.wicketkeeper_count,
         brandScore: Number(t.brand_score),
         logo: t.logo || '🏏', // fallback emoji
         // Power cards transform (array → named object for frontend)
@@ -132,6 +136,11 @@ export function serializeAuctionState(state, currentPlayer, highestBidder, teams
         bidFreezerTargetTeam: state.bid_frozen_team_id,
         sealedBids: {},
         godsEyeRevealed: state.gods_eye_revealed,
+
+        // Sequence / Active Item
+        currentItemId: state.current_item_id,
+        currentSequenceId: state.current_sequence_id,
+        currentSequenceIndex: state.current_sequence_index,
 
         // Teams
         teams: teams ? teams.map(serializeTeam) : [],
