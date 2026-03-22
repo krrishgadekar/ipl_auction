@@ -9,6 +9,7 @@ import { getAllTeams } from '@/lib/api/teams';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import Loader from '@/components/Loader';
 
 export default function SuperAdminPage() {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -49,13 +50,7 @@ export default function SuperAdminPage() {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950 flex items-center justify-center">
-                <div className="text-2xl text-white font-bold">Loading Super Admin...</div>
-            </div>
-        );
-    }
+    if (loading) return <Loader text="LOADING" />;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950 p-6">

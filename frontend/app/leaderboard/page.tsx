@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { getLeaderboard, type LeaderboardEntry } from '@/lib/api/finalTeam';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Loader from '@/components/Loader';
 
 /* ─── Floating Particles ─── */
 function FloatingParticles() {
@@ -276,19 +277,7 @@ export default function LeaderboardPage() {
 
     const winner = entries.find(e => e.rank === 1);
 
-    if (loading) {
-        return (
-            <div className="min-h-screen animated-gradient-bg flex items-center justify-center">
-                <motion.div
-                    animate={{ rotate: 360, scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                    className="text-8xl"
-                >
-                    🏆
-                </motion.div>
-            </div>
-        );
-    }
+    if (loading) return <Loader />;
 
     return (
         <div className="min-h-screen animated-gradient-bg relative overflow-hidden">

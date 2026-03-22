@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { preloadImages } from '@/lib/utils/playerImage';
+import Loader from '@/components/Loader';
 
 /* ═══════════════════════════════════════════════════════════
    GRADE THEMES — Consistent Background, Colored Accents
@@ -162,11 +163,7 @@ export default function BigScreenPage() {
 
     if (!isAuth) return null;
 
-    if (loading || !auctionState) return (
-        <div className="h-screen w-screen animated-gradient-bg flex items-center justify-center">
-            <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }} className="text-7xl">🏏</motion.div>
-        </div>
-    );
+    if (loading || !auctionState) return <Loader text="LOADING AUCTION" />;
 
     const player = auctionState.currentPlayer;
     const theme = player ? (THEMES[player.grade] ?? THEMES.C) : THEMES.C;

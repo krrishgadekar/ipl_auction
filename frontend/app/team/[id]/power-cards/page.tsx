@@ -8,6 +8,7 @@ import { Team } from '@/lib/mockData/teams';
 import { getAllTeams } from '@/lib/api/teams';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Loader from '@/components/Loader';
 
 // Floating Particles
 function FloatingParticles() {
@@ -304,19 +305,7 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
         loadData();
     }, [teamId]);
 
-    if (loading) {
-        return (
-            <div className="min-h-screen animated-gradient-bg flex items-center justify-center">
-                <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                    className="text-6xl"
-                >
-                    ⚡
-                </motion.div>
-            </div>
-        );
-    }
+    if (loading) return <Loader />;
 
     return (
         <div className="min-h-screen animated-gradient-bg overflow-auto">

@@ -16,6 +16,7 @@ import TeamBudgets from '@/components/admin/TeamBudgets';
 import AuctionTimer from '@/components/AuctionTimer';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import Loader from '@/components/Loader';
 
 export default function AdminPage() {
     const [auctionState, setAuctionState] = useState<AuctionState | null>(null);
@@ -104,13 +105,7 @@ export default function AdminPage() {
 
     if (!isAuth) return null;
 
-    if (loading || !auctionState) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950 flex items-center justify-center">
-                <div className="text-2xl text-white font-bold">Loading Admin Panel...</div>
-            </div>
-        );
-    }
+    if (loading || !auctionState) return <Loader text="LOADING ADMIN" />;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950 p-6">
