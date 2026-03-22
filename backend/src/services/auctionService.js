@@ -19,6 +19,19 @@ const ROLE_LIMITS = {
     WK: { min: 2, max: 4 },
 };
 
+/**
+ * Maps raw role from dataset to internal Category enum
+ * @param {string} role - e.g. "WK-Batsman", "Bowling Allrounder"
+ */
+function mapRoleToCategory(role) {
+    if (!role) return 'BAT';
+    const r = role.toLowerCase();
+    if (r.includes('wk') || r.includes('wicket')) return 'WK';
+    if (r.includes('allrounder')) return 'AR';
+    if (r.includes('bowler')) return 'BOWL';
+    return 'BAT';
+}
+
 // Rulebook §4 — Bid increments (in CR)
 const BID_INCREMENT_RULES = [
     { maxBid: 5, increment: 0.20 },
@@ -31,13 +44,14 @@ const MAX_BID = 25; // Triggers closed bidding
 // VALID STATE MACHINE TRANSITIONS
 // ═══════════════════════════════════════════════════════════════
 
+const ALL_PHASES = ['NOT_STARTED', 'FRANCHISE_PHASE', 'POWER_CARD_PHASE', 'LIVE', 'POST_AUCTION', 'COMPLETED'];
 const VALID_TRANSITIONS = {
-    'NOT_STARTED': ['FRANCHISE_PHASE'],
-    'FRANCHISE_PHASE': ['POWER_CARD_PHASE'],
-    'POWER_CARD_PHASE': ['LIVE'],
-    'LIVE': ['POST_AUCTION'],
-    'POST_AUCTION': ['COMPLETED'],
-    'COMPLETED': [],
+    'NOT_STARTED': ALL_PHASES,
+    'FRANCHISE_PHASE': ALL_PHASES,
+    'POWER_CARD_PHASE': ALL_PHASES,
+    'LIVE': ALL_PHASES,
+    'POST_AUCTION': ALL_PHASES,
+    'COMPLETED': ALL_PHASES,
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -166,7 +180,8 @@ async function sellPlayer(playerId, teamId, pricePaid) {
 
         // 8. Role composition check
         const roleCounts = await getTeamRoleCounts(tx, teamId);
-        const roleError = wouldViolateRoleLimits(roleCounts, player.category, team.squad_count);
+        const playerCategory = mapRoleToCategory(player.role);
+        const roleError = wouldViolateRoleLimits(roleCounts, playerCategory, team.squad_count);
         if (roleError) {
             throw new Error(roleError);
         }
@@ -187,12 +202,21 @@ async function sellPlayer(playerId, teamId, pricePaid) {
         // ── All validations passed. Execute sale. ────────────────
 
         // 11. Deduct purse + update counters
+        const categoryKeyMap = {
+            'BAT': 'batsmen_count',
+            'BOWL': 'bowlers_count',
+            'AR': 'ar_count',
+            'WK': 'wk_count'
+        };
+        const categoryKey = categoryKeyMap[playerCategory];
+
         await tx.team.update({
             where: { id: teamId },
             data: {
                 purse_remaining: { decrement: pricePaid },
                 squad_count: { increment: 1 },
                 overseas_count: player.nationality === 'OVERSEAS' ? { increment: 1 } : undefined,
+                [categoryKey]: { increment: 1 }
             }
         });
 
@@ -270,9 +294,26 @@ async function markUnsold(playerId) {
                 active_power_card_team: null,
                 bid_frozen_team_id: null,
                 gods_eye_revealed: false,
-                timer_active: false,
             }
         });
+
+        // Push player back to the end of the current sequence
+        if (state.current_sequence_id) {
+            const sequence = await tx.auctionSequence.findUnique({
+                where: { id: state.current_sequence_id }
+            });
+            if (sequence) {
+                let currentItems = Array.isArray(sequence.sequence_items) ? sequence.sequence_items : [];
+                const player = await tx.player.findUnique({ where: { id: playerId } });
+                if (player) {
+                    currentItems.push(player.rank);
+                    await tx.auctionSequence.update({
+                        where: { id: sequence.id },
+                        data: { sequence_items: currentItems }
+                    });
+                }
+            }
+        }
 
         await logAudit(tx, 'MARK_UNSOLD', { playerId });
 
@@ -423,6 +464,25 @@ async function usePowerCard(teamId, type, targetTeamId = null) {
                     highest_bidder_id: null,
                 },
             });
+
+            // Push player back to sequence
+            if (state.current_sequence_id && state.current_player_id) {
+                const sequence = await tx.auctionSequence.findUnique({
+                    where: { id: state.current_sequence_id }
+                });
+                if (sequence) {
+                    let currentItems = Array.isArray(sequence.sequence_items) ? sequence.sequence_items : [];
+                    const player = await tx.player.findUnique({ where: { id: state.current_player_id } });
+                    if (player) {
+                        currentItems.push(player.rank);
+                        await tx.auctionSequence.update({
+                            where: { id: sequence.id },
+                            data: { sequence_items: currentItems }
+                        });
+                    }
+                }
+            }
+
             effect.playerReset = true;
         }
 
@@ -456,8 +516,8 @@ async function useRTM(teamId, playerId, finalBid) {
         const team = await tx.team.findUnique({ where: { id: teamId } });
         if (!team) throw new Error('Team not found');
 
-        if (player.team !== team.brand_key) {
-            throw new Error(`RTM Violation: Team ${team.brand_key} cannot RTM a player from ${player.team}`);
+        if (p.team !== team.brand_key) {
+            throw new Error(`RTM Violation: Team ${team.brand_key} cannot RTM a player from ${p.team}`);
         }
 
         // Validate purse for RTM (must match final bid + card cost)
@@ -493,6 +553,14 @@ async function useRTM(teamId, playerId, finalBid) {
         if (roleError) throw new Error(roleError);
 
         // ── Execute RTM: reverse original sale, assign to RTM team ──
+        const playerCategory = mapRoleToCategory(p.role);
+        const categoryKeyMap = {
+            'BAT': 'batsmen_count',
+            'BOWL': 'bowlers_count',
+            'AR': 'ar_count',
+            'WK': 'wk_count'
+        };
+        const categoryKey = categoryKeyMap[playerCategory];
 
         // 1. Refund previous buyer
         if (previousTeamId) {
@@ -501,7 +569,8 @@ async function useRTM(teamId, playerId, finalBid) {
                 data: {
                     purse_remaining: { increment: previousPrice },
                     squad_count: { decrement: 1 },
-                    overseas_count: player.nationality === 'OVERSEAS' ? { decrement: 1 } : undefined,
+                    overseas_count: p.nationality === 'OVERSEAS' ? { decrement: 1 } : undefined,
+                    [categoryKey]: { decrement: 1 }
                 },
             });
 
@@ -517,7 +586,8 @@ async function useRTM(teamId, playerId, finalBid) {
             data: {
                 purse_remaining: { decrement: totalCost },
                 squad_count: { increment: 1 },
-                overseas_count: player.nationality === 'OVERSEAS' ? { increment: 1 } : undefined,
+                overseas_count: p.nationality === 'OVERSEAS' ? { increment: 1 } : undefined,
+                [categoryKey]: { increment: 1 }
             },
         });
 
@@ -580,6 +650,28 @@ async function updateAuctionPhase(newPhase) {
             data: { phase: newPhase }
         });
 
+        // AUTO-SELECT SEQUENCE based on phase
+        const phaseToSequence = {
+            'FRANCHISE_PHASE': 1,
+            'POWER_CARD_PHASE': 2,
+            'LIVE': 3
+        };
+        const sequenceId = phaseToSequence[newPhase];
+        if (sequenceId) {
+            const sequence = await tx.auctionSequence.findUnique({ where: { id: sequenceId } });
+            if (sequence) {
+                await tx.auctionState.update({
+                    where: { id: 1 },
+                    data: {
+                        current_sequence_id: sequenceId,
+                        current_sequence_index: 0,
+                        current_item_id: null,
+                        current_player_id: null
+                    }
+                });
+            }
+        }
+
         await logAudit(tx, 'PHASE_TRANSITION', {
             from: currentState.phase,
             to: newPhase,
@@ -614,7 +706,7 @@ async function advanceToNextInSequence() {
             
             let foundPlayer = null;
             while (nextIndex < items.length) {
-                const rank = items[nextIndex];
+                const rank = Number(items[nextIndex]);
                 const player = await tx.player.findUnique({ where: { rank } });
                 if (player) {
                     const ap = await tx.auctionPlayer.findUnique({ where: { player_id: player.id } });
@@ -696,7 +788,7 @@ async function advanceToNextInSequence() {
             data: {
                 current_player_id: null,
                 current_item_id: String(currentItem),
-                current_bid: sequence.type === 'FRANCHISE' ? 20 : 0, // Franchises start at 20 CR? No, usually fixed or bidded.
+                current_bid: sequence.type === 'FRANCHISE' ? 3 : (sequence.type === 'POWER_CARD' ? 1 : 0),
                 highest_bidder_id: null,
                 current_sequence_index: nextIndex + 1,
             }
@@ -726,9 +818,10 @@ async function advanceToNextInSequence() {
 async function selectSequence(sequenceId) {
     return await prisma.$transaction(async (tx) => {
         const state = await tx.auctionState.findUnique({ where: { id: 1 } });
-        if (state.phase !== 'NOT_STARTED' && state.phase !== 'FRANCHISE_PHASE' && state.phase !== 'POWER_CARD_PHASE') {
-            throw new Error(`Cannot change sequence in phase: ${state.phase}`);
-        }
+        // Relaxed for admin flexibility: Allow changing sequence in any phase
+        // if (state.phase !== 'NOT_STARTED' && state.phase !== 'FRANCHISE_PHASE' && state.phase !== 'POWER_CARD_PHASE') {
+        //     throw new Error(`Cannot change sequence in phase: ${state.phase}`);
+        // }
 
         const sequence = await tx.auctionSequence.findUnique({ where: { id: sequenceId } });
         if (!sequence) throw new Error(`Sequence ${sequenceId} not found`);
@@ -755,8 +848,10 @@ async function placeBid(teamId, bidAmount) {
     return await prisma.$transaction(async (tx) => {
         const state = await tx.auctionState.findUnique({ where: { id: 1 } });
 
-        if (state.phase !== 'LIVE') {
-            throw new Error('Can only bid during LIVE phase');
+        // Relaxed for all bidding phases
+        const BIDDING_PHASES = ['FRANCHISE_PHASE', 'POWER_CARD_PHASE', 'LIVE'];
+        if (!BIDDING_PHASES.includes(state.phase)) {
+            throw new Error(`Can only bid during bidding phases (current: ${state.phase})`);
         }
 
         // Check if team is frozen by Bid Freezer
@@ -804,7 +899,7 @@ async function placeBid(teamId, bidAmount) {
 // FRANCHISE: Assign franchise to team (during FRANCHISE_PHASE)
 // ═══════════════════════════════════════════════════════════════
 
-async function assignFranchise(teamId, franchiseId) {
+async function assignFranchise(teamId, franchiseId, price) {
     return await prisma.$transaction(async (tx) => {
         const state = await tx.auctionState.findUnique({ where: { id: 1 } });
         if (state.phase !== 'FRANCHISE_PHASE') {
@@ -826,6 +921,12 @@ async function assignFranchise(teamId, franchiseId) {
             throw new Error(`Team ${team.name} already has franchise ${team.brand_key}`);
         }
 
+        // Validate purse
+        const finalPrice = Number(price) || 3.0;
+        if (Number(team.purse_remaining) < finalPrice) {
+            throw new Error(`Insufficient purse: ₹${team.purse_remaining} CR remaining`);
+        }
+
         const updatedTeam = await tx.team.update({
             where: { id: teamId },
             data: {
@@ -834,6 +935,7 @@ async function assignFranchise(teamId, franchiseId) {
                 brand_score: franchise.brand_score,
                 logo: franchise.logo,
                 primary_color: franchise.primary_color,
+                purse_remaining: { decrement: finalPrice }
             },
         });
 
@@ -847,14 +949,56 @@ async function assignFranchise(teamId, franchiseId) {
         });
 
         await logAudit(tx, 'ASSIGN_FRANCHISE', {
-            teamId, franchiseId,
-            teamName: team.name, franchiseName: franchise.name,
-            rtmAssigned: true
+            teamId, franchiseId, price: finalPrice, brandKey: franchise.short_name
         });
 
-        return { success: true, teamId, franchise: franchise.name };
+        return { success: true, team: updatedTeam.name, franchise: franchise.name, price: finalPrice };
     });
 }
+
+// ═══════════════════════════════════════════════════════════════
+// POWER CARD: Assign power card to team (during POWER_CARD_PHASE)
+// ═══════════════════════════════════════════════════════════════
+
+async function assignPowerCard(teamId, cardType, price) {
+    return await prisma.$transaction(async (tx) => {
+        const state = await tx.auctionState.findUnique({ where: { id: 1 } });
+        if (state.phase !== 'POWER_CARD_PHASE') {
+            throw new Error(`Power Cards can only be assigned during POWER_CARD_PHASE (current: ${state.phase})`);
+        }
+
+        const team = await tx.team.findUnique({ where: { id: teamId } });
+        if (!team) throw new Error('Team not found');
+
+        // Validate purse
+        const finalPrice = Number(price) || 1.0;
+        if (Number(team.purse_remaining) < finalPrice) {
+            throw new Error(`Insufficient purse: ₹${team.purse_remaining} CR remaining`);
+        }
+
+        // Create power card
+        const card = await tx.powerCard.create({
+            data: {
+                team_id: teamId,
+                type: cardType,
+                is_used: false
+            }
+        });
+
+        // Charge team
+        const updatedTeam = await tx.team.update({
+            where: { id: teamId },
+            data: { purse_remaining: { decrement: finalPrice } }
+        });
+
+        await logAudit(tx, 'ASSIGN_POWERCARD', {
+            teamId, cardType, price: finalPrice
+        });
+
+        return { success: true, team: updatedTeam.name, cardType, price: finalPrice };
+    });
+}
+
 
 // ═══════════════════════════════════════════════════════════════
 // AUTH: Login
@@ -894,7 +1038,18 @@ async function loginAdmin(username, password) {
     const valid = await bcrypt.compare(password, admin.password_hash);
     if (!valid) throw new Error('Invalid password');
 
-    return admin;
+    const sessionId = crypto.randomUUID();
+    await prisma.adminUser.update({
+        where: { id: admin.id },
+        data: { active_session_id: sessionId },
+    });
+
+    return {
+        success: true,
+        sessionId,
+        username: admin.username,
+        role: admin.role,
+    };
 }
 // ═══════════════════════════════════════════════════════════════
 // DISPLAY CONTROLS — Admin uses these to update frontend display
@@ -965,10 +1120,20 @@ async function updateDisplayState(updates) {
 // ═══════════════════════════════════════════════════════════════
 // DEASSIGN PLAYER — Admin Only
 // ═══════════════════════════════════════════════════════════════
-async function deassignPlayer(playerId) {
+async function deassignPlayer(playerIdOrRank) {
     return await prisma.$transaction(async (tx) => {
         const state = await tx.auctionState.findUnique({ where: { id: 1 } });
         
+        let player;
+        if (typeof playerIdOrRank === 'number' || !isNaN(Number(playerIdOrRank))) {
+            player = await tx.player.findUnique({ where: { rank: Number(playerIdOrRank) } });
+        } else {
+            player = await tx.player.findUnique({ where: { id: playerIdOrRank } });
+        }
+
+        if (!player) throw new Error('Player not found');
+        const playerId = player.id;
+
         const auctionPlayer = await tx.auctionPlayer.findUnique({ where: { player_id: playerId } });
         if (!auctionPlayer || auctionPlayer.status !== 'SOLD') {
             throw new Error('Player is not sold yet or not found');
@@ -978,15 +1143,27 @@ async function deassignPlayer(playerId) {
         const pricePaid = Number(auctionPlayer.sold_price);
         
         const team = await tx.team.findUnique({ where: { id: teamId } });
-        const player = await tx.player.findUnique({ where: { id: playerId } });
+        player = await tx.player.findUnique({ where: { id: playerId } });
         
         // 1. Refund purse & update squad counts
+        const playerCategory = mapRoleToCategory(player.role);
+        const categoryKeyMap = {
+            'BAT': 'batsmen_count',
+            'BOWL': 'bowlers_count',
+            'AR': 'ar_count',
+            'WK': 'wk_count'
+        };
+        const categoryKey = categoryKeyMap[playerCategory];
+
+        console.log(`[DEASSIGN] Refunding Team ${team.name} (ID: ${teamId}): ₹${pricePaid} CR for Player #${player.rank}`);
+
         await tx.team.update({
             where: { id: teamId },
             data: {
                 purse_remaining: { increment: pricePaid },
                 squad_count: { decrement: 1 },
                 overseas_count: player.nationality === 'OVERSEAS' ? { decrement: 1 } : undefined,
+                [categoryKey]: { decrement: 1 }
             }
         });
 
@@ -1031,19 +1208,6 @@ async function deassignPlayer(playerId) {
 // ═══════════════════════════════════════════════════════════════
 // ASSIGN & DEASSIGN POWERCARD — Admin Only
 // ═══════════════════════════════════════════════════════════════
-async function assignPowerCard(teamId, type) {
-    return await prisma.$transaction(async (tx) => {
-        const team = await tx.team.findUnique({ where: { id: teamId } });
-        if (!team) throw new Error('Team not found');
-
-        const card = await tx.powerCard.create({
-            data: { team_id: teamId, type, is_used: false }
-        });
-
-        await logAudit(tx, 'ASSIGN_POWERCARD', { teamId, type, teamName: team.name });
-        return { success: true, card };
-    });
-}
 
 async function deassignPowerCard(teamId, type) {
     return await prisma.$transaction(async (tx) => {
@@ -1061,6 +1225,46 @@ async function deassignPowerCard(teamId, type) {
 
         await logAudit(tx, 'DEASSIGN_POWERCARD', { teamId, type, teamName: team.name });
         return { success: true, message: 'Powercard deassigned' };
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MANUAL PURSE DEDUCTION (FINES) — Admin Only
+// ═══════════════════════════════════════════════════════════════
+async function deductPurse(teamId, amount, reason) {
+    return await prisma.$transaction(async (tx) => {
+        const team = await tx.team.findUnique({ where: { id: teamId } });
+        if (!team) throw new Error('Team not found');
+
+        const updated = await tx.team.update({
+            where: { id: teamId },
+            data: { 
+                purse_remaining: { decrement: Number(amount) } 
+            }
+        });
+
+        await logAudit(tx, 'PURSE_DEDUCTION', { teamId, amount, reason, teamName: team.name });
+        return { success: true, purse_remaining: Number(updated.purse_remaining) };
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOGGLE POWERCARD STATUS — Admin Only
+// ═══════════════════════════════════════════════════════════════
+async function togglePowerCardStatus(teamId, type, isUsed) {
+    return await prisma.$transaction(async (tx) => {
+        const card = await tx.powerCard.findUnique({
+            where: { team_id_type: { team_id: teamId, type } }
+        });
+        if (!card) throw new Error('Powercard not assigned to this team');
+
+        const updated = await tx.powerCard.update({
+            where: { id: card.id },
+            data: { is_used: isUsed }
+        });
+
+        await logAudit(tx, 'TOGGLE_POWERCARD', { teamId, type, isUsed });
+        return { success: true, is_used: updated.is_used };
     });
 }
 
@@ -1089,4 +1293,6 @@ export default {
     assignPowerCard,
     deassignPowerCard,
     loginAdmin,
+    deductPurse,
+    togglePowerCardStatus,
 };

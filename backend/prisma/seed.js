@@ -145,19 +145,23 @@ async function main() {
   // 2. Teams
   console.log('📋 Seeding 10 Participant Teams...');
   const teams = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliet'];
+  const franchiseKeys = ['CSK', 'MI', 'RCB', 'KKR', 'SRH', 'RR', 'GT', 'DC', 'PBKS', 'LSG'];
   const credentials = [];
-  for (const t of teams) {
-    const pass = generateStrongPassword();
+  for (let i = 0; i < teams.length; i++) {
+    const t = teams[i];
+    const username = t.toLowerCase();
+    const pass = `${username}2026`; // Fixed password pattern for easy linking
+    const fKey = franchiseKeys[i];
     await prisma.team.create({
       data: {
         name: `Team ${t}`,
-        username: t.toLowerCase(),
+        username: username,
         password_hash: await bcrypt.hash(pass, SALT_ROUNDS),
         purse_remaining: 120,
         squad_count: 0
       }
     });
-    credentials.push(`${t.toLowerCase()}:${pass}`);
+    credentials.push(`${username}:${pass}`);
   }
   fs.writeFileSync(credentialsFilePath, credentials.join('\n'));
   console.log(`  🔑 Team credentials saved to team_credentials.txt`);

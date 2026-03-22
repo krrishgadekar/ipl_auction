@@ -45,14 +45,30 @@ router.post('/phase', async (req, res) => {
 
 /**
  * POST /api/admin/auction/assign-franchise
- * Body: { teamId, franchiseId }
+ * Body: { teamId, franchiseId, price }
  */
 router.post('/assign-franchise', async (req, res) => {
     try {
-        const { teamId, franchiseId } = req.body;
-        const result = await auctionService.assignFranchise(teamId, franchiseId);
+        const { teamId, franchiseId, price } = req.body;
+        const result = await auctionService.assignFranchise(teamId, franchiseId, price);
         const team = await prisma.team.findUnique({ where: { id: teamId } });
         req.io.emit('FRANCHISE_ASSIGNED', { ...result, team });
+        req.io.emit('STATE_SYNC'); // Sync purse
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
+ * POST /api/admin/auction/assign-powercard
+ * Body: { teamId, cardType, price }
+ */
+router.post('/assign-powercard', async (req, res) => {
+    try {
+        const { teamId, cardType, price } = req.body;
+        const result = await auctionService.assignPowerCard(teamId, cardType, price);
+        req.io.emit('STATE_SYNC'); // Sync purse
         res.json(result);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -286,6 +302,36 @@ router.post('/deassign-powercard', async (req, res) => {
     try {
         const { teamId, type } = req.body;
         const result = await auctionService.deassignPowerCard(teamId, type);
+        req.io.emit('STATE_SYNC');
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
+ * POST /api/admin/auction/fine-team
+ * Manually deduct purse. Body: { teamId, amount, reason }
+ */
+router.post('/fine-team', async (req, res) => {
+    try {
+        const { teamId, amount, reason } = req.body;
+        const result = await auctionService.deductPurse(teamId, amount, reason);
+        req.io.emit('STATE_SYNC');
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
+ * POST /api/admin/auction/toggle-powercard
+ * Manually mark powercard as used/unused. Body: { teamId, type, isUsed }
+ */
+router.post('/toggle-powercard', async (req, res) => {
+    try {
+        const { teamId, type, isUsed } = req.body;
+        const result = await auctionService.togglePowerCardStatus(teamId, type, isUsed);
         req.io.emit('STATE_SYNC');
         res.json(result);
     } catch (err) {

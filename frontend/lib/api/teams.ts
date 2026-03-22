@@ -5,44 +5,45 @@
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-import { mockTeams } from '../mockData/teams';
-import { mockPlayers } from '../mockData/players';
+export interface PowerCard {
+    name: string;
+    cost: number;
+    available: boolean;
+    used: boolean;
+}
 
-import { Team, PowerCard } from '../mockData/teams';
-
-export type { Team, PowerCard };
+export interface Team {
+    id: string | number;
+    name: string;
+    shortName: string;
+    logo: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    franchiseName?: string;
+    purseRemaining: number;
+    budgetRemaining: number; // Alias for Big Screen compatibility
+    budgetUsed: number;
+    totalBudget: number;
+    squadCount: number;
+    squadLimit: number;
+    overseasCount: number;
+    players: number[]; // Array of player ranks
+    powerCards: Record<string, PowerCard>;
+}
 
 export interface TeamWithSquad extends Team {
-    team_players: { player: import('../mockData/players').Player; price_paid: number }[];
+    team_players: { player: any; price_paid: number }[];
 }
 
 async function fetchJSON<T>(path: string): Promise<T> {
-    try {
-        const res = await fetch(`${API_URL}${path}`, {
-            headers: { 'Content-Type': 'application/json' },
-        });
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({ error: res.statusText }));
-            throw new Error(err.error || `API error: ${res.status}`);
-        }
-        return res.json();
-    } catch (error) {
-        console.warn(`Backend unreachable for ${path}, falling back to mock data`);
-        // Fallback to mock data for the UI to work
-        if (path === '/api/teams') return mockTeams as any;
-        
-        if (path.startsWith('/api/teams/') && path.endsWith('/squad')) return [] as any;
-        if (path.startsWith('/api/teams/') && path.endsWith('/power-cards')) return [] as any;
-        
-        const teamMatch = path.match(/^\/api\/teams\/(\d+)$/);
-        if (teamMatch) {
-            const teamId = Number(teamMatch[1]);
-            const mockTeam = mockTeams.find(t => t.id === teamId);
-            if (mockTeam) return mockTeam as any;
-        }
-
-        return null as any;
+    const res = await fetch(`${API_URL}${path}`, {
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error(err.error || `API error: ${res.status}`);
     }
+    return res.json();
 }
 /** Get all teams */
 export async function getAllTeams(): Promise<Team[]> {

@@ -1,22 +1,19 @@
-// Power Card Status Component
-// Shows which power cards are available/used for the team
-
-'use client';
-
-import { Team } from '@/lib/mockData/teams';
+import { getPowerCardImage } from '@/lib/utils/powerCard';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 interface PowerCardStatusProps {
-    team: Team;
+    team: any; // Allow for flexible team object
 }
 
 export default function PowerCardStatus({ team }: PowerCardStatusProps) {
-    const powerCards = [
-        { ...team.powerCards.finalStrike, icon: '⚡' },
-        { ...team.powerCards.bidFreezer, icon: '❄️' },
-        { ...team.powerCards.godsEye, icon: '👁️' },
-        { ...team.powerCards.mulligan, icon: '🔄' },
-    ];
+    const powerCardKeys = ['finalStrike', 'bidFreezer', 'godsEye', 'mulligan', 'rightToMatch'];
+    
+    const powerCards = powerCardKeys.map(key => ({
+        key,
+        ...(team.powerCards?.[key] || { name: key, used: false, available: false, cost: 1 }),
+        image: getPowerCardImage(key, team.shortName)
+    }));
 
     return (
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
@@ -30,19 +27,26 @@ export default function PowerCardStatus({ team }: PowerCardStatusProps) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
                         className={`p-4 rounded-xl border transition-all ${card.used
-                                ? 'bg-red-500/10 border-red-500/30 opacity-50'
-                                : card.available
-                                    ? 'bg-green-500/10 border-green-500/30'
-                                    : 'bg-white/5 border-white/10 opacity-50'
+                            ? 'bg-red-500/10 border-red-500/30 opacity-50'
+                            : card.available
+                                ? 'bg-green-500/10 border-green-500/30'
+                                : 'bg-white/5 border-white/10 opacity-50'
                             }`}
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="text-3xl">{card.icon}</div>
-                                <div>
-                                    <h3 className="font-bold text-white">{card.name}</h3>
+                                <div className="relative w-12 h-16 flex-shrink-0">
+                                    <Image 
+                                        src={card.image} 
+                                        alt={card.name} 
+                                        fill 
+                                        className="object-contain"
+                                    />
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="font-bold text-white text-sm">{card.name}</h3>
                                     {card.cost > 0 && (
-                                        <div className="text-sm text-white/60">Cost: ₹{card.cost} CR</div>
+                                        <div className="text-[10px] text-white/40 uppercase tracking-wider">Cost: ₹{card.cost} CR</div>
                                     )}
                                 </div>
                             </div>

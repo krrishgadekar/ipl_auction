@@ -4,7 +4,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Team } from '@/lib/mockData/teams';
+import { type Team } from '@/lib/api/teams';
 import { getAllTeams } from '@/lib/api/teams';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -124,9 +124,9 @@ export default function SuperAdminPage() {
                         >
                             {/* Team Header */}
                             <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-2xl mr-4 shadow-lg overflow-hidden p-1.5">
-                                        <img src={team.logo} alt={team.shortName} className="w-full h-full object-contain" />
-                                    </div>
+                                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-2xl mr-4 shadow-lg overflow-hidden p-1.5">
+                                    <img src={team.logo} alt={team.shortName} className="w-full h-full object-contain" />
+                                </div>
                                 <div className="flex-1">
                                     <h3 className="font-bold text-white text-lg">{team.name}</h3>
                                     <p className="text-white/60 text-sm">{team.shortName}</p>
@@ -150,18 +150,18 @@ export default function SuperAdminPage() {
                                 <div className="text-white/60 text-sm mb-2">Power Cards</div>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
-                                        { card: team.powerCards.finalStrike, icon: '⚡' },
-                                        { card: team.powerCards.bidFreezer, icon: '❄️' },
-                                        { card: team.powerCards.godsEye, icon: '👁️' },
-                                        { card: team.powerCards.mulligan, icon: '🔄' },
+                                        { card: team.powerCards?.['finalStrike'], icon: '⚡' },
+                                        { card: team.powerCards?.['bidFreezer'], icon: '❄️' },
+                                        { card: team.powerCards?.['godsEye'], icon: '👁️' },
+                                        { card: team.powerCards?.['mulligan'], icon: '🔄' },
                                     ].slice(0, 3).map((item, i) => (
                                         <div
                                             key={i}
-                                            className={`p-2 rounded-lg text-center ${item.card.used
-                                                    ? 'bg-red-500/20 text-red-400'
-                                                    : item.card.available
-                                                        ? 'bg-green-500/20 text-green-400'
-                                                        : 'bg-white/5 text-white/40'
+                                            className={`p-2 rounded-lg text-center ${item.card?.used
+                                                ? 'bg-red-500/20 text-red-400'
+                                                : item.card?.available
+                                                    ? 'bg-green-500/20 text-green-400'
+                                                    : 'bg-white/5 text-white/40'
                                                 }`}
                                         >
                                             {item.icon}

@@ -5,11 +5,15 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Team } from '@/lib/mockData/teams';
+import { Team } from '@/lib/api/teams';
 import { getAllTeams } from '@/lib/api/teams';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+<<<<<<< HEAD
 import Loader from '@/components/Loader';
+=======
+import { useAuctionSocket } from '@/lib/hooks/useAuctionSocket';
+>>>>>>> 8b2a4842027df998e1d493f3bd2e83c02cec0214
 
 // Floating Particles
 function FloatingParticles() {
@@ -124,6 +128,8 @@ export default function AllTeamsPage() {
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
     const [sortBy, setSortBy] = useState<'budget' | 'squad' | 'name'>('budget');
+    
+    const { on, requestState } = useAuctionSocket();
 
     useEffect(() => {
         const loadData = async () => {
@@ -131,6 +137,7 @@ export default function AllTeamsPage() {
                 const teamsData = await getAllTeams();
                 setTeams(teamsData);
                 setLoading(false);
+                requestState();
             } catch (error) {
                 console.error('Error loading teams:', error);
                 setLoading(false);
@@ -138,15 +145,18 @@ export default function AllTeamsPage() {
         };
 
         loadData();
+    }, [requestState]);
 
-        // Poll for updates
-        const interval = setInterval(async () => {
-            const teamsData = await getAllTeams();
-            setTeams(teamsData);
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, []);
+    useEffect(() => {
+        const unbindStateSync = on('STATE_SYNC', (data: any) => {
+            if (data && data.teams) {
+                setTeams(data.teams);
+            }
+        });
+        return () => {
+            unbindStateSync();
+        };
+    }, [on]);
 
     if (loading) return <Loader />;
 

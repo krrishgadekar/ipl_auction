@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { Player, mockPlayers } from '@/lib/mockData/players';
-import { Team } from '@/lib/mockData/teams';
-import { AuctionState } from '@/lib/mockData/auctionState';
+import { mockPlayers } from '@/lib/mockData/players';
+import { Team } from '@/lib/api/teams';
+import { type Player, type AuctionState, getAuctionState, subscribeToAuctionUpdates } from '@/lib/api/auction';
 import { AUCTIONABLE_POWER_CARDS } from '@/lib/mockData/powercards';
-import { getAuctionState, subscribeToAuctionUpdates } from '@/lib/api/auction';
 import { getAllTeams } from '@/lib/api/teams';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
@@ -44,6 +43,12 @@ const TEXT_SEC = 'rgba(122,148,176,0.5)';
    SPIDER CHART
    ═══════════════════════════════════════════════════════════ */
 function getStats(p: Player): { label: string; value: number; display: string }[] {
+<<<<<<< HEAD
+=======
+    const rat = { label: 'RAT', value: p.rating, display: String(p.rating) };
+    const exp = { label: 'EXP', value: p.sub_experience || 0, display: String(p.sub_experience || 0) };
+
+>>>>>>> 8b2a4842027df998e1d493f3bd2e83c02cec0214
     if (p.pool === 'BAT_WK') return [
         { label: 'SCR', value: p.sub_scoring ?? 0, display: String(p.sub_scoring ?? 0) },
         { label: 'IMP', value: p.sub_impact ?? 0, display: String(p.sub_impact ?? 0) },
@@ -131,7 +136,7 @@ export default function BigScreenPage() {
         const load = async () => {
             try {
                 const [s, t] = await Promise.all([getAuctionState(), getAllTeams()]);
-                setAuctionState(s); setTeams(t); setLoading(false);
+                setAuctionState(s as any); setTeams(t); setLoading(false);
             } catch { setLoading(false); }
         };
         load();
@@ -143,7 +148,7 @@ export default function BigScreenPage() {
                 confetti();
                 setTimeout(() => setShowReveal(false), 4000);
             }
-            setAuctionState(ns);
+            setAuctionState(ns as any);
             if (ns.currentPlayerRank !== null) {
                 const idx = mockPlayers.findIndex(p => p.rank === ns.currentPlayerRank);
                 preloadImages([1, 2].map(o => mockPlayers[idx + o]?.imageUrl));
@@ -190,8 +195,10 @@ export default function BigScreenPage() {
                         style={{ background: `radial-gradient(circle, ${theme.accentGlow} 0%, transparent 70%)` }}>
                         <motion.div initial={{ scale: 0, rotate: -15 }} animate={{ scale: 1, rotate: 0 }}
                             exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 300 }}
-                            style={{ fontSize: 'clamp(5rem, 14vw, 11rem)', color: theme.accent, fontFamily: "'Cinzel', serif", fontWeight: 900,
-                                textShadow: `0 0 60px ${theme.accentGlow}, 0 0 120px ${theme.accentGlow}` }}>
+                            style={{
+                                fontSize: 'clamp(5rem, 14vw, 11rem)', color: theme.accent, fontFamily: "'Cinzel', serif", fontWeight: 900,
+                                textShadow: `0 0 60px ${theme.accentGlow}, 0 0 120px ${theme.accentGlow}`
+                            }}>
                             SOLD! 🔨
                         </motion.div>
                     </motion.div>
@@ -206,9 +213,11 @@ export default function BigScreenPage() {
                         style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)' }}>
                         <motion.div initial={{ scale: 0, rotate: -15 }} animate={{ scale: 1, rotate: 0 }}
                             exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 300 }}
-                            style={{ fontSize: 'clamp(4rem, 12vw, 9rem)', fontFamily: "'Cinzel', serif", fontWeight: 900,
+                            style={{
+                                fontSize: 'clamp(4rem, 12vw, 9rem)', fontFamily: "'Cinzel', serif", fontWeight: 900,
                                 color: '#d4af37',
-                                textShadow: '0 0 60px rgba(212,175,55,0.6), 0 0 120px rgba(212,175,55,0.3)' }}>
+                                textShadow: '0 0 60px rgba(212,175,55,0.6), 0 0 120px rgba(212,175,55,0.3)'
+                            }}>
                             🎭 REVEALED!
                         </motion.div>
                     </motion.div>
@@ -250,10 +259,10 @@ export default function BigScreenPage() {
                 }}>
                     <AnimatePresence mode="wait">
                         {auctionState.phase === 'POWER_CARD_PHASE' ? (() => {
-                            const powerCardId = auctionState.active_power_card;
+                            const powerCardId = auctionState.activePowerCard;
                             const card = AUCTIONABLE_POWER_CARDS.find(c => c.id === powerCardId) || AUCTIONABLE_POWER_CARDS[0];
-                            const pcBid = auctionState.current_bid || 0;
-                            const highestBidderTeam = teams.find(t => t.id === auctionState.highest_bidder_id);
+                            const pcBid = auctionState.currentBid || 0;
+                            const highestBidderTeam = teams.find(t => t.id === auctionState.highestBidderId);
 
                             return (
                                 <motion.div key={`pc-${card.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -399,7 +408,7 @@ export default function BigScreenPage() {
                                                                 className="flex items-center gap-1.5 px-2 py-1 rounded-lg relative overflow-hidden"
                                                                 style={{
                                                                     background: i < 3 ? `${card.color}08` : 'rgba(255,255,255,0.02)',
-                                                                    borderLeft: `2px solid ${team.primaryColor || GLASS_BORDER}`,
+                                                                    borderLeft: `2px solid ${GLASS_BORDER}`,
                                                                 }}>
                                                                 <span className="text-[0.65rem] font-black w-4 text-center"
                                                                     style={{ color: i < 3 ? card.color : `${card.color}50` }}>{i + 1}</span>
@@ -411,7 +420,7 @@ export default function BigScreenPage() {
                                                                 <span className="text-[0.55rem]" style={{ color: TEXT_SEC }}>{team.squadCount}/{team.squadLimit}</span>
                                                                 <span className="text-[0.8rem] font-black" style={{ color: '#2dd4a0', fontFamily: "'Cinzel', serif" }}>₹{team.budgetRemaining}</span>
                                                                 <div className="absolute bottom-0 left-0 right-0 h-[1.5px]" style={{ background: `${card.color}08` }}>
-                                                                    <div className="h-full" style={{ width: `${pct}%`, background: team.primaryColor || card.color }} />
+                                                                    <div className="h-full" style={{ width: `${pct}%`, background: card.color }} />
                                                                 </div>
                                                             </motion.div>
                                                         );
@@ -549,8 +558,10 @@ export default function BigScreenPage() {
                                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: 'spring' }}
                                         className="absolute top-5 right-6 z-20">
                                         <div className="w-16 h-16 rounded-full flex flex-col items-center justify-center"
-                                            style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`,
-                                                boxShadow: `0 4px 20px ${theme.accentGlow}` }}>
+                                            style={{
+                                                background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`,
+                                                boxShadow: `0 4px 20px ${theme.accentGlow}`
+                                            }}>
                                             <span className="font-black leading-none" style={{ fontSize: '1.5rem', color: theme.badgeText, fontFamily: "'Cinzel', serif" }}>{player.rating}</span>
                                             <span className="text-[0.4rem] tracking-widest uppercase font-bold" style={{ color: `${theme.badgeText}aa` }}>OVR</span>
                                         </div>
@@ -590,14 +601,18 @@ export default function BigScreenPage() {
                                                             className="flex items-center gap-1.5 px-2 py-1 rounded-lg relative overflow-hidden"
                                                             style={{
                                                                 background: i < 3 ? `${theme.accent}08` : 'rgba(255,255,255,0.02)',
-                                                                borderLeft: `2px solid ${team.primaryColor || GLASS_BORDER}`,
+                                                                borderLeft: `2px solid ${GLASS_BORDER}`,
                                                             }}>
                                                             {/* Rank */}
                                                             <span className="text-[0.65rem] font-black w-4 text-center"
                                                                 style={{ color: i < 3 ? theme.accent : `${theme.accent}50` }}>{i + 1}</span>
                                                             {/* Logo */}
-                                                            <div className="w-5 h-5 relative flex-shrink-0">
-                                                                <Image src={team.logo} alt={team.shortName} fill sizes="20px" className="object-contain" />
+                                                            <div className="w-5 h-5 relative flex-shrink-0 flex items-center justify-center rounded bg-white/5 overflow-hidden">
+                                                                {team.logo && team.logo.startsWith('/') ? (
+                                                                    <Image src={team.logo} alt={team.shortName} fill sizes="20px" className="object-contain" />
+                                                                ) : (
+                                                                    <span className="text-[0.6rem] opacity-30">🏏</span>
+                                                                )}
                                                             </div>
                                                             {/* Name */}
                                                             <span className="text-[0.75rem] font-bold text-white flex-1 min-w-0 truncate"
@@ -608,7 +623,7 @@ export default function BigScreenPage() {
                                                             <span className="text-[0.8rem] font-black" style={{ color: '#2dd4a0', fontFamily: "'Cinzel', serif" }}>₹{team.budgetRemaining}</span>
                                                             {/* Budget bar at bottom */}
                                                             <div className="absolute bottom-0 left-0 right-0 h-[1.5px]" style={{ background: `${theme.accent}08` }}>
-                                                                <div className="h-full" style={{ width: `${pct}%`, background: team.primaryColor || theme.accent }} />
+                                                                <div className="h-full" style={{ width: `${pct}%`, background: theme.accent }} />
                                                             </div>
                                                         </motion.div>
                                                     );

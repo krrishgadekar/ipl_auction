@@ -5,27 +5,44 @@
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-import type { Player } from '../mockData/players';
-import { mockPlayers } from '../mockData/players';
+export interface Player {
+    id: string;
+    rank: number;
+    player: string; // name
+    name?: string;
+    team: string;
+    role: string;
+    category: string;
+    pool: string;
+    grade: string;
+    rating: number;
+    nationality: string;
+    basePrice: number;
+    imageUrl: string;
+    legacy: number;
+    isRiddle: boolean;
+    // Sub-ratings
+    sub_experience?: number;
+    sub_scoring?: number;
+    sub_impact?: number;
+    sub_consistency?: number;
+    sub_wickettaking?: number;
+    sub_economy?: number;
+    sub_efficiency?: number;
+    sub_batting?: number;
+    sub_bowling?: number;
+    sub_versatility?: number;
+}
 
 async function fetchJSON<T>(path: string): Promise<T> {
-    try {
-        const res = await fetch(`${API_URL}${path}`, {
-            headers: { 'Content-Type': 'application/json' },
-        });
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({ error: res.statusText }));
-            throw new Error(err.error || `API error: ${res.status}`);
-        }
-        return res.json();
-    } catch (error) {
-        console.warn(`Backend unreachable for ${path}, falling back to mock data`);
-        
-        if (path.startsWith('/api/players')) {
-            return mockPlayers as any;
-        }
-        throw error;
+    const res = await fetch(`${API_URL}${path}`, {
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error(err.error || `API error: ${res.status}`);
     }
+    return res.json();
 }
 
 /** Get all players (optional filters: pool, category, grade, search) */

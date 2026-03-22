@@ -4,15 +4,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AuctionState } from '@/lib/mockData/auctionState';
-import { Team } from '@/lib/mockData/teams';
-import { getAuctionState, subscribeToAuctionUpdates, updateMockState } from '@/lib/api/auction';
-import { AUCTIONABLE_POWER_CARDS } from '@/lib/mockData/powercards';
-import { getAllTeams } from '@/lib/api/teams';
-import { getAllPlayers } from '@/lib/api/players';
-import CurrentPlayerPreview from '@/components/admin/CurrentPlayerPreview';
+import { type AuctionStatus, type PlayerStatus, type AuctionDay, getAuctionState, subscribeToAuctionUpdates, updateAuctionPhase, type AuctionState } from '@/lib/api/auction';
+import { type Team, getAllTeams } from '@/lib/api/teams';
+import { type Player, getAllPlayers } from '@/lib/api/players';
 import AdminDashboardControls from '@/components/admin/AdminDashboardControls';
-import TeamBudgets from '@/components/admin/TeamBudgets';
 import AuctionTimer from '@/components/AuctionTimer';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -21,36 +16,20 @@ import Loader from '@/components/Loader';
 export default function AdminPage() {
     const [auctionState, setAuctionState] = useState<AuctionState | null>(null);
     const [teams, setTeams] = useState<Team[]>([]);
+    const [allPlayers, setAllPlayers] = useState<Player[]>([]);
     const [totalPlayers, setTotalPlayers] = useState(8);
     const [loading, setLoading] = useState(true);
     const [isAuth, setIsAuth] = useState<boolean | null>(null);
-    const [auctionMode, setAuctionMode] = useState<'LIVE' | 'POWER_CARD_PHASE'>('LIVE');
-    const [selectedCard, setSelectedCard] = useState(AUCTIONABLE_POWER_CARDS[0].id);
-    const [toggling, setToggling] = useState(false);
+    const [updatingPhase, setUpdatingPhase] = useState(false);
 
-    const handleModeToggle = async (mode: 'LIVE' | 'POWER_CARD_PHASE') => {
-        setToggling(true);
+    const handlePhaseChange = async (phase: string) => {
+        setUpdatingPhase(true);
         try {
-            await updateMockState({
-                phase: mode,
-                active_power_card: mode === 'POWER_CARD_PHASE' ? selectedCard : undefined,
-                current_bid: mode === 'POWER_CARD_PHASE' ? 0 : undefined,
-                highest_bidder_id: mode === 'POWER_CARD_PHASE' ? undefined : undefined,
-            });
-            setAuctionMode(mode);
+            await updateAuctionPhase(phase);
         } catch (err) {
-            console.error('Failed to toggle mode:', err);
+            console.error('Failed to update phase:', err);
         }
-        setToggling(false);
-    };
-
-    const handleCardChange = async (cardId: string) => {
-        setSelectedCard(cardId);
-        if (auctionMode === 'POWER_CARD_PHASE') {
-            try {
-                await updateMockState({ active_power_card: cardId, current_bid: 0, highest_bidder_id: undefined });
-            } catch {}
-        }
+        setUpdatingPhase(false);
     };
     const router = useRouter();
 
@@ -76,6 +55,7 @@ export default function AdminPage() {
                 ]);
                 setAuctionState(state);
                 setTeams(teamsData as any);
+                setAllPlayers(playersData);
                 setTotalPlayers(playersData.length);
                 setLoading(false);
             } catch (error) {
@@ -132,51 +112,6 @@ export default function AdminPage() {
                     </div>
                 </motion.div>
 
-                {/* ── AUCTION MODE TOGGLE ── */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mb-6 p-4 bg-gradient-to-r from-purple-950/40 to-blue-950/40 backdrop-blur-sm rounded-2xl border border-purple-500/20"
-                >
-                    <div className="flex items-center justify-between">
-                        <div className="text-sm font-bold text-white/50 uppercase tracking-widest">Auction Mode</div>
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={() => handleModeToggle('LIVE')}
-                                disabled={toggling}
-                                className={`px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all ${
-                                    auctionMode === 'LIVE'
-                                        ? 'bg-green-500/25 text-green-400 border-2 border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.15)]'
-                                        : 'bg-white/5 text-white/40 border border-white/10 hover:bg-white/10'
-                                }`}
-                            >
-                                🏏 Main Auction
-                            </button>
-                            <button
-                                onClick={() => handleModeToggle('POWER_CARD_PHASE')}
-                                disabled={toggling}
-                                className={`px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all ${
-                                    auctionMode === 'POWER_CARD_PHASE'
-                                        ? 'bg-purple-500/25 text-purple-400 border-2 border-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.15)]'
-                                        : 'bg-white/5 text-white/40 border border-white/10 hover:bg-white/10'
-                                }`}
-                            >
-                                ⚡ Power Card Auction
-                            </button>
-                            {auctionMode === 'POWER_CARD_PHASE' && (
-                                <select
-                                    value={selectedCard}
-                                    onChange={(e) => handleCardChange(e.target.value)}
-                                    className="bg-purple-950/50 border border-purple-500/30 rounded-lg px-3 py-2.5 text-purple-300 text-sm font-bold focus:outline-none"
-                                >
-                                    {AUCTIONABLE_POWER_CARDS.map(c => (
-                                        <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
-                                    ))}
-                                </select>
-                            )}
-                        </div>
-                    </div>
-                </motion.div>
 
                 {/* Status Bar */}
                 <motion.div
@@ -198,7 +133,25 @@ export default function AdminPage() {
                             <div className="w-px h-8 bg-white/20" />
                             <div>
                                 <div className="text-white/60 text-sm">Player Status</div>
-                                <div className="text-lg font-bold text-white">{auctionState.playerStatus}</div>
+                                <div className="text-lg font-bold text-white flex items-center gap-2">
+                                    {auctionState.playerStatus}
+                                    {auctionState.currentPlayer?.isRiddle && (
+                                        <motion.span 
+                                            animate={{ opacity: [1, 0.5, 1] }}
+                                            transition={{ duration: 2, repeat: Infinity }}
+                                            className="px-2 py-0.5 rounded bg-yellow-500/20 border border-yellow-500/50 text-yellow-500 text-[10px] font-bold tracking-tighter"
+                                        >
+                                            RIDDLE
+                                        </motion.span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="w-px h-8 bg-white/20" />
+                            <div>
+                                <div className="text-white/60 text-sm">Auction Phase</div>
+                                <div className="text-lg font-bold text-purple-400 capitalize">
+                                    {auctionState.phase.replace('_', ' ').toLowerCase()}
+                                </div>
                             </div>
                         </div>
 
@@ -206,8 +159,8 @@ export default function AdminPage() {
                             <div className="flex flex-col items-end">
                                 <div className="text-white/60 text-xs mb-1">Time Remaining</div>
                                 <AuctionTimer
-                                    seconds={auctionState.timerSeconds}
-                                    isActive={auctionState.timerActive}
+                                    seconds={auctionState.timerSeconds || 0}
+                                    isActive={auctionState.timerActive || false}
                                     size="md"
                                 />
                             </div>
@@ -219,27 +172,12 @@ export default function AdminPage() {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="mb-6"
                 >
-                    <AdminDashboardControls teams={teams} state={auctionState} />
-                </motion.div>
-
-                {/* Current Player Preview (full width) */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-6"
-                >
-                    <CurrentPlayerPreview player={auctionState.currentPlayer} />
-                </motion.div>
-
-                {/* Team Budgets */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                >
-                    <TeamBudgets teams={teams} />
+                    <AdminDashboardControls 
+                        teams={teams} 
+                        state={auctionState as any} 
+                        allPlayers={allPlayers}
+                    />
                 </motion.div>
             </div>
         </div>

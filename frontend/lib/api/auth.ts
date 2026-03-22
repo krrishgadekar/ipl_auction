@@ -14,20 +14,47 @@ export interface LoginResponse {
     franchiseName: string | null;
 }
 
+export interface TeamData {
+    id: string;
+    name: string;
+    username: string;
+    shortName: string;
+}
+
 // ── Mock credentials for offline/dev use ─────────────────────
-// These match the teams in lib/mockData/teams.ts
-const MOCK_CREDENTIALS: Record<string, { password: string; teamId: number; teamName: string; shortName: string }> = {
-    mi:   { password: 'mi2026',   teamId: 1,  teamName: 'Mumbai Indians',             shortName: 'MI' },
-    csk:  { password: 'csk2026',  teamId: 2,  teamName: 'Chennai Super Kings',        shortName: 'CSK' },
-    rcb:  { password: 'rcb2026',  teamId: 3,  teamName: 'Royal Challengers Bengaluru', shortName: 'RCB' },
-    kkr:  { password: 'kkr2026',  teamId: 4,  teamName: 'Kolkata Knight Riders',      shortName: 'KKR' },
-    dc:   { password: 'dc2026',   teamId: 5,  teamName: 'Delhi Capitals',             shortName: 'DC' },
-    pbks: { password: 'pbks2026', teamId: 6,  teamName: 'Punjab Kings',               shortName: 'PBKS' },
-    rr:   { password: 'rr2026',   teamId: 7,  teamName: 'Rajasthan Royals',           shortName: 'RR' },
-    gt:   { password: 'gt2026',   teamId: 8,  teamName: 'Gujarat Titans',             shortName: 'GT' },
-    srh:  { password: 'srh2026',  teamId: 9,  teamName: 'Sunrisers Hyderabad',        shortName: 'SRH' },
-    lsg:  { password: 'lsg2026',  teamId: 10, teamName: 'Lucknow Super Giants',       shortName: 'LSG' },
+const MOCK_CREDENTIALS: Record<string, { password: string; teamId: string; teamName: string; shortName: string }> = {
+    alpha:   { password: 'alpha2026',   teamId: '1', teamName: 'Team Alpha',   shortName: 'Alpha' },
+    bravo:   { password: 'bravo2026',   teamId: '2', teamName: 'Team Bravo',   shortName: 'Bravo' },
+    charlie: { password: 'charlie2026', teamId: '3', teamName: 'Team Charlie', shortName: 'Charlie' },
+    delta:   { password: 'delta2026',   teamId: '4', teamName: 'Team Delta',   shortName: 'Delta' },
+    echo:    { password: 'echo2026',    teamId: '5', teamName: 'Team Echo',    shortName: 'Echo' },
+    foxtrot: { password: 'foxtrot2026', teamId: '6', teamName: 'Team Foxtrot', shortName: 'Foxtrot' },
+    golf:    { password: 'golf2026',    teamId: '7', teamName: 'Team Golf',    shortName: 'Golf' },
+    hotel:   { password: 'hotel2026',   teamId: '8', teamName: 'Team Hotel',   shortName: 'Hotel' },
+    india:   { password: 'india2026',   teamId: '9', teamName: 'Team India',   shortName: 'India' },
+    juliet:  { password: 'juliet2026',  teamId: '10', teamName: 'Team Juliet',  shortName: 'Juliet' },
 };
+
+/**
+ * Fetch list of teams from the database (via leaderboard endpoint)
+ * This allows the frontend to discover teams dynamically.
+ */
+export async function fetchDatabaseTeams(): Promise<TeamData[]> {
+    try {
+        const res = await fetch(`${API_URL}/api/public/auction/leaderboard`);
+        if (!res.ok) return [];
+        const teams = await res.json();
+        return teams.map((t: any) => ({
+            id: t.id,
+            name: t.name,
+            username: t.username,
+            shortName: t.shortName,
+        }));
+    } catch (err) {
+        console.error('Failed to fetch teams from DB:', err);
+        return [];
+    }
+}
 
 function mockLogin(username: string, password: string): LoginResponse {
     const cred = MOCK_CREDENTIALS[username.toLowerCase()];

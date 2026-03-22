@@ -4,22 +4,99 @@
 // ═══════════════════════════════════════════════════════════════
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-import { mockPlayers } from '../mockData/players';
-import type { Player } from '../mockData/players';
-import type { Team as TeamSummary } from '../mockData/teams';
-import type { AuctionState } from '../mockData/auctionState';
-import { getMockAuctionState } from '../mockData/auctionState';
+export interface Player {
+    id: string;
+    rank: number;
+    player: string;
+    category: string;
+    grade: string;
+    rating: number;
+    basePrice: number;
+    imageUrl: string;
+    nationality: string;
+    team?: string;
+    role?: string;
+    pool?: string;
+    legacy?: number;
+    isRiddle?: boolean;
+    // Sub-ratings (Performance Metrics)
+    sub_experience?: number;
+    sub_scoring?: number;
+    sub_impact?: number;
+    sub_consistency?: number;
+    sub_wickettaking?: number;
+    sub_economy?: number;
+    sub_efficiency?: number;
+    sub_batting?: number;
+    sub_bowling?: number;
+    sub_versatility?: number;
+    name?: string; // Backend-only variant
+}
 
-export type { AuctionState, Player, TeamSummary };
+export interface TeamSummary {
+    id: string | number;
+    name: string;
+    shortName: string;
+    logo: string;
+    budgetRemaining: number;
+    squadCount: number;
+    squadLimit: number;
+}
 
-// ── Fetch Helpers ────────────────────────────────────────────
+export type AuctionStatus = 'IDLE' | 'ANNOUNCING' | 'BIDDING' | 'CLOSED_BIDDING' | 'SOLD' | 'UNSOLD' | 'PRE_AUCTION' | 'POST_AUCTION' | 'COMPLETED';
+export type AuctionPhase = 'NOT_STARTED' | 'FRANCHISE_PHASE' | 'POWER_CARD_PHASE' | 'LIVE' | 'POST_AUCTION' | 'COMPLETED';
+export type PlayerStatus = 'AVAILABLE' | 'SOLD' | 'UNSOLD';
+export type AuctionDay = 'Day 1' | 'Day 2';
+
+export interface AuctionState {
+    status: AuctionStatus | string;
+    phase: AuctionPhase | string;
+    auctionDay: AuctionDay | string;
+    currentPlayer: Player | null;
+    currentPlayerRank: number | null;
+    currentBid: number;
+    baseBid: number;
+    highestBidder: string | null;
+    highestBidderId: string | null;
+    bidHistory: any[];
+    teams: any[];
+    activePowerCard?: string | null;
+    activePowerCardTeam?: string | null;
+    playerStatus?: string;
+    timerSeconds?: number;
+    timerActive?: boolean;
+    bidFreezerTargetTeam?: string | number | null;
+    currentItemId?: string | null;
+    currentSequenceId?: number | null;
+    currentSequenceIndex?: number | null;
+    godsEyeRevealed?: boolean;
+}
+
+// No mock data fallback in production
 
 async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
     try {
-        const res = await fetch(`${API_URL}${path}`, {
-            headers: { 'Content-Type': 'application/json' },
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+            ...(options?.headers as Record<string, string>),
+        };
+
+        // Attach admin session token if available
+        if (typeof window !== 'undefined') {
+            const token = localStorage.getItem('ipl_admin_token');
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+        }
+
+        const finalUrl = `${API_URL}${path}`;
+        console.log(`🚀 [API Request] Fetching: ${finalUrl}`, { method: options?.method || 'GET' });
+
+        const res = await fetch(finalUrl, {
             ...options,
+            headers,
         });
+        
         if (!res.ok) {
             const err = await res.json().catch(() => ({ error: res.statusText }));
             console.error(`API error: ${res.status}`, err);
@@ -27,22 +104,17 @@ async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
         }
         return res.json();
     } catch (error) {
-        // Provide safe emergency fallbacks for critical paths to prevent crash
-        if (path === '/api/public/auction/state') {
-            console.warn(`Backend unreachable for ${path}, falling back to mock API`);
-            try {
-                const mockRes = await fetch('/api/mock/state');
-                if (mockRes.ok) return (await mockRes.json()) as any;
-            } catch {}
-            return getMockAuctionState() as any;
-        }
-        if (path === '/api/public/auction/current-player') {
-            console.warn(`Backend unreachable for ${path}, falling back to mock player`);
-            return { player: null, current_bid: null, phase: 'PRE_AUCTION', status: 'PRE_AUCTION' } as any;
-        }
-        console.error(`Failed to fetch ${path}:`, error);
+        console.error(`🚀 [API Error] ${path}:`, error);
         throw error;
     }
+}
+
+/** Admin Login */
+export async function loginAdmin(username: string, password: string): Promise<{ success: boolean; sessionId: string; username: string; role: string }> {
+    return fetchJSON('/api/admin/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+    });
 }
 
 // ── API Functions ────────────────────────────────────────────
@@ -105,55 +177,57 @@ export async function checkHealth() {
 
 // ── Admin Functions ───────────────────────────────────────────
 
-export async function placeBid(teamId: string, teamName: string, amount: number) {
-    return fetchJSON('/api/auction/bid', {
+export async function placeBid(teamId: string, amount: number) {
+    return fetchJSON('/api/admin/auction/bid', {
         method: 'POST',
-        body: JSON.stringify({ teamId, teamName, amount }),
+        body: JSON.stringify({ teamId, bidAmount: amount }),
     });
 }
 
-export async function updateAuctionStatus(status: string) {
-    return fetchJSON('/api/auction/status', {
+export async function updateAuctionPhase(phase: string) {
+    return fetchJSON('/api/admin/auction/phase', {
         method: 'POST',
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ phase }),
     });
 }
 
-export async function setCurrentPlayer(playerId: string) {
-    return fetchJSON('/api/auction/current-player', {
+export async function selectSequence(sequenceId: number) {
+    return fetchJSON('/api/admin/auction/select-sequence', {
         method: 'POST',
-        body: JSON.stringify({ playerId }),
+        body: JSON.stringify({ sequenceId }),
     });
 }
 
-export async function markPlayerSold(playerId: string, teamId: string, amount: number) {
-    return fetchJSON('/api/auction/sold', {
+export async function advanceToNextItem() {
+    return fetchJSON('/api/admin/auction/next-item', {
         method: 'POST',
-        body: JSON.stringify({ playerId, teamId, amount }),
+    });
+}
+
+export async function markPlayerSold(playerId: string, teamId: string, pricePaid: number) {
+    return fetchJSON('/api/admin/auction/sell', {
+        method: 'POST',
+        body: JSON.stringify({ playerId, teamId, pricePaid }),
     });
 }
 
 export async function markPlayerUnsold(playerId: string) {
-    return fetchJSON('/api/auction/unsold', {
+    return fetchJSON('/api/admin/auction/unsold', {
         method: 'POST',
         body: JSON.stringify({ playerId }),
     });
 }
 
-export async function triggerPowerCard(teamId: string, cardType: string, targetTeamId?: string) {
-    return fetchJSON('/api/auction/power-card', {
+export async function unveilRiddle(rank?: number, playerId?: string) {
+    return fetchJSON('/api/admin/auction/unveil-riddle', {
         method: 'POST',
-        body: JSON.stringify({ teamId, cardType, targetTeamId }),
+        body: JSON.stringify({ rank, playerId }),
     });
 }
 
-/** Update mock auction state (used when backend is unavailable) */
-export async function updateMockState(updates: Record<string, any>) {
-    const res = await fetch('/api/mock/state', {
+export async function triggerPowerCard(teamId: string, type: string, targetTeamId?: string) {
+    return fetchJSON('/api/admin/auction/power-card', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
+        body: JSON.stringify({ teamId, type, targetTeamId }),
     });
-    if (!res.ok) throw new Error('Failed to update mock state');
-    return res.json();
 }

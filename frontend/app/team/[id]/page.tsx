@@ -4,13 +4,12 @@
 'use client';
 
 import { use, useEffect, useState, useRef } from 'react';
-import { AuctionState } from '@/lib/mockData/auctionState';
-import { Team } from '@/lib/mockData/teams';
-import { Player } from '@/lib/mockData/players';
-import { getAuctionState, subscribeToAuctionUpdates } from '@/lib/api/auction';
+import { Team } from '@/lib/api/teams';
+import { Player } from '@/lib/api/players';
 import { getAllTeams } from '@/lib/api/teams';
 import { getAllPlayers } from '@/lib/api/players';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuctionSocket } from '@/lib/hooks/useAuctionSocket';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -95,16 +94,16 @@ function FIFACard({ player, showPrice, price }: {
             textColor: '#E8ECF1',
         },
         C: {
-            name: 'PURPLE',
-            bgOuter: 'linear-gradient(135deg, #E0C3FC 0%, #8E2DE2 50%, #E0C3FC 100%)',
-            bgInner: 'linear-gradient(180deg, #1A0B2E 0%, #0D031A 100%)',
-            textColor: '#E0C3FC',
-        },
-        D: {
             name: 'BRONZE',
             bgOuter: 'linear-gradient(135deg, #E6A171 0%, #A65D37 50%, #E6A171 100%)',
             bgInner: 'linear-gradient(180deg, #2D1A11 0%, #170C08 100%)',
             textColor: '#E6A171',
+        },
+        D: {
+            name: 'COMMON',
+            bgOuter: 'linear-gradient(135deg, #9BA4B5 0%, #4B5563 50%, #9BA4B5 100%)',
+            bgInner: 'linear-gradient(180deg, #1F2937 0%, #111827 100%)',
+            textColor: '#9BA4B5',
         },
     };
 
@@ -164,7 +163,7 @@ function FIFACard({ player, showPrice, price }: {
                             B: 'radial-gradient(circle, rgba(192,192,210,0.5) 0%, transparent 70%)',
                             C: 'radial-gradient(circle, rgba(168,85,247,0.4) 0%, transparent 70%)',
                             D: 'radial-gradient(circle, rgba(205,150,100,0.4) 0%, transparent 70%)',
-                        }[player.grade],
+                        }[player.grade as 'A' | 'B' | 'C' | 'D'],
                     }}
                 />
             )}
@@ -250,22 +249,14 @@ function FIFACard({ player, showPrice, price }: {
                             </div>
                         </div>
 
-                        {/* Bottom Icons */}
-                        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 w-full mx-auto max-w-[150px]">
-                            <div className="w-5 h-3.5 rounded-sm shadow-sm overflow-hidden bg-white flex items-center justify-center text-[8px]">
-                                {player.nationality === 'Overseas' ? '🌍' : '🇮🇳'}
-                            </div>
-                            <div className="text-[8px] tracking-widest flex" style={{ color: config.textColor }}>
-                                {Array(Math.min(3, Math.ceil(player.legacy / 3))).fill('⭐').map((s, i) => <span key={i}>{s}</span>)}
-                            </div>
-                        </div>
+                        {/* Bottom Icons Removed */}
 
                         {/* Grade Badge */}
                         <div className="absolute top-2 right-2">
                             <div
                                 className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black border-2"
                                 style={{
-                                    background: { A: 'rgba(212,175,55,0.6)', B: 'rgba(192,192,210,0.6)', C: 'rgba(168,85,247,0.6)', D: 'rgba(180,120,70,0.6)' }[player.grade],
+                                    background: { A: 'rgba(212,175,55,0.6)', B: 'rgba(192,192,210,0.6)', C: 'rgba(168,85,247,0.6)', D: 'rgba(180,120,70,0.6)' }[player.grade as 'A' | 'B' | 'C' | 'D'],
                                     color: '#ffffff',
                                     borderColor: 'rgba(255,255,255,0.4)',
                                     backdropFilter: 'blur(4px)',
@@ -281,13 +272,15 @@ function FIFACard({ player, showPrice, price }: {
     );
 }
 
+import { getPowerCardImage } from '@/lib/utils/powerCard';
+
 // Power Card Definitions
-const POWER_CARD_DEFS: Record<string, { icon: string; gradient: string }> = {
-    finalStrike: { icon: '⚡', gradient: 'from-yellow-500 to-orange-500' },
-    bidFreezer: { icon: '❄️', gradient: 'from-cyan-500 to-blue-500' },
-    godsEye: { icon: '👁️', gradient: 'from-purple-500 to-pink-500' },
-    mulligan: { icon: '🔄', gradient: 'from-green-500 to-emerald-500' },
-    rightToMatch: { icon: '🎯', gradient: 'from-red-500 to-pink-500' },
+const POWER_CARD_DEFS: Record<string, { gradient: string }> = {
+    finalStrike: { gradient: 'from-yellow-500 to-orange-500' },
+    bidFreezer: { gradient: 'from-cyan-500 to-blue-500' },
+    godsEye: { gradient: 'from-purple-500 to-pink-500' },
+    mulligan: { gradient: 'from-green-500 to-emerald-500' },
+    rightToMatch: { gradient: 'from-red-500 to-pink-500' },
 };
 
 export default function TeamDashboard({ params }: { params: Promise<{ id: string }> }) {
@@ -301,6 +294,8 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
     const [allTeams, setAllTeams] = useState<Team[]>([]);
     const [allPlayers, setAllPlayers] = useState<Player[]>([]);
     const [loading, setLoading] = useState(true);
+    
+    const { on, requestState } = useAuctionSocket();
 
     const { scrollYProgress } = useScroll({ container: containerRef });
     const headerOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0.9]);
@@ -322,22 +317,33 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                 setTeam(myTeam);
                 setAllPlayers(players);
                 setLoading(false);
+                
+                requestState();
             } catch (error) {
                 console.error('Error loading team dashboard:', error);
                 setLoading(false);
             }
         };
         loadData();
-        const teamsInterval = setInterval(async () => {
-            try {
-                const [teams, players] = await Promise.all([getAllTeams(), getAllPlayers()]);
-                setAllTeams(teams);
-                setTeam(teams.find(t => String(t.id) === teamId) || null);
-                setAllPlayers(players);
-            } catch { }
-        }, 3000);
-        return () => clearInterval(teamsInterval);
-    }, [teamId]);
+    }, [teamId, requestState]);
+
+    useEffect(() => {
+        const unbindStateSync = on('STATE_SYNC', (data: any) => {
+            if (data && data.teams) {
+                setAllTeams(data.teams);
+                setTeam(data.teams.find((t: any) => String(t.id) === teamId) || null);
+            }
+        });
+        
+        const unbindPlayerSold = on('PLAYER_SOLD', () => {
+             requestState();
+        });
+
+        return () => {
+            unbindStateSync();
+            unbindPlayerSold();
+        };
+    }, [teamId, on, requestState]);
 
     if (!authLoading && !isAuthenticated) return null;
 
@@ -368,7 +374,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
 
     if (!team) return <div className="min-h-screen animated-gradient-bg flex items-center justify-center"><div className="text-center"><div className="text-6xl mb-4">❌</div><div className="text-2xl text-white font-bold mb-2">Team Not Found</div><Link href="/" className="btn-primary">Back to Home</Link></div></div>;
 
-    const purchasedPlayers = allPlayers.filter(p => team.players.includes(p.rank));
+    const purchasedPlayers = allPlayers.filter(p => team.players?.includes(p.rank));
     const budgetPercentage = (team.budgetRemaining / team.totalBudget) * 100;
     const availablePowerCards = Object.values(team.powerCards).filter(c => c.available && !c.used).length;
     const usedPowerCards = Object.values(team.powerCards).filter(c => c.used).length;
@@ -479,12 +485,6 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                             <span className="text-sm font-medium text-[#2dd4a0] ml-2">{availablePowerCards} Available</span>
                             <span className="text-sm font-medium text-red-400/60 ml-1">{usedPowerCards} Used</span>
                         </h2>
-                        <Link 
-                            href={`/team/${teamId}/power-cards`}
-                            className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#2bb5cc] hover:text-[#e8ecf1] transition-colors py-1.5 px-3 rounded-full bg-[#2bb5cc]/10 hover:bg-[#2bb5cc]/20 border border-[#2bb5cc]/30"
-                        >
-                            View Details <span>→</span>
-                        </Link>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
@@ -494,32 +494,31 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                 <motion.div
                                     key={key}
                                     whileHover={{ scale: 1.05, y: -5 }}
-                                    className={`p-5 rounded-2xl text-center border backdrop-blur-sm transition-all ${card.used
+                                    className={`p-3 rounded-2xl text-center border backdrop-blur-sm transition-all ${card.used
                                         ? 'bg-red-500/5 border-red-500/20 opacity-60'
                                         : 'bg-[#0a1628]/60 border-[#2bb5cc]/20 hover:border-[#2bb5cc]/40'
                                         }`}
                                 >
                                     <div className="flex justify-center mb-3">
-                                        {/* Use image fallback to emoji if not found */}
-                                        <div className="w-12 h-12 flex items-center justify-center text-4xl">
-                                            <img 
-                                                src={`/power-cards/${key}.png`} 
+                                        <div className="relative w-24 h-32 flex items-center justify-center">
+                                            <Image 
+                                                src={getPowerCardImage(key, team.shortName)} 
                                                 alt={card.name} 
-                                                className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] mix-blend-screen"
-                                                onError={(e) => {
-                                                    // Fallback to emoji if image is missing
-                                                    e.currentTarget.style.display = 'none';
-                                                    e.currentTarget.parentElement!.innerHTML = def?.icon || '🃏';
-                                                }}
+                                                fill
+                                                className="object-contain drop-shadow-[0_0_10px_rgba(43,181,204,0.4)]"
                                             />
                                         </div>
                                     </div>
-                                    <div className="text-sm font-bold text-[#e8ecf1] mb-1">{card.name}</div>
-                                    <div className={`text-xs font-black px-3 py-1 rounded-full inline-block ${card.used
+                                    <div className="text-[10px] font-black tracking-widest text-[#e8ecf1]/40 uppercase mb-1">
+                                        {card.name}
+                                    </div>
+                                    <div className={`text-[10px] font-black px-3 py-0.5 rounded-full inline-block ${card.used
                                         ? 'bg-red-500/20 text-red-400'
-                                        : 'bg-green-500/20 text-green-400'
+                                        : (card.available || key === 'rightToMatch')
+                                            ? 'bg-green-500/20 text-green-400'
+                                            : 'bg-white/10 text-white/40'
                                         }`}>
-                                        {card.used ? 'USED' : 'READY'}
+                                        {card.used ? 'USED' : (card.available || key === 'rightToMatch') ? 'AVAILABLE' : 'UNAVAILABLE'}
                                     </div>
                                 </motion.div>
                             );

@@ -58,6 +58,11 @@ export interface AuctionState {
     boughtBy?: string;
     boughtByTeamId?: number;
 
+    // Sequence
+    currentSequenceId: number | null;
+    currentSequenceIndex: number;
+    currentItemId: string | null;
+
     // Timer
     timerSeconds: number;
     timerActive: boolean;
@@ -94,6 +99,10 @@ export const mockAuctionState: AuctionState = {
             timestamp: Date.now() - 5000,
         },
     ],
+
+    currentSequenceId: null,
+    currentSequenceIndex: 0,
+    currentItemId: null,
 
     timerSeconds: 30,
     timerActive: false,

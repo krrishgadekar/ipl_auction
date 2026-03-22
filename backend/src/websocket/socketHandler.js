@@ -40,7 +40,10 @@ export default function socketHandler(io) {
                 }
 
                 const teams = await prisma.team.findMany({
-                    include: { power_cards: true },
+                    include: {
+                        power_cards: true,
+                        team_players: { include: { player: true } },
+                    },
                     orderBy: { purse_remaining: 'desc' },
                 });
 

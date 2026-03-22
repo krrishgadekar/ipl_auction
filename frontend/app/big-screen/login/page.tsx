@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
+import { loginAdmin } from '@/lib/api/auction';
+
 export default function BigScreenLoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -23,19 +25,26 @@ export default function BigScreenLoginPage() {
         setError('');
         setLoading(true);
 
-        // Simple mock authentication for Big Screen
-        setTimeout(() => {
-            if (username === 'screen' && password === 'screen123') {
-                // Store big screen session in localStorage if needed
+        try {
+            const data = await loginAdmin(username, password);
+            
+            if (data.sessionId) {
+                // Store session token
+                localStorage.setItem('ipl_admin_token', data.sessionId);
                 localStorage.setItem('ipl_screen_auth', 'true');
                 router.push('/big-screen');
             } else {
-                setError('Invalid display credentials');
+                setError('Authentication failed');
                 setShake(true);
                 setTimeout(() => setShake(false), 600);
-                setLoading(false);
             }
-        }, 800);
+        } catch (err: any) {
+            setError(err.message || 'Connection error');
+            setShake(true);
+            setTimeout(() => setShake(false), 600);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

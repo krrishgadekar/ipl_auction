@@ -4,7 +4,7 @@
 
 'use client';
 
-import { Team } from '@/lib/mockData/teams';
+import { type Team } from '@/lib/api/teams';
 import { triggerPowerCard } from '@/lib/api/auction';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -48,9 +48,9 @@ const CARDS = [
 type CardId = typeof CARDS[number]['id'];
 
 export default function PowerCardPanel({ teams }: PowerCardPanelProps) {
-    const [selectedTeamId, setSelectedTeamId] = useState<number>(teams[0]?.id || 1);
+    const [selectedTeamId, setSelectedTeamId] = useState<string | number>(teams[0]?.id || 1);
     const [selectedCard, setSelectedCard] = useState<CardId>('godsEye');
-    const [targetTeamId, setTargetTeamId] = useState<number>(teams[1]?.id || 2);
+    const [targetTeamId, setTargetTeamId] = useState<string | number>(teams[1]?.id || 2);
     const [activating, setActivating] = useState(false);
 
     const selectedTeam = teams.find(t => t.id === selectedTeamId);
@@ -103,8 +103,8 @@ export default function PowerCardPanel({ teams }: PowerCardPanelProps) {
                 <div>
                     <label className="block text-sm mb-2" style={{ color: 'rgba(122,148,176,0.8)' }}>Activating Team</label>
                     <select
-                        value={selectedTeamId}
-                        onChange={(e) => setSelectedTeamId(Number(e.target.value))}
+                        value={String(selectedTeamId)}
+                        onChange={(e) => setSelectedTeamId(e.target.value)}
                         className="w-full px-4 py-3 rounded-xl text-white focus:outline-none"
                         style={{ background: 'rgba(14,77,94,0.2)', border: '1px solid rgba(43,181,204,0.2)' }}
                     >
@@ -171,8 +171,8 @@ export default function PowerCardPanel({ teams }: PowerCardPanelProps) {
                             ❄️ Block which team?
                         </label>
                         <select
-                            value={targetTeamId}
-                            onChange={(e) => setTargetTeamId(Number(e.target.value))}
+                            value={String(targetTeamId)}
+                            onChange={(e) => setTargetTeamId(e.target.value)}
                             className="w-full px-4 py-3 rounded-xl text-white focus:outline-none"
                             style={{ background: 'rgba(14,77,94,0.2)', border: '1px solid rgba(43,181,204,0.2)' }}
                         >

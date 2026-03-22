@@ -13,11 +13,11 @@ services:
       POSTGRES_PASSWORD: auction_pass
       POSTGRES_DB: ipl_auction
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "5444:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata2:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U auction_user -d ipl_auction"]
+      test: [ "CMD-SHELL", "pg_isready -U auction_user -d ipl_auction" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -36,7 +36,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/api/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -45,7 +45,7 @@ services:
   # ── Frontend ────────────────────────────────────────────────
   frontend:
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: "http://${CLASSROOM_IP:-localhost}:${BACKEND_PORT:-5000}"
@@ -58,5 +58,5 @@ services:
       NODE_ENV: production
 
 volumes:
-  pgdata:
+  pgdata2:
     driver: local

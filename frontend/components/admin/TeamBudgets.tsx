@@ -11,7 +11,7 @@ interface TeamBudgetsProps {
 }
 
 export default function TeamBudgets({ teams }: TeamBudgetsProps) {
-    const sortedTeams = [...teams].sort((a, b) => b.budgetRemaining - a.budgetRemaining);
+    const sortedTeams = [...teams].sort((a, b) => b.purseRemaining - a.purseRemaining);
 
     return (
         <div className="backdrop-blur-md rounded-2xl p-6" style={{ background: 'rgba(10,22,40,0.7)', border: '1px solid rgba(43,181,204,0.15)' }}>
@@ -19,7 +19,7 @@ export default function TeamBudgets({ teams }: TeamBudgetsProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {sortedTeams.map((team, index) => {
-                    const budgetPercent = (team.budgetRemaining / 120) * 100;
+                    const budgetPercent = (team.purseRemaining / 120) * 100;
                     const squadPercent = (team.squadCount / 15) * 100;
 
                     return (
@@ -47,7 +47,7 @@ export default function TeamBudgets({ teams }: TeamBudgetsProps) {
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-xs" style={{ color: 'rgba(122,148,176,0.7)' }}>Budget Remaining</span>
                                     <span className="text-sm font-bold" style={{ color: '#2dd4a0' }}>
-                                        ₹{team.budgetRemaining} CR
+                                        ₹{team.purseRemaining} CR
                                     </span>
                                 </div>
                                 <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(43,181,204,0.08)' }}>
