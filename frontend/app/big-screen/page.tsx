@@ -229,8 +229,8 @@ export default function BigScreenPage() {
                 <motion.header initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
                     className="flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center gap-2.5">
-                        <div className="relative w-14 h-14 flex items-center justify-center -ml-2 -mt-1">
-                            <Image src="/logo.png" alt="IPL" fill className="object-contain drop-shadow-lg" priority />
+                        <div className="relative w-[76px] h-[76px] flex items-center justify-center -ml-2 -mt-1 rounded-full overflow-hidden border border-[rgba(212,175,55,0.4)] shadow-[0_0_20px_rgba(43,181,204,0.15)] bg-black">
+                            <Image src="/auction_logo.jpg" alt="IPL" fill className="object-cover" priority />
                         </div>
                         <h1 className="gradient-text-animated font-black leading-none"
                             style={{ fontSize: 'clamp(1.2rem, 2.8vw, 2rem)', fontFamily: "'Cinzel', serif", letterSpacing: '0.04em' }}>
