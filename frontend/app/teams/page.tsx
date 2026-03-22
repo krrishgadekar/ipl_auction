@@ -9,11 +9,8 @@ import { Team } from '@/lib/api/teams';
 import { getAllTeams } from '@/lib/api/teams';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-<<<<<<< HEAD
 import Loader from '@/components/Loader';
-=======
 import { useAuctionSocket } from '@/lib/hooks/useAuctionSocket';
->>>>>>> 8b2a4842027df998e1d493f3bd2e83c02cec0214
 
 // Floating Particles
 function FloatingParticles() {

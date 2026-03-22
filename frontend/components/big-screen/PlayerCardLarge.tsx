@@ -3,7 +3,7 @@
 
 'use client';
 
-import { Player } from '@/lib/mockData/players';
+import { type Player } from '@/lib/api/players';
 import SubRatingsDisplay from '../SubRatingsDisplay';
 import { motion } from 'framer-motion';
 

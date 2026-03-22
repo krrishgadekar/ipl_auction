@@ -3,7 +3,7 @@
 
 'use client';
 
-import { Team } from '@/lib/mockData/teams';
+import { type Team } from '@/lib/api/teams';
 import { motion } from 'framer-motion';
 
 interface TeamBudgetsProps {

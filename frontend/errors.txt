@@ -1,0 +1,9 @@
+components/admin/FinalTeamPanel.tsx(104,30): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+components/admin/TeamBudgets.tsx(14,53): error TS2339: Property 'purseRemaining' does not exist on type 'Team'.
+components/admin/TeamBudgets.tsx(14,72): error TS2339: Property 'purseRemaining' does not exist on type 'Team'.
+components/admin/TeamBudgets.tsx(22,49): error TS2339: Property 'purseRemaining' does not exist on type 'Team'.
+components/admin/TeamBudgets.tsx(50,48): error TS2339: Property 'purseRemaining' does not exist on type 'Team'.
+components/big-screen/PlayerCardLarge.tsx(126,44): error TS2322: Type 'import("K:/IPL_NEW/IPL_AUCTION/frontend/lib/mockData/players").Player' is not assignable to type 'import("K:/IPL_NEW/IPL_AUCTION/frontend/lib/api/auction").Player'.
+  Types of property 'id' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.

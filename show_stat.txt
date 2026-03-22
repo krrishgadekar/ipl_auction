@@ -1,0 +1,41 @@
+commit 24cae8912533e172477ad6448e3ddd926352bc51
+Author: krrishgadekar <krrishgadekar@gmail.com>
+Date:   Mon Mar 23 02:47:30 2026 +0530
+
+    Fix Vercel build errors, type mismatches and merge conflicts
+
+ frontend/.next/app-build-manifest.json             |  146 +-
+ .../cache/webpack/client-development/2.pack.gz     |  Bin 1692057 -> 1624622 bytes
+ .../cache/webpack/client-development/3.pack.gz     |  Bin 10265376 -> 1809190 bytes
+ .../cache/webpack/client-development/index.pack.gz |  Bin 395778 -> 398811 bytes
+ .../webpack/client-development/index.pack.gz.old   |  Bin 393794 -> 395778 bytes
+ .../cache/webpack/server-development/1.pack.gz     |  Bin 9133747 -> 9129310 bytes
+ .../cache/webpack/server-development/2.pack.gz     |  Bin 280605 -> 650192 bytes
+ .../cache/webpack/server-development/index.pack.gz |  Bin 366214 -> 374110 bytes
+ .../webpack/server-development/index.pack.gz.old   |  Bin 362671 -> 366214 bytes
+ frontend/.next/prerender-manifest.json             |  274 +-
+ frontend/.next/react-loadable-manifest.json        |   48 +-
+ frontend/.next/server/app-paths-manifest.json      |   15 +-
+ frontend/.next/server/app/page.js                  |  329 +-
+ .../server/app/page_client-reference-manifest.js   |    2 +-
+ frontend/.next/server/middleware-build-manifest.js |   23 +-
+ .../server/middleware-react-loadable-manifest.js   |    2 +-
+ frontend/.next/server/vendor-chunks/next.js        | 3691 ----------------
+ frontend/.next/server/webpack-runtime.js           |  210 +-
+ .../_app-pages-browser_components_Logo3D_tsx.js    |  693 ---
+ .../.next/static/chunks/app-pages-internals.js     |  182 -
+ frontend/.next/static/chunks/app/layout.js         |  125 -
+ frontend/.next/static/chunks/app/page.js           | 3053 -------------
+ frontend/.next/static/chunks/main-app.js           | 1882 --------
+ frontend/.next/static/chunks/webpack.js            | 1405 ------
+ frontend/.next/static/css/app/layout.css           | 4590 --------------------
+ frontend/.next/trace                               |    3 +
+ frontend/app/big-screen/page.tsx                   |    5 -
+ frontend/app/leaderboard/page.tsx                  |    3 -
+ frontend/app/team/[id]/power-cards/page.tsx        |    3 -
+ frontend/app/teams/page.tsx                        |    3 -
+ frontend/components/admin/TeamBudgets.tsx          |    2 +-
+ frontend/components/big-screen/PlayerCardLarge.tsx |    2 +-
+ frontend/lib/api/finalTeam.ts                      |    2 +-
+ frontend/tsc-errors.txt                            |  Bin 0 -> 1984 bytes
+ 34 files changed, 466 insertions(+), 16227 deletions(-)

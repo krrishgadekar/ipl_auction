@@ -73,7 +73,7 @@ export async function lockLineup(
 
 /** Submit a team's lineup (alias for lockLineup but for ranks) */
 export async function submitTeam(
-    teamId: number,
+    teamId: string | number,
     playerRanks: number[],
     captainRank: number,
     viceCaptainRank: number,

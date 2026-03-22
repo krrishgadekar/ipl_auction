@@ -4,11 +4,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { getLeaderboard, type LeaderboardEntry } from '@/lib/api/finalTeam';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-<<<<<<< HEAD
 import Loader from '@/components/Loader';
-=======
 import { useAuctionSocket } from '@/lib/hooks/useAuctionSocket';
->>>>>>> 8b2a4842027df998e1d493f3bd2e83c02cec0214
 
 /* ─── Floating Particles ─── */
 function FloatingParticles() {

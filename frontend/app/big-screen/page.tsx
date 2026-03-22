@@ -43,12 +43,7 @@ const TEXT_SEC = 'rgba(122,148,176,0.5)';
    SPIDER CHART
    ═══════════════════════════════════════════════════════════ */
 function getStats(p: Player): { label: string; value: number; display: string }[] {
-<<<<<<< HEAD
-=======
-    const rat = { label: 'RAT', value: p.rating, display: String(p.rating) };
-    const exp = { label: 'EXP', value: p.sub_experience || 0, display: String(p.sub_experience || 0) };
 
->>>>>>> 8b2a4842027df998e1d493f3bd2e83c02cec0214
     if (p.pool === 'BAT_WK') return [
         { label: 'SCR', value: p.sub_scoring ?? 0, display: String(p.sub_scoring ?? 0) },
         { label: 'IMP', value: p.sub_impact ?? 0, display: String(p.sub_impact ?? 0) },
