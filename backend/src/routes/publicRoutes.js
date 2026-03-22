@@ -43,6 +43,10 @@ router.get('/state', async (req, res) => {
         }
 
         const teams = await prisma.team.findMany({
+            include: {
+                power_cards: true,
+                team_players: { include: { player: true } },
+            },
             orderBy: { purse_remaining: 'desc' },
         });
 
