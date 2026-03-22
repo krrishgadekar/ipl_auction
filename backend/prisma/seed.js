@@ -158,11 +158,7 @@ async function main() {
         username: username,
         password_hash: await bcrypt.hash(pass, SALT_ROUNDS),
         purse_remaining: 120,
-        squad_count: 0,
-        brand_key: fKey,
-        franchise_name: franchiseMap[fKey],
-        logo: FRANCHISE_META[fKey].logo,
-        primary_color: FRANCHISE_META[fKey].color
+        squad_count: 0
       }
     });
     credentials.push(`${username}:${pass}`);

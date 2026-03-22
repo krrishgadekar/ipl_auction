@@ -5,18 +5,26 @@
 'use client';
 
 import { useState } from 'react';
-import { Team } from '@/lib/mockData/teams';
-import { Player } from '@/lib/mockData/players';
+import { Team } from '@/lib/api/teams';
+import { Player, getAllPlayers } from '@/lib/api/players';
 import { advanceToNextObject, sellPlayer, markUnsold } from '@/lib/api/admin';
-import { getAllPlayers } from '@/lib/api/players';
 
 // Composition rules from rulebook §5
 const COMPOSITION_MAX: Record<string, number> = {
-    Batsmen: 5,
-    Bowlers: 8,
-    'All-rounders': 5,
-    Wicketkeepers: 4,
+    BAT: 5,
+    BOWL: 8,
+    AR: 5,
+    WK: 4,
 };
+
+function mapRoleToCategory(role: string): string {
+    if (!role) return 'BAT';
+    const r = role.toLowerCase();
+    if (r.includes('wk') || r.includes('wicket')) return 'WK';
+    if (r.includes('allrounder')) return 'AR';
+    if (r.includes('bowler')) return 'BOWL';
+    return 'BAT';
+}
 
 const OVERSEAS_MAX = 5;
 
@@ -25,7 +33,7 @@ interface PlayerActionsProps {
     currentPlayer?: Player | null;
     teams: Team[];
     highestBidder: string | null;
-    highestBidderId?: number | null;
+    highestBidderId?: string | null;
     totalPlayers: number;
     currentBid: number;
 }
@@ -74,19 +82,22 @@ export default function PlayerActions({
         }
 
         // ── Squad composition check ─────────────────────────────────
-        if (currentPlayer?.category) {
-            const cat = currentPlayer.category;
+        if (currentPlayer?.role || currentPlayer?.category) {
+            const role = currentPlayer.role || currentPlayer.category;
+            const cat = mapRoleToCategory(role);
             const max = COMPOSITION_MAX[cat];
+            
             if (max !== undefined) {
-                // Count how many the team already has in this category
-                // We need to fetch player details for this team's players
-                // For now, use a best-effort count using players array we get
-                // The team.players array has player ranks - we count category from mock data
-                const allPlayers = await (async () => {
-                    try { return await getAllPlayers(); } catch { return []; }
-                })();
-                const teamPlayers = allPlayers.filter((p: any) => team.players.includes(p.rank));
-                const categoryCount = teamPlayers.filter((p: any) => p.category === cat).length;
+                // Determine current count in this category
+                // Prefer counts pre-calculated on the team object if available
+                const countKeyMap: Record<string, string> = {
+                    'BAT': 'batsmanCount',
+                    'BOWL': 'bowlerCount',
+                    'AR': 'allrounderCount',
+                    'WK': 'wicketkeeperCount'
+                };
+                const countKey = countKeyMap[cat];
+                const categoryCount = (team as any)[countKey] || 0;
 
                 if (categoryCount >= max) {
                     warnings.push(`⚠️ COMPOSITION VIOLATION\n${team.shortName} already has ${categoryCount}/${max} ${cat}. This purchase would exceed the maximum!`);

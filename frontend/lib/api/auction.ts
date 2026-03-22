@@ -30,6 +30,7 @@ export interface Player {
     sub_batting?: number;
     sub_bowling?: number;
     sub_versatility?: number;
+    name?: string; // Backend-only variant
 }
 
 export interface TeamSummary {
@@ -42,10 +43,15 @@ export interface TeamSummary {
     squadLimit: number;
 }
 
+export type AuctionStatus = 'IDLE' | 'ANNOUNCING' | 'BIDDING' | 'CLOSED_BIDDING' | 'SOLD' | 'UNSOLD' | 'PRE_AUCTION' | 'POST_AUCTION' | 'COMPLETED';
+export type AuctionPhase = 'NOT_STARTED' | 'FRANCHISE_PHASE' | 'POWER_CARD_PHASE' | 'LIVE' | 'POST_AUCTION' | 'COMPLETED';
+export type PlayerStatus = 'AVAILABLE' | 'SOLD' | 'UNSOLD';
+export type AuctionDay = 'Day 1' | 'Day 2';
+
 export interface AuctionState {
-    status: 'IDLE' | 'BIDDING' | 'SOLD' | 'UNSOLD' | 'PRE_AUCTION' | 'POST_AUCTION' | 'COMPLETED' | string;
-    phase: string;
-    auctionDay: string;
+    status: AuctionStatus | string;
+    phase: AuctionPhase | string;
+    auctionDay: AuctionDay | string;
     currentPlayer: Player | null;
     currentPlayerRank: number | null;
     currentBid: number;
@@ -60,9 +66,13 @@ export interface AuctionState {
     timerSeconds?: number;
     timerActive?: boolean;
     bidFreezerTargetTeam?: string | number | null;
+    currentItemId?: string | null;
+    currentSequenceId?: number | null;
+    currentSequenceIndex?: number | null;
+    godsEyeRevealed?: boolean;
 }
 
-import { getMockAuctionState } from '../mockData/auctionState';
+// No mock data fallback in production
 
 async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
     try {
@@ -94,10 +104,7 @@ async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
         }
         return res.json();
     } catch (error) {
-        // Fallbacks for public data if backend is unreachable
-        if (path === '/api/public/auction/state') {
-            return getMockAuctionState() as any;
-        }
+        console.error(`🚀 [API Error] ${path}:`, error);
         throw error;
     }
 }
@@ -173,7 +180,7 @@ export async function checkHealth() {
 export async function placeBid(teamId: string, amount: number) {
     return fetchJSON('/api/admin/auction/bid', {
         method: 'POST',
-        body: JSON.stringify({ teamId, amount }),
+        body: JSON.stringify({ teamId, bidAmount: amount }),
     });
 }
 

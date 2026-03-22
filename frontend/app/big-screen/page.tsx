@@ -44,7 +44,7 @@ const TEXT_SEC = 'rgba(122,148,176,0.5)';
 function getStats(p: Player): { label: string; value: number; display: string }[] {
     const rat = { label: 'RAT', value: p.rating, display: String(p.rating) };
     const exp = { label: 'EXP', value: p.sub_experience || 0, display: String(p.sub_experience || 0) };
-    
+
     if (p.pool === 'BAT_WK') return [
         { label: 'SCR', value: p.sub_scoring ?? 0, display: String(p.sub_scoring ?? 0) },
         { label: 'IMP', value: p.sub_impact ?? 0, display: String(p.sub_impact ?? 0) },
@@ -200,8 +200,10 @@ export default function BigScreenPage() {
                         style={{ background: `radial-gradient(circle, ${theme.accentGlow} 0%, transparent 70%)` }}>
                         <motion.div initial={{ scale: 0, rotate: -15 }} animate={{ scale: 1, rotate: 0 }}
                             exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 300 }}
-                            style={{ fontSize: 'clamp(5rem, 14vw, 11rem)', color: theme.accent, fontFamily: "'Cinzel', serif", fontWeight: 900,
-                                textShadow: `0 0 60px ${theme.accentGlow}, 0 0 120px ${theme.accentGlow}` }}>
+                            style={{
+                                fontSize: 'clamp(5rem, 14vw, 11rem)', color: theme.accent, fontFamily: "'Cinzel', serif", fontWeight: 900,
+                                textShadow: `0 0 60px ${theme.accentGlow}, 0 0 120px ${theme.accentGlow}`
+                            }}>
                             SOLD! 🔨
                         </motion.div>
                     </motion.div>
@@ -216,9 +218,11 @@ export default function BigScreenPage() {
                         style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)' }}>
                         <motion.div initial={{ scale: 0, rotate: -15 }} animate={{ scale: 1, rotate: 0 }}
                             exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 300 }}
-                            style={{ fontSize: 'clamp(4rem, 12vw, 9rem)', fontFamily: "'Cinzel', serif", fontWeight: 900,
+                            style={{
+                                fontSize: 'clamp(4rem, 12vw, 9rem)', fontFamily: "'Cinzel', serif", fontWeight: 900,
                                 color: '#d4af37',
-                                textShadow: '0 0 60px rgba(212,175,55,0.6), 0 0 120px rgba(212,175,55,0.3)' }}>
+                                textShadow: '0 0 60px rgba(212,175,55,0.6), 0 0 120px rgba(212,175,55,0.3)'
+                            }}>
                             🎭 REVEALED!
                         </motion.div>
                     </motion.div>
@@ -561,8 +565,10 @@ export default function BigScreenPage() {
                                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: 'spring' }}
                                         className="absolute top-5 right-6 z-20">
                                         <div className="w-16 h-16 rounded-full flex flex-col items-center justify-center"
-                                            style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`,
-                                                boxShadow: `0 4px 20px ${theme.accentGlow}` }}>
+                                            style={{
+                                                background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`,
+                                                boxShadow: `0 4px 20px ${theme.accentGlow}`
+                                            }}>
                                             <span className="font-black leading-none" style={{ fontSize: '1.5rem', color: theme.badgeText, fontFamily: "'Cinzel', serif" }}>{player.rating}</span>
                                             <span className="text-[0.4rem] tracking-widest uppercase font-bold" style={{ color: `${theme.badgeText}aa` }}>OVR</span>
                                         </div>
@@ -608,8 +614,12 @@ export default function BigScreenPage() {
                                                             <span className="text-[0.65rem] font-black w-4 text-center"
                                                                 style={{ color: i < 3 ? theme.accent : `${theme.accent}50` }}>{i + 1}</span>
                                                             {/* Logo */}
-                                                            <div className="w-5 h-5 relative flex-shrink-0">
-                                                                <Image src={team.logo} alt={team.shortName} fill sizes="20px" className="object-contain" />
+                                                            <div className="w-5 h-5 relative flex-shrink-0 flex items-center justify-center rounded bg-white/5 overflow-hidden">
+                                                                {team.logo && team.logo.startsWith('/') ? (
+                                                                    <Image src={team.logo} alt={team.shortName} fill sizes="20px" className="object-contain" />
+                                                                ) : (
+                                                                    <span className="text-[0.6rem] opacity-30">🏏</span>
+                                                                )}
                                                             </div>
                                                             {/* Name */}
                                                             <span className="text-[0.75rem] font-bold text-white flex-1 min-w-0 truncate"

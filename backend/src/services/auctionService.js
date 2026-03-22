@@ -19,6 +19,19 @@ const ROLE_LIMITS = {
     WK: { min: 2, max: 4 },
 };
 
+/**
+ * Maps raw role from dataset to internal Category enum
+ * @param {string} role - e.g. "WK-Batsman", "Bowling Allrounder"
+ */
+function mapRoleToCategory(role) {
+    if (!role) return 'BAT';
+    const r = role.toLowerCase();
+    if (r.includes('wk') || r.includes('wicket')) return 'WK';
+    if (r.includes('allrounder')) return 'AR';
+    if (r.includes('bowler')) return 'BOWL';
+    return 'BAT';
+}
+
 // Rulebook §4 — Bid increments (in CR)
 const BID_INCREMENT_RULES = [
     { maxBid: 5, increment: 0.20 },
@@ -167,7 +180,8 @@ async function sellPlayer(playerId, teamId, pricePaid) {
 
         // 8. Role composition check
         const roleCounts = await getTeamRoleCounts(tx, teamId);
-        const roleError = wouldViolateRoleLimits(roleCounts, player.category, team.squad_count);
+        const playerCategory = mapRoleToCategory(player.role);
+        const roleError = wouldViolateRoleLimits(roleCounts, playerCategory, team.squad_count);
         if (roleError) {
             throw new Error(roleError);
         }
@@ -188,12 +202,21 @@ async function sellPlayer(playerId, teamId, pricePaid) {
         // ── All validations passed. Execute sale. ────────────────
 
         // 11. Deduct purse + update counters
+        const categoryKeyMap = {
+            'BAT': 'batsmen_count',
+            'BOWL': 'bowlers_count',
+            'AR': 'ar_count',
+            'WK': 'wk_count'
+        };
+        const categoryKey = categoryKeyMap[playerCategory];
+
         await tx.team.update({
             where: { id: teamId },
             data: {
                 purse_remaining: { decrement: pricePaid },
                 squad_count: { increment: 1 },
                 overseas_count: player.nationality === 'OVERSEAS' ? { increment: 1 } : undefined,
+                [categoryKey]: { increment: 1 }
             }
         });
 
@@ -271,9 +294,26 @@ async function markUnsold(playerId) {
                 active_power_card_team: null,
                 bid_frozen_team_id: null,
                 gods_eye_revealed: false,
-                timer_active: false,
             }
         });
+
+        // Push player back to the end of the current sequence
+        if (state.current_sequence_id) {
+            const sequence = await tx.auctionSequence.findUnique({
+                where: { id: state.current_sequence_id }
+            });
+            if (sequence) {
+                let currentItems = Array.isArray(sequence.sequence_items) ? sequence.sequence_items : [];
+                const player = await tx.player.findUnique({ where: { id: playerId } });
+                if (player) {
+                    currentItems.push(player.rank);
+                    await tx.auctionSequence.update({
+                        where: { id: sequence.id },
+                        data: { sequence_items: currentItems }
+                    });
+                }
+            }
+        }
 
         await logAudit(tx, 'MARK_UNSOLD', { playerId });
 
@@ -424,6 +464,25 @@ async function usePowerCard(teamId, type, targetTeamId = null) {
                     highest_bidder_id: null,
                 },
             });
+
+            // Push player back to sequence
+            if (state.current_sequence_id && state.current_player_id) {
+                const sequence = await tx.auctionSequence.findUnique({
+                    where: { id: state.current_sequence_id }
+                });
+                if (sequence) {
+                    let currentItems = Array.isArray(sequence.sequence_items) ? sequence.sequence_items : [];
+                    const player = await tx.player.findUnique({ where: { id: state.current_player_id } });
+                    if (player) {
+                        currentItems.push(player.rank);
+                        await tx.auctionSequence.update({
+                            where: { id: sequence.id },
+                            data: { sequence_items: currentItems }
+                        });
+                    }
+                }
+            }
+
             effect.playerReset = true;
         }
 
@@ -457,8 +516,8 @@ async function useRTM(teamId, playerId, finalBid) {
         const team = await tx.team.findUnique({ where: { id: teamId } });
         if (!team) throw new Error('Team not found');
 
-        if (player.team !== team.brand_key) {
-            throw new Error(`RTM Violation: Team ${team.brand_key} cannot RTM a player from ${player.team}`);
+        if (p.team !== team.brand_key) {
+            throw new Error(`RTM Violation: Team ${team.brand_key} cannot RTM a player from ${p.team}`);
         }
 
         // Validate purse for RTM (must match final bid + card cost)
@@ -494,6 +553,14 @@ async function useRTM(teamId, playerId, finalBid) {
         if (roleError) throw new Error(roleError);
 
         // ── Execute RTM: reverse original sale, assign to RTM team ──
+        const playerCategory = mapRoleToCategory(p.role);
+        const categoryKeyMap = {
+            'BAT': 'batsmen_count',
+            'BOWL': 'bowlers_count',
+            'AR': 'ar_count',
+            'WK': 'wk_count'
+        };
+        const categoryKey = categoryKeyMap[playerCategory];
 
         // 1. Refund previous buyer
         if (previousTeamId) {
@@ -502,7 +569,8 @@ async function useRTM(teamId, playerId, finalBid) {
                 data: {
                     purse_remaining: { increment: previousPrice },
                     squad_count: { decrement: 1 },
-                    overseas_count: player.nationality === 'OVERSEAS' ? { decrement: 1 } : undefined,
+                    overseas_count: p.nationality === 'OVERSEAS' ? { decrement: 1 } : undefined,
+                    [categoryKey]: { decrement: 1 }
                 },
             });
 
@@ -518,7 +586,8 @@ async function useRTM(teamId, playerId, finalBid) {
             data: {
                 purse_remaining: { decrement: totalCost },
                 squad_count: { increment: 1 },
-                overseas_count: player.nationality === 'OVERSEAS' ? { increment: 1 } : undefined,
+                overseas_count: p.nationality === 'OVERSEAS' ? { increment: 1 } : undefined,
+                [categoryKey]: { increment: 1 }
             },
         });
 
@@ -1051,10 +1120,20 @@ async function updateDisplayState(updates) {
 // ═══════════════════════════════════════════════════════════════
 // DEASSIGN PLAYER — Admin Only
 // ═══════════════════════════════════════════════════════════════
-async function deassignPlayer(playerId) {
+async function deassignPlayer(playerIdOrRank) {
     return await prisma.$transaction(async (tx) => {
         const state = await tx.auctionState.findUnique({ where: { id: 1 } });
         
+        let player;
+        if (typeof playerIdOrRank === 'number' || !isNaN(Number(playerIdOrRank))) {
+            player = await tx.player.findUnique({ where: { rank: Number(playerIdOrRank) } });
+        } else {
+            player = await tx.player.findUnique({ where: { id: playerIdOrRank } });
+        }
+
+        if (!player) throw new Error('Player not found');
+        const playerId = player.id;
+
         const auctionPlayer = await tx.auctionPlayer.findUnique({ where: { player_id: playerId } });
         if (!auctionPlayer || auctionPlayer.status !== 'SOLD') {
             throw new Error('Player is not sold yet or not found');
@@ -1064,15 +1143,27 @@ async function deassignPlayer(playerId) {
         const pricePaid = Number(auctionPlayer.sold_price);
         
         const team = await tx.team.findUnique({ where: { id: teamId } });
-        const player = await tx.player.findUnique({ where: { id: playerId } });
+        player = await tx.player.findUnique({ where: { id: playerId } });
         
         // 1. Refund purse & update squad counts
+        const playerCategory = mapRoleToCategory(player.role);
+        const categoryKeyMap = {
+            'BAT': 'batsmen_count',
+            'BOWL': 'bowlers_count',
+            'AR': 'ar_count',
+            'WK': 'wk_count'
+        };
+        const categoryKey = categoryKeyMap[playerCategory];
+
+        console.log(`[DEASSIGN] Refunding Team ${team.name} (ID: ${teamId}): ₹${pricePaid} CR for Player #${player.rank}`);
+
         await tx.team.update({
             where: { id: teamId },
             data: {
                 purse_remaining: { increment: pricePaid },
                 squad_count: { decrement: 1 },
                 overseas_count: player.nationality === 'OVERSEAS' ? { decrement: 1 } : undefined,
+                [categoryKey]: { decrement: 1 }
             }
         });
 

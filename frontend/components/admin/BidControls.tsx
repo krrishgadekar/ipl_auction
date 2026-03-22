@@ -6,9 +6,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Team } from '@/lib/mockData/teams';
-import { placeBid, updateAuctionStatus } from '@/lib/api/auction';
-import { MAX_BID } from '@/lib/mockData/auctionState';
+import { type Team } from '@/lib/api/teams';
+import { placeBid, updateAuctionPhase } from '@/lib/api/auction';
+import { MAX_BID, getIncrement, roundToCr as r2 } from '@/lib/constants';
 
 interface BidControlsProps {
     teams: Team[];
@@ -17,25 +17,17 @@ interface BidControlsProps {
     status: string;
 }
 
-/** Returns the correct increment per rulebook §4 */
-function getIncrement(bid: number): number {
-    return bid < 5 ? 0.2 : 0.25;
-}
-
-/** Round to 2 decimal places to avoid floating point drift */
-function r2(n: number): number {
-    return Math.round(n * 100) / 100;
-}
+// getIncrement and r2 moved to constants.ts
 
 export default function BidControls({ teams, currentBid, baseBid, status }: BidControlsProps) {
-    const [selectedTeamId, setSelectedTeamId] = useState<number>(teams[0]?.id || 1);
+    const [selectedTeamId, setSelectedTeamId] = useState<string | number>(teams[0]?.id || 1);
     const [bidAmount, setBidAmount] = useState<number>(r2(currentBid + getIncrement(currentBid)));
     const [placing, setPlacing] = useState(false);
     const [triggeringClosed, setTriggeringClosed] = useState(false);
 
     // Closed Bidding state
-    const [sealedBids, setSealedBids] = useState<Record<number, string>>({});
-    const [submittingSealed, setSubmittingSealed] = useState<number | null>(null);
+    const [sealedBids, setSealedBids] = useState<Record<string | number, string>>({});
+    const [submittingSealed, setSubmittingSealed] = useState<string | number | null>(null);
     const [godsEyeRevealed, setGodsEyeRevealed] = useState(false);
     const [highestSealedBidder, setHighestSealedBidder] = useState<{ team: Team; amount: number } | null>(null);
 
@@ -73,11 +65,11 @@ export default function BidControls({ teams, currentBid, baseBid, status }: BidC
         try {
             // Auto-trigger Closed Bidding if hitting 25 CR
             if (bidAmount >= MAX_BID) {
-                await placeBid(String(selectedTeam.id), selectedTeam.name, MAX_BID);
-                await updateAuctionStatus('CLOSED_BIDDING');
+                await placeBid(String(selectedTeam.id), MAX_BID);
+                await updateAuctionPhase('CLOSED_BIDDING');
                 return;
             }
-            await placeBid(String(selectedTeam.id), selectedTeam.name, bidAmount);
+            await placeBid(String(selectedTeam.id), bidAmount);
         } catch (error) {
             console.error('Failed to place bid:', error);
         } finally {
@@ -88,7 +80,7 @@ export default function BidControls({ teams, currentBid, baseBid, status }: BidC
     const handleTriggerClosedBidding = async () => {
         setTriggeringClosed(true);
         try {
-            await updateAuctionStatus('CLOSED_BIDDING');
+            await updateAuctionPhase('CLOSED_BIDDING');
         } catch (e) {
             console.error(e);
         } finally {
@@ -96,7 +88,7 @@ export default function BidControls({ teams, currentBid, baseBid, status }: BidC
         }
     };
 
-    const handleSealedBidChange = (teamId: number, value: string) => {
+    const handleSealedBidChange = (teamId: string | number, value: string) => {
         setSealedBids(prev => ({ ...prev, [teamId]: value }));
     };
 
@@ -106,7 +98,7 @@ export default function BidControls({ teams, currentBid, baseBid, status }: BidC
         if (isNaN(amount) || amount <= 0) return;
         setSubmittingSealed(team.id);
         try {
-            await placeBid(String(team.id), team.name, amount);
+            await placeBid(String(team.id), amount);
         } catch (e) {
             console.error('Failed to submit sealed bid:', e);
         } finally {
@@ -132,7 +124,7 @@ export default function BidControls({ teams, currentBid, baseBid, status }: BidC
 
     const canPlaceBid = bidAmount > currentBid
         && selectedTeam
-        && selectedTeam.budgetRemaining >= bidAmount
+        && (selectedTeam as any).purseRemaining >= bidAmount
         && !isClosedBidding;
 
     const submittedTeams = Object.entries(sealedBids).filter(([, v]) => parseFloat(v) > 0).length;
@@ -190,7 +182,7 @@ export default function BidControls({ teams, currentBid, baseBid, status }: BidC
                                     <input
                                         type="number"
                                         min={MAX_BID}
-                                        max={team.budgetRemaining}
+                                        max={(team as any).purseRemaining}
                                         step={0.25}
                                         placeholder="CR amount"
                                         value={val}
@@ -259,7 +251,7 @@ export default function BidControls({ teams, currentBid, baseBid, status }: BidC
 
                     {/* Return to Open Bidding */}
                     <button
-                        onClick={() => updateAuctionStatus('BIDDING')}
+                        onClick={() => updateAuctionPhase('BIDDING')}
                         className="w-full py-2 rounded-xl text-xs font-bold transition-all"
                         style={{ background: 'rgba(43,181,204,0.05)', border: '1px solid rgba(43,181,204,0.12)', color: 'rgba(43,181,204,0.5)' }}
                     >
@@ -272,14 +264,14 @@ export default function BidControls({ teams, currentBid, baseBid, status }: BidC
                     <div className="mb-4">
                         <label className="block text-sm mb-2" style={{ color: 'rgba(122,148,176,0.8)' }}>Bidding Team</label>
                         <select
-                            value={selectedTeamId}
-                            onChange={(e) => setSelectedTeamId(Number(e.target.value))}
+                            value={String(selectedTeamId)}
+                            onChange={(e) => setSelectedTeamId(e.target.value)}
                             className="w-full px-4 py-3 rounded-xl text-white focus:outline-none"
                             style={{ background: 'rgba(14,77,94,0.2)', border: '1px solid rgba(43,181,204,0.2)' }}
                         >
                             {teams.map(team => (
                                 <option key={team.id} value={team.id} className="bg-slate-900">
-                                    {team.shortName} — ₹{team.budgetRemaining} CR left
+                                    {team.shortName} — ₹{(team as any).purseRemaining} CR left
                                 </option>
                             ))}
                         </select>
@@ -387,10 +379,10 @@ export default function BidControls({ teams, currentBid, baseBid, status }: BidC
                     </button>
 
                     {/* Budget Warning */}
-                    {selectedTeam && bidAmount > selectedTeam.budgetRemaining && (
+                    {selectedTeam && bidAmount > (selectedTeam as any).purseRemaining && (
                         <div className="mt-3 p-3 rounded-xl" style={{ background: 'rgba(231,76,94,0.1)', border: '1px solid rgba(231,76,94,0.3)' }}>
                             <div className="text-sm" style={{ color: '#e74c5e' }}>
-                                ⚠️ Insufficient budget! {selectedTeam.shortName} has only ₹{selectedTeam.budgetRemaining} CR left.
+                                ⚠️ Insufficient budget! {selectedTeam.shortName} has only ₹{(selectedTeam as any).purseRemaining} CR left.
                             </div>
                         </div>
                     )}

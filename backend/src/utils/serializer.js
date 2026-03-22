@@ -56,12 +56,12 @@ export function serializeTeam(t) {
         squadCount: t.squad_count,
         squadLimit: SQUAD_LIMIT,
         overseasCount: t.overseas_count,
-        batsmanCount: t.batsman_count,
-        bowlerCount: t.bowler_count,
-        allrounderCount: t.allrounder_count,
-        wicketkeeperCount: t.wicketkeeper_count,
+        batsmanCount: t.batsmen_count,
+        bowlerCount: t.bowlers_count,
+        allrounderCount: t.ar_count,
+        wicketkeeperCount: t.wk_count,
         brandScore: Number(t.brand_score),
-        logo: t.logo || '🏏', // fallback emoji
+        logo: t.logo || null, // fallback to null for safety
         // Power cards transform (array → named object for frontend)
         ...(t.power_cards ? {
             powerCards: transformPowerCards(t.power_cards),

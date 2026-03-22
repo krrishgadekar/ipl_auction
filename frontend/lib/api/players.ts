@@ -11,6 +11,7 @@ export interface Player {
     player: string; // name
     name?: string;
     team: string;
+    role: string;
     category: string;
     pool: string;
     grade: string;

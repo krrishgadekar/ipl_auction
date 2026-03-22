@@ -4,23 +4,24 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Team } from '@/lib/mockData/teams';
-import { Player, getMockPlayerByRank } from '@/lib/mockData/players';
-import { TOP11_COMPOSITION, validateTop11 } from '@/lib/mockData/finalTeamState';
-import { submitTeam, validateSelection } from '@/lib/api/finalTeam';
+import { type Team } from '@/lib/api/teams';
+import { type Player } from '@/lib/api/players';
+import { TOP11_COMPOSITION, validateTop11 } from '@/lib/logic/finalTeam';
+import { submitTeam } from '@/lib/api/finalTeam';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FinalTeamPanelProps {
     teams: Team[];
+    allPlayers: Player[];
 }
 
-export default function FinalTeamPanel({ teams }: FinalTeamPanelProps) {
-    const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
+export default function FinalTeamPanel({ teams, allPlayers }: FinalTeamPanelProps) {
+    const [selectedTeamId, setSelectedTeamId] = useState<string | number | null>(null);
     const [selectedRanks, setSelectedRanks] = useState<Set<number>>(new Set());
     const [captainRank, setCaptainRank] = useState<number | null>(null);
     const [vcRank, setVcRank] = useState<number | null>(null);
     const [submitting, setSubmitting] = useState(false);
-    const [submitted, setSubmitted] = useState<Set<number>>(new Set());
+    const [submitted, setSubmitted] = useState<Set<string | number>>(new Set());
     const [successMsg, setSuccessMsg] = useState('');
 
     const selectedTeam = teams.find(t => t.id === selectedTeamId) ?? null;
@@ -29,14 +30,14 @@ export default function FinalTeamPanel({ teams }: FinalTeamPanelProps) {
     const teamPlayers: Player[] = useMemo(() => {
         if (!selectedTeam) return [];
         return selectedTeam.players
-            .map(r => getMockPlayerByRank(r))
+            .map(r => allPlayers.find(p => p.rank === r))
             .filter((p): p is Player => !!p);
-    }, [selectedTeam]);
+    }, [selectedTeam, allPlayers]);
 
     // Group players by category
     const grouped = useMemo(() => {
         const groups: Record<string, Player[]> = {
-            Batsmen: [], Bowlers: [], 'All-rounders': [], Wicketkeepers: [],
+            BAT: [], BOWL: [], AR: [], WK: [],
         };
         teamPlayers.forEach(p => {
             if (groups[p.category]) groups[p.category].push(p);
@@ -57,7 +58,7 @@ export default function FinalTeamPanel({ teams }: FinalTeamPanelProps) {
     // Category counts in current selection
     const categoryCounts = useMemo(() => {
         const counts: Record<string, number> = {
-            Batsmen: 0, Bowlers: 0, 'All-rounders': 0, Wicketkeepers: 0,
+            BAT: 0, BOWL: 0, AR: 0, WK: 0,
         };
         selectedRanks.forEach(r => {
             const p = teamPlayers.find(pl => pl.rank === r);
@@ -88,7 +89,7 @@ export default function FinalTeamPanel({ teams }: FinalTeamPanelProps) {
         setSelectedRanks(next);
     }
 
-    function handleTeamChange(id: number) {
+    function handleTeamChange(id: string | number) {
         setSelectedTeamId(id);
         setSelectedRanks(new Set());
         setCaptainRank(null);
@@ -100,8 +101,8 @@ export default function FinalTeamPanel({ teams }: FinalTeamPanelProps) {
         if (!selectedTeamId || !captainRank || !vcRank || !validation.valid) return;
         setSubmitting(true);
         try {
-            await submitTeam(selectedTeamId, Array.from(selectedRanks), captainRank, vcRank);
-            setSubmitted(prev => new Set(prev).add(selectedTeamId));
+            await submitTeam(String(selectedTeamId), Array.from(selectedRanks), captainRank, vcRank);
+            setSubmitted(prev => new Set(prev).add(selectedTeamId as any));
             setSuccessMsg(`✅ ${selectedTeam?.name} Top 11 submitted!`);
         } catch (err) {
             console.error(err);
@@ -111,13 +112,13 @@ export default function FinalTeamPanel({ teams }: FinalTeamPanelProps) {
     }
 
     const categoryEmojis: Record<string, string> = {
-        Batsmen: '🏏', Bowlers: '🎳', 'All-rounders': '⚡', Wicketkeepers: '🧤',
+        BAT: '🏏', BOWL: '🎳', AR: '⚡', WK: '🧤',
     };
     const categoryRequired: Record<string, number> = {
-        Batsmen: TOP11_COMPOSITION.Batsmen.required,
-        Bowlers: TOP11_COMPOSITION.Bowlers.required,
-        Wicketkeepers: TOP11_COMPOSITION.Wicketkeepers.required,
-        'All-rounders': TOP11_COMPOSITION['All-rounders'].required,
+        BAT: TOP11_COMPOSITION.BAT.required,
+        BOWL: TOP11_COMPOSITION.BOWL.required,
+        WK: TOP11_COMPOSITION.WK.required,
+        AR: TOP11_COMPOSITION.AR.required,
     };
 
     return (
@@ -189,7 +190,7 @@ export default function FinalTeamPanel({ teams }: FinalTeamPanelProps) {
                                         {have}/{req}
                                     </div>
                                     <div className="text-[0.6rem]" style={{ color: 'rgba(122,148,176,0.5)' }}>
-                                        {cat.replace('men', '').replace('ers', '')}
+                                        {cat}
                                     </div>
                                 </div>
                             );

@@ -17,11 +17,16 @@ export interface Team {
     name: string;
     shortName: string;
     logo: string;
-    budgetRemaining: number;
+    primaryColor?: string;
+    secondaryColor?: string;
+    franchiseName?: string;
+    purseRemaining: number;
+    budgetRemaining: number; // Alias for Big Screen compatibility
     budgetUsed: number;
     totalBudget: number;
     squadCount: number;
     squadLimit: number;
+    overseasCount: number;
     players: number[]; // Array of player ranks
     powerCards: Record<string, PowerCard>;
 }

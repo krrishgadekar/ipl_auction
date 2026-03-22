@@ -4,12 +4,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { type AuctionStatus, type PlayerStatus, type AuctionDay } from '@/lib/mockData/auctionState';
-import { Team } from '@/lib/mockData/teams';
-import { getAuctionState, subscribeToAuctionUpdates, updateAuctionPhase, type AuctionState } from '@/lib/api/auction';
-import { AUCTIONABLE_POWER_CARDS } from '@/lib/mockData/powercards';
-import { getAllTeams } from '@/lib/api/teams';
-import { getAllPlayers } from '@/lib/api/players';
+import { type AuctionStatus, type PlayerStatus, type AuctionDay, getAuctionState, subscribeToAuctionUpdates, updateAuctionPhase, type AuctionState } from '@/lib/api/auction';
+import { type Team, getAllTeams } from '@/lib/api/teams';
+import { type Player, getAllPlayers } from '@/lib/api/players';
 import AdminDashboardControls from '@/components/admin/AdminDashboardControls';
 import AuctionTimer from '@/components/AuctionTimer';
 import { motion } from 'framer-motion';
@@ -18,6 +15,7 @@ import { useRouter } from 'next/navigation';
 export default function AdminPage() {
     const [auctionState, setAuctionState] = useState<AuctionState | null>(null);
     const [teams, setTeams] = useState<Team[]>([]);
+    const [allPlayers, setAllPlayers] = useState<Player[]>([]);
     const [totalPlayers, setTotalPlayers] = useState(8);
     const [loading, setLoading] = useState(true);
     const [isAuth, setIsAuth] = useState<boolean | null>(null);
@@ -56,6 +54,7 @@ export default function AdminPage() {
                 ]);
                 setAuctionState(state);
                 setTeams(teamsData as any);
+                setAllPlayers(playersData);
                 setTotalPlayers(playersData.length);
                 setLoading(false);
             } catch (error) {
@@ -179,7 +178,11 @@ export default function AdminPage() {
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                 >
-                    <AdminDashboardControls teams={teams} state={auctionState as any} />
+                    <AdminDashboardControls 
+                        teams={teams} 
+                        state={auctionState as any} 
+                        allPlayers={allPlayers}
+                    />
                 </motion.div>
             </div>
         </div>

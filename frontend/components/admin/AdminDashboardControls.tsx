@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Team } from '@/lib/api/teams';
 import { AuctionState } from '@/lib/api/auction';
+import { type Player } from '@/lib/api/players';
+import FinalTeamPanel from './FinalTeamPanel';
 import { 
     setPhase, setAuctionDay, advanceToNextObject, 
     assignFranchise, assignPlayer, deassignPlayer,
@@ -13,6 +15,7 @@ import {
 interface AdminDashboardControlsProps {
     teams: Team[];
     state: AuctionState;
+    allPlayers: Player[];
 }
 
 interface Sequence {
@@ -36,7 +39,7 @@ const POWER_CARDS = [
     'GOD_EYE', 'MULLIGAN', 'FINAL_STRIKE', 'BID_FREEZER', 'RIGHT_TO_MATCH'
 ];
 
-export default function AdminDashboardControls({ teams, state }: AdminDashboardControlsProps) {
+export default function AdminDashboardControls({ teams, state, allPlayers }: AdminDashboardControlsProps) {
     const [selectedPhase, setSelectedPhase] = useState((state as any).phase || state.status || 'NOT_STARTED');
     const [selectedDay, setSelectedDay] = useState<'Day 1' | 'Day 2'>((state.auctionDay as any) || 'Day 1');
     const [selectedTeam, setSelectedTeam] = useState('');
@@ -100,8 +103,11 @@ export default function AdminDashboardControls({ teams, state }: AdminDashboardC
             const p = state.currentPlayer;
             return (
                 <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 rounded-full bg-black/40 border border-white/20 overflow-hidden flex items-center justify-center text-4xl">
+                    <div className="relative w-20 h-20 rounded-xl bg-black/40 border border-white/20 overflow-hidden flex items-center justify-center text-4xl shadow-inner shadow-cyan-500/20">
                         {p.isRiddle ? '🎭' : '👤'}
+                        <div className="absolute top-0 right-0 bg-cyan-600 text-[10px] font-black px-1.5 py-0.5 rounded-bl-lg text-white border-l border-b border-white/10">
+                            #{p.rank}
+                        </div>
                     </div>
                     <div>
                         <div className="text-[10px] text-blue-300 uppercase font-black tracking-widest mb-1">Current Player</div>
@@ -321,7 +327,7 @@ export default function AdminDashboardControls({ teams, state }: AdminDashboardC
                                 <option value="">Select Team...</option>
                                 {teams.map(t => (
                                     <option key={t.id} value={t.id.toString()}>
-                                        {t.name} (₹{t.budgetRemaining} CR)
+                                        {t.name} (₹{t.purseRemaining} CR)
                                     </option>
                                 ))}
                             </select>
@@ -375,12 +381,12 @@ export default function AdminDashboardControls({ teams, state }: AdminDashboardC
                                         </td>
                                         <td className="p-3">
                                             <div className="flex items-center gap-2">
-                                                <div className={`font-black text-sm ${team.budgetRemaining < 10 ? 'text-red-400' : 'text-green-400'}`}>
-                                                    ₹{team.budgetRemaining} CR
+                                                <div className={`font-black text-lg ${team.budgetRemaining < 10 ? 'text-red-400' : 'text-green-400'}`}>
+                                                    ₹{team.budgetRemaining} <span className="text-[10px] opacity-40">CR</span>
                                                 </div>
                                                 <button 
                                                     onClick={() => handleFineTeam(team.id.toString(), team.name)}
-                                                    className="p-1 hover:bg-red-500/20 rounded text-red-500/40 hover:text-red-500 transition-colors"
+                                                    className="p-1.5 bg-red-500/10 hover:bg-red-500/30 rounded-lg text-red-500/60 hover:text-red-500 border border-red-500/20 hover:border-red-500/50 transition-all flex items-center justify-center text-lg"
                                                     title="Fine Team"
                                                 >
                                                     💸
@@ -390,7 +396,7 @@ export default function AdminDashboardControls({ teams, state }: AdminDashboardC
                                         <td className="p-3">
                                             <div className="text-white/80 font-bold">{team.squadCount || 0} / {team.squadLimit}</div>
                                             <div className="text-[10px] text-white/40 font-mono mt-0.5 whitespace-nowrap">
-                                                <span>B:{ (team as any).batsmanCount || 0 }</span>
+                                                <span>B:{(team as any).batsmanCount || 0}</span>
                                                 <span className="mx-1">|</span>
                                                 <span>Bo:{(team as any).bowlerCount || 0}</span>
                                                 <span className="mx-1">|</span>
@@ -403,46 +409,76 @@ export default function AdminDashboardControls({ teams, state }: AdminDashboardC
                                             </div>
                                         </td>
                                         <td className="p-3">
-                                            <div className="flex gap-1 flex-wrap max-w-[150px]">
-                                                {Object.entries(team.powerCards || {}).map(([key, card]: [string, any]) => {
-                                                    const typeKey = {
-                                                        finalStrike: 'FINAL_STRIKE',
-                                                        bidFreezer: 'BID_FREEZER',
-                                                        godsEye: 'GOD_EYE',
-                                                        mulligan: 'MULLIGAN',
-                                                        rightToMatch: 'RIGHT_TO_MATCH'
-                                                    }[key] || key;
-                                                    
+                                            <div className="flex gap-1 flex-wrap max-w-[180px]">
+                                                {POWER_CARDS.map(type => {
+                                                    const cardKey = {
+                                                        'FINAL_STRIKE': 'finalStrike',
+                                                        'BID_FREEZER': 'bidFreezer',
+                                                        'GOD_EYE': 'godsEye',
+                                                        'MULLIGAN': 'mulligan',
+                                                        'RIGHT_TO_MATCH': 'rightToMatch'
+                                                    }[type] || type;
+
+                                                    const card = (team.powerCards as any)?.[cardKey];
+                                                    const isAssigned = card?.available === true;
+                                                    const isUsed = card?.used === true;
+
                                                     return (
                                                         <span 
-                                                            key={key}
-                                                            onClick={() => handleTogglePowerCard(team.id.toString(), typeKey, card.used)}
-                                                            className={`px-1.5 py-0.5 rounded-[3px] text-[8px] font-black uppercase cursor-pointer transition-all border ${
-                                                                card.used 
-                                                                    ? 'bg-red-500/20 border-red-500/30 text-red-500/40 line-through' 
-                                                                    : 'bg-blue-500/20 border-blue-500/30 text-blue-300 hover:bg-blue-500/40'
+                                                            key={type}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (!isAssigned) {
+                                                                    if (window.confirm(`Assign ${type} to ${team.name}?`)) {
+                                                                        withLoading(() => assignPowerCard(team.id.toString(), type, 1.0));
+                                                                    }
+                                                                } else {
+                                                                    handleTogglePowerCard(team.id.toString(), type, isUsed);
+                                                                }
+                                                            }}
+                                                            onContextMenu={(e) => {
+                                                                e.preventDefault();
+                                                                if (isAssigned && !isUsed) {
+                                                                    if (window.confirm(`Remove/Deassign ${type} from ${team.name}?`)) {
+                                                                        withLoading(() => deassignPowerCard(team.id.toString(), type));
+                                                                    }
+                                                                }
+                                                            }}
+                                                            className={`px-2 py-0.5 rounded text-[9px] font-black uppercase cursor-pointer transition-all border ${
+                                                                !isAssigned 
+                                                                    ? 'bg-black/40 border-white/5 text-white/10 hover:border-white/20' 
+                                                                    : isUsed
+                                                                        ? 'bg-red-500/20 border-red-500/40 text-red-500 line-through decoration-2'
+                                                                        : 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400 hover:scale-105 shadow-[0_0_10px_rgba(16,185,129,0.2)]'
                                                             }`}
-                                                            title={`Click to toggle: ${card.used ? 'Available' : 'Used'}`}
+                                                            title={!isAssigned ? 'Click to Assign' : isUsed ? 'Click to mark Available' : 'Click to mark Used | Right-click to Deassign'}
                                                         >
-                                                            {key.substring(0, 3)}
+                                                            {type === 'RIGHT_TO_MATCH' ? 'RTM' : type.split('_').map(w => w[0]).join('')}
                                                         </span>
                                                     );
                                                 })}
                                             </div>
                                         </td>
                                         <td className="p-3">
-                                            <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                            <div className="flex flex-wrap gap-1">
                                                 {team.players && team.players.length > 0 ? (
                                                     team.players.map(pRank => (
-                                                        <div key={pRank} className="group relative flex items-center bg-white/5 border border-white/10 rounded px-1.5 py-0.5 hover:border-red-500/50 transition-colors">
-                                                            <span className="text-white/60 font-mono text-[10px]">#{pRank}</span>
+                                                        <div key={pRank} className="group relative flex items-center bg-white/5 border border-white/10 rounded-md px-3 py-1.5 hover:border-red-500/60 transition-all hover:bg-red-500/5">
+                                                            <span className="text-white/80 font-mono text-xs font-bold">#{pRank}</span>
                                                             <button 
-                                                                onClick={() => {
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
                                                                     if (window.confirm(`Deassign player #${pRank} from ${team.name}?`)) {
-                                                                        withLoading(() => deassignPlayer(pRank.toString()));
+                                                                        withLoading(async () => {
+                                                                            console.log(`Deassigning player rank: ${pRank}`);
+                                                                            await deassignPlayer(pRank.toString());
+                                                                            // Force state refresh
+                                                                            setTimeout(() => window.location.reload(), 800);
+                                                                        });
                                                                     }
                                                                 }}
-                                                                className="ml-1 text-[8px] text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                className="ml-1.5 p-1 bg-red-500/10 hover:bg-red-500/30 rounded text-red-500/60 hover:text-red-500 border border-red-500/20 hover:border-red-500/40 transition-all flex items-center justify-center text-xs w-6 h-6"
+                                                                title="Deassign Player"
                                                             >
                                                                 ✕
                                                             </button>
