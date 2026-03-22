@@ -12,6 +12,9 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { preloadImages } from '@/lib/utils/playerImage';
 import Loader from '@/components/Loader';
+import dynamic from 'next/dynamic';
+
+const Logo3D = dynamic(() => import('@/components/Logo3D'), { ssr: false });
 
 /* ═══════════════════════════════════════════════════════════
    GRADE THEMES — Consistent Background, Colored Accents
@@ -229,7 +232,9 @@ export default function BigScreenPage() {
                 <motion.header initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
                     className="flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center gap-2.5">
-                        <div className="relative w-8 h-8"><Image src="/logo.png" alt="IPL" fill className="object-contain" priority /></div>
+                        <div className="relative w-12 h-12 flex items-center justify-center" style={{ marginTop: '-4px' }}>
+                            <Logo3D />
+                        </div>
                         <h1 className="gradient-text-animated font-black leading-none"
                             style={{ fontSize: 'clamp(1.2rem, 2.8vw, 2rem)', fontFamily: "'Cinzel', serif", letterSpacing: '0.04em' }}>
                             IPL AUCTION 2026</h1>
@@ -244,10 +249,6 @@ export default function BigScreenPage() {
                             style={{ background: 'rgba(231,76,94,0.1)', border: '1px solid rgba(231,76,94,0.25)' }}>
                             <div className="w-2 h-2 rounded-full status-pulse" style={{ background: '#e74c5e' }} />
                             <span className="font-black" style={{ color: '#e74c5e', fontFamily: "'Cinzel', serif", fontSize: '0.8rem' }}>LIVE</span>
-                        </motion.div>
-                        <motion.div key={auctionState.status} initial={{ scale: 0 }} animate={{ scale: 1 }}
-                            className="px-3 py-1 rounded-full font-black" style={{ background: ss.bg, color: ss.text, border: `1px solid ${ss.bdr}`, fontFamily: "'Cinzel', serif", fontSize: '0.75rem' }}>
-                            {auctionState.status.replace('_', ' ')}
                         </motion.div>
                     </div>
                 </motion.header>
