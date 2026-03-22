@@ -44,29 +44,21 @@ const TEXT_SEC = 'rgba(122,148,176,0.5)';
    SPIDER CHART
    ═══════════════════════════════════════════════════════════ */
 function getStats(p: Player): { label: string; value: number; display: string }[] {
-    const rat = { label: 'RAT', value: p.rating, display: String(p.rating) };
-    const exp = { label: 'EXP', value: p.sub_experience, display: String(p.sub_experience) };
-    
     if (p.pool === 'BAT_WK') return [
         { label: 'SCR', value: p.sub_scoring ?? 0, display: String(p.sub_scoring ?? 0) },
         { label: 'IMP', value: p.sub_impact ?? 0, display: String(p.sub_impact ?? 0) },
         { label: 'CON', value: p.sub_consistency ?? 0, display: String(p.sub_consistency ?? 0) },
-        exp,
-        rat
+        { label: 'EXP', value: p.sub_experience ?? 0, display: String(p.sub_experience ?? 0) }
     ];
     if (p.pool === 'BOWL') return [
         { label: 'WKT', value: p.sub_wickettaking ?? 0, display: String(p.sub_wickettaking ?? 0) },
         { label: 'ECO', value: p.sub_economy ?? 0, display: String(p.sub_economy ?? 0) },
-        { label: 'EFF', value: p.sub_efficiency ?? 0, display: String(p.sub_efficiency ?? 0) },
-        exp,
-        rat
+        { label: 'EFF', value: p.sub_efficiency ?? 0, display: String(p.sub_efficiency ?? 0) }
     ];
     return [
         { label: 'BAT', value: p.sub_batting ?? 0, display: String(p.sub_batting ?? 0) },
         { label: 'BWL', value: p.sub_bowling ?? 0, display: String(p.sub_bowling ?? 0) },
-        { label: 'VRS', value: p.sub_versatility ?? 0, display: String(p.sub_versatility ?? 0) },
-        exp,
-        rat
+        { label: 'VRS', value: p.sub_versatility ?? 0, display: String(p.sub_versatility ?? 0) }
     ];
 }
 
