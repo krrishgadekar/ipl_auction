@@ -34,9 +34,9 @@ function LoadingFallback() {
     );
 }
 
-export default function Logo3D() {
+export default function Logo3D({ className = "logo3d-container" }: { className?: string }) {
     return (
-        <div className="logo3d-container">
+        <div className={className} style={{ width: className === 'logo3d-container' ? undefined : '100%', height: className === 'logo3d-container' ? undefined : '100%', position: 'relative' }}>
             <Suspense fallback={<LoadingFallback />}>
                 <Canvas
                     camera={{ position: [0, 0, 6.5], fov: 40 }}

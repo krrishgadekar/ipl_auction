@@ -232,8 +232,8 @@ export default function BigScreenPage() {
                 <motion.header initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
                     className="flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center gap-2.5">
-                        <div className="relative w-12 h-12 flex items-center justify-center" style={{ marginTop: '-4px' }}>
-                            <Logo3D />
+                        <div className="relative w-[72px] h-[72px] flex items-center justify-center" style={{ marginLeft: '-12px', marginTop: '-4px' }}>
+                            <Logo3D className="w-full h-full" />
                         </div>
                         <h1 className="gradient-text-animated font-black leading-none"
                             style={{ fontSize: 'clamp(1.2rem, 2.8vw, 2rem)', fontFamily: "'Cinzel', serif", letterSpacing: '0.04em' }}>

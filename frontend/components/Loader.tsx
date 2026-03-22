@@ -32,7 +32,7 @@ export default function Loader({ text = "L O A D I N G" }: { text?: string }) {
             </div>
             <div className="relative flex flex-col items-center z-10">
                 <div style={{ width: '280px', height: '280px' }}>
-                    <Logo3D />
+                    <Logo3D className="w-full h-full" />
                 </div>
                 <div className="coin-loading-text" style={{ marginTop: '-1rem' }}>
                     {text.split('').map((char, index) => (
