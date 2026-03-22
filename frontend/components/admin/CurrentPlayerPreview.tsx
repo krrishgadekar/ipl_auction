@@ -3,7 +3,7 @@
 
 'use client';
 
-import { Player } from '@/lib/mockData/players';
+import { Player } from '@/lib/api/auction';
 import SubRatingsDisplay from '../SubRatingsDisplay';
 
 interface CurrentPlayerPreviewProps {

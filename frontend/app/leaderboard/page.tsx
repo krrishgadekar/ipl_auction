@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { getLeaderboard, type LeaderboardEntry } from '@/lib/api/finalTeam';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useAuctionSocket } from '@/lib/hooks/useAuctionSocket';
 
 /* ─── Floating Particles ─── */
 function FloatingParticles() {
@@ -256,6 +257,8 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
 export default function LeaderboardPage() {
     const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
+    
+    const { on } = useAuctionSocket();
 
     const loadData = useCallback(async () => {
         try {
@@ -270,9 +273,15 @@ export default function LeaderboardPage() {
 
     useEffect(() => {
         loadData();
-        const interval = setInterval(loadData, 3000);
-        return () => clearInterval(interval);
-    }, [loadData]);
+        
+        const unbindLocked = on('LINEUP_LOCKED', () => {
+            loadData();
+        });
+
+        return () => {
+            unbindLocked();
+        };
+    }, [loadData, on]);
 
     const winner = entries.find(e => e.rank === 1);
 

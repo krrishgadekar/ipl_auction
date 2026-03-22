@@ -85,8 +85,8 @@ export default function PlayerActions({
                 const allPlayers = await (async () => {
                     try { return await getAllPlayers(); } catch { return []; }
                 })();
-                const teamPlayers = allPlayers.filter((p: Player) => team.players.includes(p.rank));
-                const categoryCount = teamPlayers.filter((p: Player) => p.category === cat).length;
+                const teamPlayers = allPlayers.filter((p: any) => team.players.includes(p.rank));
+                const categoryCount = teamPlayers.filter((p: any) => p.category === cat).length;
 
                 if (categoryCount >= max) {
                     warnings.push(`⚠️ COMPOSITION VIOLATION\n${team.shortName} already has ${categoryCount}/${max} ${cat}. This purchase would exceed the maximum!`);

@@ -3,7 +3,7 @@
 
 'use client';
 
-import { Player } from '@/lib/mockData/players';
+import { Player } from '@/lib/api/auction';
 import { motion } from 'framer-motion';
 
 interface SubRating {
@@ -21,7 +21,7 @@ export default function SubRatingsDisplay({ player, animate = true }: SubRatings
     // Get pool-specific sub-ratings
     const getSubRatings = (): SubRating[] => {
         const ratings: SubRating[] = [];
-        const exp = { label: 'Experience', value: player.sub_experience, color: '#9333ea' };
+        const exp = { label: 'Experience', value: player.sub_experience || 0, color: '#9333ea' };
         const rat = { label: 'Overall Rating', value: player.rating, color: '#ffffff' };
 
         switch (player.pool) {

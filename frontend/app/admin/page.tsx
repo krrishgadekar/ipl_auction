@@ -4,9 +4,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AuctionState } from '@/lib/mockData/auctionState';
+import { type AuctionStatus, type PlayerStatus, type AuctionDay } from '@/lib/mockData/auctionState';
 import { Team } from '@/lib/mockData/teams';
-import { getAuctionState, subscribeToAuctionUpdates, updateMockState } from '@/lib/api/auction';
+import { getAuctionState, subscribeToAuctionUpdates, updateMockState, type AuctionState } from '@/lib/api/auction';
 import { AUCTIONABLE_POWER_CARDS } from '@/lib/mockData/powercards';
 import { getAllTeams } from '@/lib/api/teams';
 import { getAllPlayers } from '@/lib/api/players';
@@ -211,8 +211,8 @@ export default function AdminPage() {
                             <div className="flex flex-col items-end">
                                 <div className="text-white/60 text-xs mb-1">Time Remaining</div>
                                 <AuctionTimer
-                                    seconds={auctionState.timerSeconds}
-                                    isActive={auctionState.timerActive}
+                                    seconds={auctionState.timerSeconds || 0}
+                                    isActive={auctionState.timerActive || false}
                                     size="md"
                                 />
                             </div>
@@ -226,7 +226,7 @@ export default function AdminPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="mb-6"
                 >
-                    <AdminDashboardControls teams={teams} state={auctionState} />
+                    <AdminDashboardControls teams={teams} state={auctionState as any} />
                 </motion.div>
 
                 {/* Current Player Preview (full width) */}
@@ -235,7 +235,7 @@ export default function AdminPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-6"
                 >
-                    <CurrentPlayerPreview player={auctionState.currentPlayer} />
+                    <CurrentPlayerPreview player={auctionState.currentPlayer as any} />
                 </motion.div>
 
                 {/* Team Budgets */}

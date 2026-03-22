@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { Player, mockPlayers } from '@/lib/mockData/players';
-import { Team } from '@/lib/mockData/teams';
-import { AuctionState } from '@/lib/mockData/auctionState';
+import { mockPlayers } from '@/lib/mockData/players';
+import { Team } from '@/lib/api/teams';
+import { type Player, type AuctionState, getAuctionState, subscribeToAuctionUpdates } from '@/lib/api/auction';
 import { AUCTIONABLE_POWER_CARDS } from '@/lib/mockData/powercards';
-import { getAuctionState, subscribeToAuctionUpdates } from '@/lib/api/auction';
 import { getAllTeams } from '@/lib/api/teams';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
@@ -44,7 +43,7 @@ const TEXT_SEC = 'rgba(122,148,176,0.5)';
    ═══════════════════════════════════════════════════════════ */
 function getStats(p: Player): { label: string; value: number; display: string }[] {
     const rat = { label: 'RAT', value: p.rating, display: String(p.rating) };
-    const exp = { label: 'EXP', value: p.sub_experience, display: String(p.sub_experience) };
+    const exp = { label: 'EXP', value: p.sub_experience || 0, display: String(p.sub_experience || 0) };
     
     if (p.pool === 'BAT_WK') return [
         { label: 'SCR', value: p.sub_scoring ?? 0, display: String(p.sub_scoring ?? 0) },
@@ -138,7 +137,7 @@ export default function BigScreenPage() {
         const load = async () => {
             try {
                 const [s, t] = await Promise.all([getAuctionState(), getAllTeams()]);
-                setAuctionState(s); setTeams(t); setLoading(false);
+                setAuctionState(s as any); setTeams(t); setLoading(false);
             } catch { setLoading(false); }
         };
         load();
@@ -150,7 +149,7 @@ export default function BigScreenPage() {
                 confetti();
                 setTimeout(() => setShowReveal(false), 4000);
             }
-            setAuctionState(ns);
+            setAuctionState(ns as any);
             if (ns.currentPlayerRank !== null) {
                 const idx = mockPlayers.findIndex(p => p.rank === ns.currentPlayerRank);
                 preloadImages([1, 2].map(o => mockPlayers[idx + o]?.imageUrl));
@@ -263,10 +262,10 @@ export default function BigScreenPage() {
                 }}>
                     <AnimatePresence mode="wait">
                         {auctionState.phase === 'POWER_CARD_PHASE' ? (() => {
-                            const powerCardId = auctionState.active_power_card;
+                            const powerCardId = auctionState.activePowerCard;
                             const card = AUCTIONABLE_POWER_CARDS.find(c => c.id === powerCardId) || AUCTIONABLE_POWER_CARDS[0];
-                            const pcBid = auctionState.current_bid || 0;
-                            const highestBidderTeam = teams.find(t => t.id === auctionState.highest_bidder_id);
+                            const pcBid = auctionState.currentBid || 0;
+                            const highestBidderTeam = teams.find(t => t.id === auctionState.highestBidderId);
 
                             return (
                                 <motion.div key={`pc-${card.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -412,7 +411,7 @@ export default function BigScreenPage() {
                                                                 className="flex items-center gap-1.5 px-2 py-1 rounded-lg relative overflow-hidden"
                                                                 style={{
                                                                     background: i < 3 ? `${card.color}08` : 'rgba(255,255,255,0.02)',
-                                                                    borderLeft: `2px solid ${team.primaryColor || GLASS_BORDER}`,
+                                                                    borderLeft: `2px solid ${GLASS_BORDER}`,
                                                                 }}>
                                                                 <span className="text-[0.65rem] font-black w-4 text-center"
                                                                     style={{ color: i < 3 ? card.color : `${card.color}50` }}>{i + 1}</span>
@@ -424,7 +423,7 @@ export default function BigScreenPage() {
                                                                 <span className="text-[0.55rem]" style={{ color: TEXT_SEC }}>{team.squadCount}/{team.squadLimit}</span>
                                                                 <span className="text-[0.8rem] font-black" style={{ color: '#2dd4a0', fontFamily: "'Cinzel', serif" }}>₹{team.budgetRemaining}</span>
                                                                 <div className="absolute bottom-0 left-0 right-0 h-[1.5px]" style={{ background: `${card.color}08` }}>
-                                                                    <div className="h-full" style={{ width: `${pct}%`, background: team.primaryColor || card.color }} />
+                                                                    <div className="h-full" style={{ width: `${pct}%`, background: card.color }} />
                                                                 </div>
                                                             </motion.div>
                                                         );
@@ -603,7 +602,7 @@ export default function BigScreenPage() {
                                                             className="flex items-center gap-1.5 px-2 py-1 rounded-lg relative overflow-hidden"
                                                             style={{
                                                                 background: i < 3 ? `${theme.accent}08` : 'rgba(255,255,255,0.02)',
-                                                                borderLeft: `2px solid ${team.primaryColor || GLASS_BORDER}`,
+                                                                borderLeft: `2px solid ${GLASS_BORDER}`,
                                                             }}>
                                                             {/* Rank */}
                                                             <span className="text-[0.65rem] font-black w-4 text-center"
@@ -621,7 +620,7 @@ export default function BigScreenPage() {
                                                             <span className="text-[0.8rem] font-black" style={{ color: '#2dd4a0', fontFamily: "'Cinzel', serif" }}>₹{team.budgetRemaining}</span>
                                                             {/* Budget bar at bottom */}
                                                             <div className="absolute bottom-0 left-0 right-0 h-[1.5px]" style={{ background: `${theme.accent}08` }}>
-                                                                <div className="h-full" style={{ width: `${pct}%`, background: team.primaryColor || theme.accent }} />
+                                                                <div className="h-full" style={{ width: `${pct}%`, background: theme.accent }} />
                                                             </div>
                                                         </motion.div>
                                                     );

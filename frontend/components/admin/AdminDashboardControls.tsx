@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Team } from '@/lib/mockData/teams';
-import { AuctionState } from '@/lib/mockData/auctionState';
+import { Team } from '@/lib/api/teams';
+import { AuctionState } from '@/lib/api/auction';
 import { 
     setPhase, setAuctionDay, advanceToNextPlayer, 
     assignFranchise, assignPlayer, deassignPlayer,
@@ -27,7 +27,7 @@ const POWER_CARDS = [
 
 export default function AdminDashboardControls({ teams, state }: AdminDashboardControlsProps) {
     const [selectedPhase, setSelectedPhase] = useState((state as any).phase || state.status || 'NOT_STARTED');
-    const [selectedDay, setSelectedDay] = useState<'Day 1' | 'Day 2'>(state.auctionDay || 'Day 1');
+    const [selectedDay, setSelectedDay] = useState<'Day 1' | 'Day 2'>((state.auctionDay as any) || 'Day 1');
     const [selectedTeam, setSelectedTeam] = useState('');
     const [selectedFranchiseId, setSelectedFranchiseId] = useState('');
     const [playerIdInput, setPlayerIdInput] = useState(''); // UUID or rank

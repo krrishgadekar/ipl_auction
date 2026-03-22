@@ -4,10 +4,12 @@
 'use client';
 
 import { use, useEffect, useState, useRef } from 'react';
-import { Team } from '@/lib/mockData/teams';
+import { Team } from '@/lib/api/teams';
 import { getAllTeams } from '@/lib/api/teams';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
+import { getPowerCardImage } from '@/lib/utils/powerCard';
 
 // Floating Particles
 function FloatingParticles() {
@@ -128,10 +130,11 @@ const powerCardDefinitions = {
 };
 
 // Premium Power Card Component
-function PowerCardDetail({ cardKey, card, teams }: {
+function PowerCardDetail({ cardKey, card, teams, viewerTeamShortName }: {
     cardKey: string;
     card: typeof powerCardDefinitions.finalStrike;
     teams: Team[];
+    viewerTeamShortName?: string;
 }) {
     const [isFlipped, setIsFlipped] = useState(false);
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -194,13 +197,17 @@ function PowerCardDetail({ cardKey, card, teams }: {
                     {card.rarity}
                 </motion.div>
 
-                {/* Icon */}
                 <motion.div
                     animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }}
                     transition={{ duration: 3, repeat: Infinity }}
-                    className="text-8xl text-center mb-6 mt-4"
+                    className="relative w-48 h-64 mx-auto mb-6 mt-4 flex items-center justify-center"
                 >
-                    {card.icon}
+                    <Image 
+                        src={getPowerCardImage(cardKey, viewerTeamShortName)} 
+                        alt={card.name} 
+                        fill
+                        className="object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                    />
                 </motion.div>
 
                 {/* Name & Cost */}
@@ -361,7 +368,9 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
                         className="glass-card p-6 mb-8"
                     >
                         <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                            <img src={currentTeam.logo} alt={currentTeam.shortName} className="w-10 h-10 object-contain drop-shadow-md" />
+                            <div className="relative w-10 h-10">
+                                <Image src={currentTeam.logo} alt={currentTeam.shortName} fill className="object-contain drop-shadow-md" />
+                            </div>
                             Your Power Cards Status
                         </h2>
                         <div className="grid grid-cols-5 gap-3">
@@ -375,8 +384,15 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
                                             : 'bg-green-500/10 border-green-500/30'
                                             }`}
                                     >
-                                        <div className="text-2xl mb-1">{def.icon}</div>
-                                        <div className={`text-xs font-bold ${card.used ? 'text-red-400' : 'text-green-400'}`}>
+                                        <div className="relative w-10 h-14 mx-auto mb-1">
+                                            <Image 
+                                                src={getPowerCardImage(key, currentTeam.shortName)} 
+                                                alt={key} 
+                                                fill 
+                                                className="object-contain"
+                                            />
+                                        </div>
+                                        <div className={`text-[10px] font-bold ${card.used ? 'text-red-400' : 'text-green-400'}`}>
                                             {card.used ? 'USED' : 'READY'}
                                         </div>
                                     </div>
@@ -407,6 +423,7 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
                             cardKey={key}
                             card={card}
                             teams={teams}
+                            viewerTeamShortName={currentTeam?.shortName}
                         />
                     ))}
                 </div>
@@ -426,9 +443,16 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
                             <thead>
                                 <tr className="border-b border-white/10">
                                     <th className="text-left py-3 px-4 text-white/60 text-sm">Team</th>
-                                    {Object.values(powerCardDefinitions).map(card => (
-                                        <th key={card.name} className="text-center py-3 px-2 text-white/60 text-sm">
-                                            <div className="text-lg">{card.icon}</div>
+                                    {Object.entries(powerCardDefinitions).map(([key, card], i) => (
+                                        <th key={card.name} className="py-3 px-2 text-white/60 text-sm">
+                                            <div className="relative w-6 h-8 mx-auto">
+                                                <Image 
+                                                    src={getPowerCardImage(key)} 
+                                                    alt={card.name} 
+                                                    fill 
+                                                    className="object-contain"
+                                                />
+                                            </div>
                                         </th>
                                     ))}
                                 </tr>
@@ -438,7 +462,9 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
                                     <tr key={team.id} className="border-b border-white/5 hover:bg-white/5">
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-2">
-                                                <img src={team.logo} alt={team.shortName} className="w-6 h-6 object-contain drop-shadow-md" />
+                                                <div className="relative w-6 h-6">
+                                                    <Image src={team.logo} alt={team.shortName} fill className="object-contain drop-shadow-md" />
+                                                </div>
                                                 <span className="text-white font-medium">{team.shortName}</span>
                                             </div>
                                         </td>

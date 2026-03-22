@@ -4,45 +4,75 @@
 // ═══════════════════════════════════════════════════════════════
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-import { mockPlayers } from '../mockData/players';
-import type { Player } from '../mockData/players';
-import type { Team as TeamSummary } from '../mockData/teams';
-import type { AuctionState } from '../mockData/auctionState';
-import { getMockAuctionState } from '../mockData/auctionState';
+export interface Player {
+    id: string;
+    rank: number;
+    player: string;
+    category: string;
+    grade: string;
+    rating: number;
+    basePrice: number;
+    imageUrl: string;
+    nationality: string;
+    team?: string;
+    role?: string;
+    pool?: string;
+    legacy?: number;
+    isRiddle?: boolean;
+    // Sub-ratings (Performance Metrics)
+    sub_experience?: number;
+    sub_scoring?: number;
+    sub_impact?: number;
+    sub_consistency?: number;
+    sub_wickettaking?: number;
+    sub_economy?: number;
+    sub_efficiency?: number;
+    sub_batting?: number;
+    sub_bowling?: number;
+    sub_versatility?: number;
+}
 
-export type { AuctionState, Player, TeamSummary };
+export interface TeamSummary {
+    id: string | number;
+    name: string;
+    shortName: string;
+    logo: string;
+    budgetRemaining: number;
+    squadCount: number;
+    squadLimit: number;
+}
 
-// ── Fetch Helpers ────────────────────────────────────────────
+export interface AuctionState {
+    status: 'IDLE' | 'BIDDING' | 'SOLD' | 'UNSOLD' | 'PRE_AUCTION' | 'POST_AUCTION' | 'COMPLETED' | string;
+    phase: string;
+    auctionDay: string;
+    currentPlayer: Player | null;
+    currentPlayerRank: number | null;
+    currentBid: number;
+    baseBid: number;
+    highestBidder: string | null;
+    highestBidderId: string | null;
+    bidHistory: any[];
+    teams: any[];
+    activePowerCard?: string | null;
+    activePowerCardTeam?: string | null;
+    playerStatus?: string;
+    timerSeconds?: number;
+    timerActive?: boolean;
+    bidFreezerTargetTeam?: string | number | null;
+}
 
 async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
-    try {
-        const res = await fetch(`${API_URL}${path}`, {
-            headers: { 'Content-Type': 'application/json' },
-            ...options,
-        });
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({ error: res.statusText }));
-            console.error(`API error: ${res.status}`, err);
-            throw new Error(err.error || `API error: ${res.status}`);
-        }
-        return res.json();
-    } catch (error) {
-        // Provide safe emergency fallbacks for critical paths to prevent crash
-        if (path === '/api/public/auction/state') {
-            console.warn(`Backend unreachable for ${path}, falling back to mock API`);
-            try {
-                const mockRes = await fetch('/api/mock/state');
-                if (mockRes.ok) return (await mockRes.json()) as any;
-            } catch {}
-            return getMockAuctionState() as any;
-        }
-        if (path === '/api/public/auction/current-player') {
-            console.warn(`Backend unreachable for ${path}, falling back to mock player`);
-            return { player: null, current_bid: null, phase: 'PRE_AUCTION', status: 'PRE_AUCTION' } as any;
-        }
-        console.error(`Failed to fetch ${path}:`, error);
-        throw error;
+    const res = await fetch(`${API_URL}${path}`, {
+        headers: { 'Content-Type': 'application/json' },
+        ...options,
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        console.error(`API error: ${res.status}`, err);
+        throw new Error(err.error || `API error: ${res.status}`);
     }
+    return res.json();
 }
 
 // ── API Functions ────────────────────────────────────────────
