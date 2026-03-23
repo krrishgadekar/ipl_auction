@@ -47,7 +47,7 @@ export function serializeTeam(t) {
     return {
         ...t,
         // camelCase aliases
-        shortName: t.brand_key || t.name?.substring(0, 3).toUpperCase(),
+        shortName: t.brand_key || (t.name?.startsWith('Team ') ? t.name.split(' ').slice(1).join(' ') : t.name?.substring(0, 4).toUpperCase()),
         primaryColor: t.primary_color,
         franchiseName: t.franchise_name,
         budgetRemaining: Number(t.purse_remaining),
