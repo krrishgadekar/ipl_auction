@@ -61,7 +61,7 @@ export function serializeTeam(t) {
         allrounderCount: t.ar_count,
         wicketkeeperCount: t.wk_count,
         brandScore: Number(t.brand_score),
-        logo: t.logo || null, // fallback to null for safety
+        logo: t.logo || (t.brand_key ? `/teams/${t.brand_key.toLowerCase()}.png` : null), // Auto-derive from brand_key
         // Power cards transform (array → named object for frontend)
         ...(t.power_cards ? {
             powerCards: transformPowerCards(t.power_cards),

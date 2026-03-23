@@ -693,35 +693,223 @@ export default function BigScreenPage() {
                                     </div>
                                 </div>
                             </motion.div>
-                        ) : auctionState.phase === 'FRANCHISE_PHASE' ? (
-                            <motion.div key="franchise" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                                className="h-full flex flex-col items-center justify-center relative overflow-hidden"
-                                style={{
-                                    background: `radial-gradient(circle at center, rgba(88,28,135,0.2) 0%, transparent 70%)`
-                                }}>
-                                <motion.div animate={{ y: [-10, 10, -10] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} 
-                                    className="text-8xl mb-6 shadow-2xl filter drop-shadow-[0_0_30px_rgba(168,85,247,0.5)]">
-                                    🏢
+                        ) : auctionState.phase === 'FRANCHISE_PHASE' ? (() => {
+                            // Map franchise IDs to names
+                            const FRANCHISE_NAMES: Record<string, { name: string; short: string; color: string }> = {
+                                '1': { name: 'Mumbai Indians', short: 'MI', color: '#004BA0' },
+                                '2': { name: 'Chennai Super Kings', short: 'CSK', color: '#FFCB05' },
+                                '3': { name: 'Royal Challengers Bangalore', short: 'RCB', color: '#EC1C24' },
+                                '4': { name: 'Kolkata Knight Riders', short: 'KKR', color: '#3A225D' },
+                                '5': { name: 'Delhi Capitals', short: 'DC', color: '#17479E' },
+                                '6': { name: 'Rajasthan Royals', short: 'RR', color: '#EA1A85' },
+                                '7': { name: 'Sunrisers Hyderabad', short: 'SRH', color: '#F26522' },
+                                '8': { name: 'Punjab Kings', short: 'PBKS', color: '#D71920' },
+                                '9': { name: 'Lucknow Super Giants', short: 'LSG', color: '#A72056' },
+                                '10': { name: 'Gujarat Titans', short: 'GT', color: '#1C1C2B' },
+                            };
+                            const franchiseId = auctionState.currentItemId || '';
+                            const franchise = FRANCHISE_NAMES[franchiseId] || { name: `Franchise #${franchiseId}`, short: franchiseId, color: '#8B5CF6' };
+                            const fcColor = franchise.color;
+                            const highestBidderTeam = teams.find(t => t.id === auctionState.highestBidderId);
+                            const currentBid = auctionState.currentBid || 0;
+
+                            return (
+                                <motion.div key={`franchise-${franchiseId}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                    className="h-full flex flex-col">
+
+                                    {/* ═══ TOP SECTION (60%): Franchise Visual + Info ═══ */}
+                                    <div className="flex-1 relative min-h-0" style={{ height: '60%' }}>
+                                        {/* Accent stripe */}
+                                        <div className="absolute top-0 left-0 right-0 h-[2px] z-20"
+                                            style={{ background: `linear-gradient(90deg, ${fcColor}, ${fcColor}80, ${fcColor})` }} />
+
+                                        {/* Badge */}
+                                        <motion.div initial={{ y: -15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
+                                            className="absolute top-3 left-3 z-30 flex items-center gap-2">
+                                            <span className="px-3 py-1 rounded-full font-black text-[0.6rem] tracking-[0.15em]"
+                                                style={{ background: `linear-gradient(135deg, ${fcColor}, ${fcColor}cc)`, color: '#fff' }}>
+                                                🏢 FRANCHISE RIGHTS
+                                            </span>
+                                        </motion.div>
+
+                                        {/* Large background text */}
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[1]"
+                                            style={{ paddingLeft: '10%' }}>
+                                            <span style={{
+                                                fontSize: 'clamp(8rem, 16vw, 14rem)', fontFamily: "'Cinzel', serif", fontWeight: 900,
+                                                color: fcColor, opacity: 0.06, lineHeight: 1,
+                                            }}>{franchise.short}</span>
+                                        </div>
+
+                                        {/* Franchise Logo — left side */}
+                                        <motion.div
+                                            initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: 0.1, duration: 0.5 }}
+                                            className="absolute bottom-0 left-0 z-10 flex items-center justify-center"
+                                            style={{ width: '38%', height: '95%' }}>
+                                            {/* Glow */}
+                                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/2 z-0"
+                                                style={{ background: `radial-gradient(ellipse at 50% 100%, ${fcColor}40, transparent 65%)` }} />
+                                            <motion.div className="relative z-10 flex flex-col items-center justify-center gap-4">
+                                                <motion.div
+                                                    className="w-44 h-44 rounded-3xl flex items-center justify-center relative overflow-hidden"
+                                                    style={{
+                                                        background: `linear-gradient(135deg, ${fcColor}20, ${fcColor}08)`,
+                                                        border: `2px solid ${fcColor}40`,
+                                                        boxShadow: `0 0 60px ${fcColor}30, inset 0 0 40px ${fcColor}10`,
+                                                    }}
+                                                    animate={{
+                                                        boxShadow: [
+                                                            `0 0 40px ${fcColor}20, inset 0 0 30px ${fcColor}08`,
+                                                            `0 0 80px ${fcColor}40, inset 0 0 50px ${fcColor}15`,
+                                                            `0 0 40px ${fcColor}20, inset 0 0 30px ${fcColor}08`,
+                                                        ],
+                                                    }}
+                                                    transition={{ duration: 3, repeat: Infinity }}>
+                                                    <Image
+                                                        src={`/teams/${franchise.short.toLowerCase()}.png`}
+                                                        alt={franchise.name}
+                                                        width={130} height={130}
+                                                        className="object-contain"
+                                                        style={{ filter: `drop-shadow(0 0 20px ${fcColor})` }}
+                                                    />
+                                                </motion.div>
+                                            </motion.div>
+                                        </motion.div>
+
+                                        {/* Franchise Info — right side */}
+                                        <div className="absolute right-0 top-0 bottom-0 z-10 flex flex-col justify-center p-5 pr-6"
+                                            style={{ width: '55%' }}>
+                                            {/* Name */}
+                                            <motion.h2 initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
+                                                className="font-black text-white leading-[0.95] mb-2"
+                                                style={{ fontSize: 'clamp(1.6rem, 3.5vw, 3rem)', fontFamily: "'Cinzel', serif" }}>
+                                                {franchise.name}
+                                            </motion.h2>
+                                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.22 }}
+                                                className="mb-6">
+                                                <span className="text-base font-medium leading-relaxed" style={{ color: 'rgba(122,148,176,0.7)' }}>
+                                                    The winning team acquires this franchise&apos;s brand identity, logo, and an RTM card for the LIVE auction.
+                                                </span>
+                                            </motion.div>
+
+                                            {/* Bid Stats Grid */}
+                                            <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
+                                                className="grid grid-cols-2 gap-3">
+                                                <div className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
+                                                    style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
+                                                    <div className="text-[0.65rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEXT_SEC }}>Base Reserve</div>
+                                                    <div className="text-2xl font-black" style={{ color: '#d4af37', fontFamily: "'Cinzel', serif", textShadow: '0 0 20px rgba(212,175,55,0.3)' }}>
+                                                        ₹3.0 <span className="text-sm text-white/50">CR</span>
+                                                    </div>
+                                                </div>
+                                                <div className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
+                                                    style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
+                                                    <div className="text-[0.65rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEXT_SEC }}>Current Bid</div>
+                                                    <div className="text-2xl font-black" style={{ color: '#2dd4a0', fontFamily: "'Cinzel', serif" }}>
+                                                        ₹{currentBid ? Number(currentBid).toFixed(1) : '3.0'} <span className="text-sm text-white/50">CR</span>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        </div>
+
+                                        {/* RTM badge — top right */}
+                                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: 'spring' }}
+                                            className="absolute top-5 right-6 z-20">
+                                            <div className="w-16 h-16 rounded-full flex flex-col items-center justify-center"
+                                                style={{ background: `linear-gradient(135deg, ${fcColor}, ${fcColor}cc)`, boxShadow: `0 4px 20px ${fcColor}60` }}>
+                                                <span style={{ fontSize: '1.2rem', filter: `drop-shadow(0 0 10px ${fcColor})` }}>🎫</span>
+                                                <span className="text-[0.35rem] tracking-widest uppercase font-bold" style={{ color: '#fffa' }}>RTM</span>
+                                            </div>
+                                        </motion.div>
+
+                                        {/* Scan line */}
+                                        <motion.div animate={{ y: ['0%', '100%', '0%'] }}
+                                            transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                                            className="absolute left-0 right-0 h-px z-[6] pointer-events-none"
+                                            style={{ background: `linear-gradient(90deg, transparent, ${fcColor}50, transparent)` }} />
+                                    </div>
+
+                                    {/* ═══ BOTTOM SECTION (40%): Team Standings ═══ */}
+                                    <div className="flex-shrink-0 relative" style={{
+                                        height: '40%',
+                                        borderTop: `1px solid ${GLASS_BORDER}`,
+                                        background: `linear-gradient(180deg, ${GLASS_BG} 0%, rgba(4,8,16,0.5) 100%)`,
+                                    }}>
+                                        <div className="h-full flex">
+                                            {/* Team Standings */}
+                                            <div className="flex-1 p-3 overflow-hidden">
+                                                <div className="flex items-center gap-1.5 mb-2">
+                                                    <span className="text-xs">🏆</span>
+                                                    <span className="text-[0.7rem] font-black tracking-widest uppercase"
+                                                        style={{ color: fcColor, fontFamily: "'Cinzel', serif" }}>TEAM STANDINGS</span>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-x-3 gap-y-1 h-[calc(100%-28px)]">
+                                                    {sorted.map((team, i) => {
+                                                        const pct = (team.budgetRemaining / team.totalBudget) * 100;
+                                                        const logoPath = team.logo || (team.shortName ? `/teams/${team.shortName.toLowerCase()}.png` : null);
+                                                        return (
+                                                            <motion.div key={team.id}
+                                                                initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
+                                                                transition={{ delay: 0.4 + i * 0.04 }}
+                                                                className="flex items-center gap-1.5 px-2 py-1 rounded-lg relative overflow-hidden"
+                                                                style={{
+                                                                    background: i < 3 ? `${fcColor}08` : 'rgba(255,255,255,0.02)',
+                                                                    borderLeft: `2px solid ${GLASS_BORDER}`,
+                                                                }}>
+                                                                <span className="text-[0.65rem] font-black w-4 text-center"
+                                                                    style={{ color: i < 3 ? fcColor : `${fcColor}50` }}>{i + 1}</span>
+                                                                <div className="w-5 h-5 relative flex-shrink-0 flex items-center justify-center rounded bg-white/5 overflow-hidden">
+                                                                    {logoPath && logoPath.startsWith('/') ? (
+                                                                        <Image src={logoPath} alt={team.shortName} fill sizes="20px" className="object-contain" />
+                                                                    ) : (
+                                                                        <span className="text-[0.6rem] opacity-30">🏏</span>
+                                                                    )}
+                                                                </div>
+                                                                <span className="text-[0.75rem] font-bold text-white flex-1 min-w-0 truncate"
+                                                                    style={{ fontFamily: "'Cinzel', serif" }}>{team.shortName}</span>
+                                                                <span className="text-[0.55rem]" style={{ color: TEXT_SEC }}>{team.squadCount}/{team.squadLimit}</span>
+                                                                <span className="text-[0.8rem] font-black" style={{ color: '#2dd4a0', fontFamily: "'Cinzel', serif" }}>₹{team.budgetRemaining}</span>
+                                                                <div className="absolute bottom-0 left-0 right-0 h-[1.5px]" style={{ background: `${fcColor}08` }}>
+                                                                    <div className="h-full" style={{ width: `${pct}%`, background: fcColor }} />
+                                                                </div>
+                                                            </motion.div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            {/* Franchise Info panel */}
+                                            <div className="flex-shrink-0 flex flex-col items-center justify-center gap-3 px-4 py-3" style={{
+                                                width: '220px', borderLeft: `1px solid ${GLASS_BORDER}`,
+                                            }}>
+                                                <div className="text-[0.55rem] font-black tracking-widest uppercase" style={{ color: fcColor }}>
+                                                    📋 FRANCHISE DETAILS
+                                                </div>
+                                                <div className="flex-1 flex flex-col items-center justify-center gap-3">
+                                                    <div className="rounded-xl p-3 text-center w-full" style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
+                                                        <div className="text-[0.6rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEXT_SEC }}>Highest Bidder</div>
+                                                        {highestBidderTeam ? (
+                                                            <div className="flex items-center justify-center gap-2">
+                                                                <span className="text-base font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>
+                                                                    {highestBidderTeam.shortName || highestBidderTeam.name}
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-sm font-medium text-white/30 italic">Awaiting bids…</span>
+                                                        )}
+                                                    </div>
+                                                    <div className="rounded-xl p-3 text-center w-full" style={{ background: 'rgba(45,212,160,0.08)', border: '1px solid rgba(45,212,160,0.2)' }}>
+                                                        <div className="text-[0.6rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: '#2dd4a0' }}>Awarded</div>
+                                                        <div className="text-lg font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>RTM Card</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </motion.div>
-                                <h3 className="text-sm font-black tracking-[0.3em] mb-2 uppercase" style={{ color: '#c084fc' }}>
-                                    Franchise Rights Auction
-                                </h3>
-                                <h2 className="font-black mb-6 text-center leading-none text-white" 
-                                    style={{ fontSize: 'clamp(3rem, 6vw, 5rem)', fontFamily: "'Cinzel', serif", textShadow: '0 0 40px rgba(168,85,247,0.4)' }}>
-                                    {auctionState.currentItemId ? auctionState.currentItemId.replace(/_/g, ' ') : 'Franchise'}
-                                </h2>
-                                <div className="flex gap-4">
-                                    <div className="rounded-xl p-4 text-center min-w-[200px]" style={{ background: 'rgba(88,28,135,0.15)', border: '1px solid rgba(168,85,247,0.3)' }}>
-                                        <div className="text-xs uppercase tracking-wider mb-2 font-bold" style={{ color: 'rgba(192,132,252,0.8)' }}>Base Reserve</div>
-                                        <div className="text-4xl font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>₹3.0 <span className="text-lg text-white/50">CR</span></div>
-                                    </div>
-                                    <div className="rounded-xl p-4 text-center min-w-[200px]" style={{ background: 'rgba(45,212,160,0.1)', border: '1px solid rgba(45,212,160,0.2)' }}>
-                                        <div className="text-xs uppercase tracking-wider mb-2 font-bold" style={{ color: '#2dd4a0' }}>Awarded</div>
-                                        <div className="text-2xl mt-2 font-black text-white">RTM Card</div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ) : auctionState.phase === 'NOT_STARTED' || auctionState.phase === 'PRE_AUCTION' ? (
+                            );
+                        })() : auctionState.phase === 'NOT_STARTED' || auctionState.phase === 'PRE_AUCTION' ? (
                             <motion.div key="not-started" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                 className="h-full flex flex-col items-center justify-center">
                                 <motion.div className="w-40 h-40 relative flex items-center justify-center rounded-full overflow-hidden border-2 border-[rgba(212,175,55,0.4)] shadow-[0_0_40px_rgba(212,175,55,0.2)] bg-black mb-8"
