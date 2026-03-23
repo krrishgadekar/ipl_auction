@@ -38,6 +38,22 @@ router.post('/lock-lineup', async (req, res) => {
 });
 
 /**
+ * POST /api/scoring/submit-team
+ * Alias for lock-lineup but accepts player ranks instead of UUIDs.
+ * Body: { teamId: string|number, playerRanks: number[], captainRank: number, viceCaptainRank: number }
+ */
+router.post('/submit-team', async (req, res) => {
+    try {
+        const { teamId, playerRanks, captainRank, viceCaptainRank } = req.body;
+        const result = await scoringService.submitTeamByRanks(teamId, playerRanks, captainRank, viceCaptainRank);
+        req.io.emit('LINEUP_LOCKED', { teamId: result.teamId });
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
  * GET /api/scoring/leaderboard
  * Returns scored leaderboard with full breakdown for all submitted teams.
  */

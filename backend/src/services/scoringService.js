@@ -219,7 +219,42 @@ async function lockLineup(teamId, playerIds, captainId, viceCaptainId) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// §4 — CALCULATE FULL LEADERBOARD
+// §4 — SUBMIT BY RANKS (For frontend compatibility)
+// ═══════════════════════════════════════════════════════════════
+
+async function submitTeamByRanks(teamId, playerRanks, captainRank, viceCaptainRank) {
+    // 1. Resolve team UUID if numeric index provided
+    let realTeamId = String(teamId);
+    if (!isNaN(Number(teamId)) && Number(teamId) <= 10) {
+        // Assuming teamId 1-10 corresponds to specific teams in the DB
+        // If the DB uses UUIDs, we might need a lookup table or a specific team lookup by some property.
+        // However, looking at the schema, Team.id is a UUID.
+        // Let's find the team by some other means if it's numeric, or assume it's already a UUID if it fails.
+        const teams = await prisma.team.findMany({ orderBy: { created_at: 'asc' } });
+        const target = teams[Number(teamId) - 1];
+        if (target) realTeamId = target.id;
+    }
+
+    // 2. Resolve players by rank
+    const players = await prisma.player.findMany({
+        where: { rank: { in: [ ...playerRanks, captainRank, viceCaptainRank ] } }
+    });
+
+    const getUuid = (rank) => players.find(p => p.rank === rank)?.id;
+
+    const playerIds = playerRanks.map(getUuid).filter(Boolean);
+    const captainId = getUuid(captainRank);
+    const viceCaptainId = getUuid(viceCaptainRank);
+
+    if (playerIds.length !== 11) throw new Error("Could not resolve all 11 player ranks to IDs");
+    if (!captainId) throw new Error("Could not resolve captain rank to ID");
+    if (!viceCaptainId) throw new Error("Could not resolve vice-captain rank to ID");
+
+    return await lockLineup(realTeamId, playerIds, captainId, viceCaptainId);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// §5 — CALCULATE FULL LEADERBOARD
 // ═══════════════════════════════════════════════════════════════
 
 async function calculateLeaderboard() {
@@ -343,6 +378,7 @@ async function getTeamScore(teamId) {
 export default {
     validateTop11,
     lockLineup,
+    submitTeamByRanks,
     calculateLeaderboard,
     getTeamScore,
     TOP11_RULES,
