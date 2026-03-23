@@ -4,7 +4,8 @@
 // Token format: base64(username:password)
 // ═══════════════════════════════════════════════════════════════
 
-const API_BASE = 'http://localhost:5000/api/admin/auction';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE = `${API_URL}/api/admin/auction`;
 
 function getAuthToken(): string {
     if (typeof window === 'undefined') return '';
@@ -38,7 +39,7 @@ async function fetchAdmin(endpoint: string, options: RequestInit = {}) {
 
 /** Admin Login */
 export async function verifyAdminCredentials(username: string, password: string): Promise<string> {
-    const res = await fetch('http://localhost:5000/api/admin/auth/login', {
+    const res = await fetch(`${API_URL}/api/admin/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
