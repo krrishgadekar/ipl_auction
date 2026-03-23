@@ -663,6 +663,64 @@ export default function BigScreenPage() {
                                     </div>
                                 </div>
                             </motion.div>
+                        ) : auctionState.phase === 'FRANCHISE_PHASE' ? (
+                            <motion.div key="franchise" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="h-full flex flex-col items-center justify-center relative overflow-hidden"
+                                style={{
+                                    background: `radial-gradient(circle at center, rgba(88,28,135,0.2) 0%, transparent 70%)`
+                                }}>
+                                <motion.div animate={{ y: [-10, 10, -10] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} 
+                                    className="text-8xl mb-6 shadow-2xl filter drop-shadow-[0_0_30px_rgba(168,85,247,0.5)]">
+                                    🏢
+                                </motion.div>
+                                <h3 className="text-sm font-black tracking-[0.3em] mb-2 uppercase" style={{ color: '#c084fc' }}>
+                                    Franchise Rights Auction
+                                </h3>
+                                <h2 className="font-black mb-6 text-center leading-none text-white" 
+                                    style={{ fontSize: 'clamp(3rem, 6vw, 5rem)', fontFamily: "'Cinzel', serif", textShadow: '0 0 40px rgba(168,85,247,0.4)' }}>
+                                    {auctionState.currentItemId ? auctionState.currentItemId.replace(/_/g, ' ') : 'Franchise'}
+                                </h2>
+                                <div className="flex gap-4">
+                                    <div className="rounded-xl p-4 text-center min-w-[200px]" style={{ background: 'rgba(88,28,135,0.15)', border: '1px solid rgba(168,85,247,0.3)' }}>
+                                        <div className="text-xs uppercase tracking-wider mb-2 font-bold" style={{ color: 'rgba(192,132,252,0.8)' }}>Base Reserve</div>
+                                        <div className="text-4xl font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>₹3.0 <span className="text-lg text-white/50">CR</span></div>
+                                    </div>
+                                    <div className="rounded-xl p-4 text-center min-w-[200px]" style={{ background: 'rgba(45,212,160,0.1)', border: '1px solid rgba(45,212,160,0.2)' }}>
+                                        <div className="text-xs uppercase tracking-wider mb-2 font-bold" style={{ color: '#2dd4a0' }}>Awarded</div>
+                                        <div className="text-2xl mt-2 font-black text-white">RTM Card</div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ) : auctionState.phase === 'NOT_STARTED' || auctionState.phase === 'PRE_AUCTION' ? (
+                            <motion.div key="not-started" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="h-full flex flex-col items-center justify-center">
+                                <motion.div className="w-40 h-40 relative flex items-center justify-center rounded-full overflow-hidden border-2 border-[rgba(212,175,55,0.4)] shadow-[0_0_40px_rgba(212,175,55,0.2)] bg-black mb-8"
+                                            animate={{ boxShadow: ['0 0 20px rgba(212,175,55,0.2)', '0 0 60px rgba(212,175,55,0.4)', '0 0 20px rgba(212,175,55,0.2)'] }}
+                                            transition={{ duration: 3, repeat: Infinity }}>
+                                    <Image src="/auction_logo.jpg" alt="IPL Logo" fill className="object-cover" />
+                                </motion.div>
+                                <h2 className="font-black mb-2 text-center text-white" 
+                                    style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontFamily: "'Cinzel', serif", textShadow: '0 0 40px rgba(212,175,55,0.4)' }}>
+                                    WELCOME TO IPL AUCTION 2026
+                                </h2>
+                                <p className="text-lg font-medium tracking-widest uppercase mt-4" style={{ color: 'rgba(212,175,55,0.8)' }}>
+                                    PREPARE FOR THE ULTIMATE SHOWDOWN
+                                </p>
+                            </motion.div>
+                        ) : auctionState.phase === 'POST_AUCTION' || auctionState.phase === 'COMPLETED' ? (
+                            <motion.div key="completed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="h-full flex flex-col items-center justify-center">
+                                <motion.div animate={{ scale: [1, 1.05, 1], rotate: [0, 5, -5, 0] }} transition={{ duration: 5, repeat: Infinity }} className="text-8xl mb-6 filter drop-shadow-[0_0_30px_rgba(212,175,55,0.6)]">
+                                    🏆
+                                </motion.div>
+                                <h2 className="font-black mb-2 text-center text-[#d4af37]" 
+                                    style={{ fontSize: 'clamp(3rem, 6vw, 5rem)', fontFamily: "'Cinzel', serif", textShadow: '0 0 40px rgba(212,175,55,0.4)' }}>
+                                    AUCTION CONCLUDED
+                                </h2>
+                                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.2rem' }} className="mt-4 tracking-widest uppercase font-bold text-center max-w-2xl">
+                                    Thank you for participating in the most spectacular auction. <br/> See you on the pitch!
+                                </p>
+                            </motion.div>
                         ) : (
                             <motion.div key="w" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                 className="h-full flex flex-col items-center justify-center">
