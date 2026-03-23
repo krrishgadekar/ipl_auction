@@ -256,10 +256,11 @@ function FIFACard({ player, showPrice, price }: {
                             <div
                                 className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black border-2"
                                 style={{
-                                    background: { A: 'rgba(212,175,55,0.6)', B: 'rgba(192,192,210,0.6)', C: 'rgba(168,85,247,0.6)', D: 'rgba(180,120,70,0.6)' }[player.grade as 'A' | 'B' | 'C' | 'D'],
+                                    background: config.bgOuter,
                                     color: '#ffffff',
                                     borderColor: 'rgba(255,255,255,0.4)',
                                     backdropFilter: 'blur(4px)',
+                                    textShadow: '0 1px 2px rgba(0,0,0,0.5)',
                                 }}
                             >
                                 {player.grade}
@@ -273,6 +274,26 @@ function FIFACard({ player, showPrice, price }: {
 }
 
 import { getPowerCardImage } from '@/lib/utils/powerCard';
+
+const StatBox = ({ label, value }: { label: string; value?: number }) => (
+    <div className="p-2 rounded bg-black/10 border border-black/5 flex flex-col items-center justify-center min-w-[70px]">
+        <p className="text-[10px] font-bold uppercase text-black/40 leading-none mb-1">{label}</p>
+        <p className="text-lg font-black leading-none">{value || 'N/A'}</p>
+    </div>
+);
+
+const ModalStat = ({ label, value, config, delay }: { label: string; value?: number; config: any; delay: number }) => (
+    <motion.div 
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay }}
+        whileHover={{ y: -5, backgroundColor: 'rgba(255,255,255,0.1)' }}
+        className="p-4 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center justify-center transition-colors group"
+    >
+        <p className="text-[10px] font-bold uppercase text-white/40 mb-1 tracking-widest group-hover:text-white/60 transition-colors">{label}</p>
+        <p className="text-3xl font-black italic tracking-tighter" style={{ color: config.textColor }}>{value || 'N/A'}</p>
+    </motion.div>
+);
 
 // Power Card Definitions
 const POWER_CARD_DEFS: Record<string, { gradient: string }> = {
@@ -294,6 +315,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
     const [allTeams, setAllTeams] = useState<Team[]>([]);
     const [allPlayers, setAllPlayers] = useState<Player[]>([]);
     const [loading, setLoading] = useState(true);
+    const [expandedPlayerId, setExpandedPlayerId] = useState<number | null>(null);
     
     const { on, requestState } = useAuctionSocket();
 
@@ -376,7 +398,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
 
     const purchasedPlayers = allPlayers.filter(p => team.players?.includes(p.rank));
     const budgetPercentage = (team.budgetRemaining / team.totalBudget) * 100;
-    const availablePowerCards = Object.values(team.powerCards).filter(c => c.available && !c.used).length;
+    const availablePowerCards = Object.entries(team.powerCards).filter(([key, c]) => !c.used && (c.available || key === 'rightToMatch')).length;
     const usedPowerCards = Object.values(team.powerCards).filter(c => c.used).length;
 
     return (
@@ -441,40 +463,258 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
 
                 {/* My Squad Section */}
                 <ScrollReveal>
-                    <h2 className="text-[#e8ecf1] font-black text-xl mb-6 tracking-wide flex items-center gap-3" style={{ fontFamily: "'Cinzel', serif" }}>
-                        <span className="text-2xl">🏆</span> My Squad
-                        <span className="text-sm font-medium text-[#7a9ab0] ml-2">({purchasedPlayers.length}/{team.squadLimit})</span>
-                    </h2>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-[#e8ecf1] font-black text-xl tracking-wide flex items-center gap-3" style={{ fontFamily: "'Cinzel', serif" }}>
+                            <span className="text-2xl">🏆</span> My Squad
+                            <span className="text-sm font-medium text-[#7a9ab0] ml-2">({purchasedPlayers.length}/{team.squadLimit})</span>
+                        </h2>
+                    </div>
 
-                    {purchasedPlayers.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 justify-items-center">
-                            {purchasedPlayers.map((player, i) => (
+                    <div className="space-y-3">
+                        {purchasedPlayers.map((player, index) => {
+                            const gradeConfig = {
+                                A: { bgOuter: 'linear-gradient(135deg, #FDE08B 0%, #D4AF37 50%, #FDE08B 100%)', textColor: '#FDE08B' },
+                                B: { bgOuter: 'linear-gradient(135deg, #E8ECF1 0%, #9BA4B5 50%, #E8ECF1 100%)', textColor: '#E8ECF1' },
+                                C: { bgOuter: 'linear-gradient(135deg, #E6A171 0%, #A65D37 50%, #E6A171 100%)', textColor: '#E6A171' },
+                                D: { bgOuter: 'linear-gradient(135deg, #9BA4B5 0%, #4B5563 50%, #9BA4B5 100%)', textColor: '#9BA4B5' },
+                            };
+                            const config = gradeConfig[player.grade as keyof typeof gradeConfig] || gradeConfig.D;
+
+                            return (
                                 <motion.div
                                     key={player.rank}
-                                    initial={{ opacity: 0, y: 30 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: i * 0.05 }}
+                                    whileHover={{ x: 5 }}
+                                    onClick={() => setExpandedPlayerId(player.rank)}
+                                    className="cursor-pointer flex items-center justify-between p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-300"
                                 >
-                                    <FIFACard player={player} />
-                                    <div className="text-center mt-3">
-                                        <div className="text-sm font-bold text-[#e8ecf1] truncate max-w-[200px]">{player.player}</div>
-                                        <div className="text-xs text-[#7a9ab0]">{player.category}</div>
+                                    <div className="flex items-center gap-6">
+                                        <span className="text-xl font-black w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-[#7a9ab0]">
+                                            {index + 1}
+                                        </span>
+                                        <div>
+                                            <div className="text-lg font-black uppercase tracking-tight text-[#e8ecf1]">
+                                                {player.player}
+                                            </div>
+                                            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7a9ab0]/60">
+                                                {player.category}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div 
+                                        className="px-5 py-1.5 rounded-full text-[12px] font-black border-2 tracking-widest text-white"
+                                        style={{ 
+                                            background: config.bgOuter,
+                                            borderColor: 'rgba(255,255,255,0.2)'
+                                        }}
+                                    >
+                                        GRADE {player.grade}
                                     </div>
                                 </motion.div>
-                            ))}
-                        </div>
-                    ) : (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="py-16 text-center rounded-2xl bg-[#0a1628]/40 border border-[#2bb5cc]/10"
-                        >
-                            <div className="text-6xl mb-4">🏏</div>
-                            <div className="text-xl text-[#7a9ab0] font-bold">No Players Acquired Yet</div>
-                            <div className="text-sm text-[#7a9ab0]/60 mt-2">Players will appear here once purchased in the auction</div>
-                        </motion.div>
-                    )}
+                            );
+                        })}
+
+                        {purchasedPlayers.length === 0 && (
+                            <div className="py-20 text-center rounded-2xl bg-[#0a1628]/40 border border-[#2bb5cc]/10 border-dashed">
+                                <div className="text-6xl mb-4">🏏</div>
+                                <div className="text-xl text-[#7a9ab0] font-bold tracking-widest uppercase italic">Empty Squad</div>
+                                <div className="text-sm text-[#7a9ab0]/60 mt-2">Acquire players to build your team.</div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Modal Pop-out for Player Details */}
+                    <AnimatePresence>
+                        {expandedPlayerId && (
+                            <>
+                                {/* Backdrop */}
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setExpandedPlayerId(null)}
+                                    className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] flex items-start justify-center p-4 overflow-y-auto pt-32 pb-10"
+                                >
+                                    {/* Modal Content */}
+                                    {(() => {
+                                        const player = purchasedPlayers.find(p => p.rank === expandedPlayerId);
+                                        if (!player) return null;
+                                        const gradeConfig = {
+                                            A: { bgOuter: 'linear-gradient(135deg, #FDE08B 0%, #D4AF37 50%, #FDE08B 100%)', textColor: '#FDE08B' },
+                                            B: { bgOuter: 'linear-gradient(135deg, #E8ECF1 0%, #9BA4B5 50%, #E8ECF1 100%)', textColor: '#E8ECF1' },
+                                            C: { bgOuter: 'linear-gradient(135deg, #E6A171 0%, #A65D37 50%, #E6A171 100%)', textColor: '#E6A171' },
+                                            D: { bgOuter: 'linear-gradient(135deg, #9BA4B5 0%, #4B5563 50%, #9BA4B5 100%)', textColor: '#9BA4B5' },
+                                        };
+                                        const config = gradeConfig[player.grade as keyof typeof gradeConfig] || gradeConfig.D;
+                                        
+                                        return (
+                                            <div className="relative w-full max-w-4xl p-1 rounded-3xl group">
+                                                {/* Shimmering Glow Effect Outside */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, scale: 0.9 }}
+                                                    animate={{ 
+                                                        opacity: [0.2, 0.5, 0.2],
+                                                        scale: [1, 1.05, 1],
+                                                        filter: [
+                                                            `blur(20px) brightness(1)`,
+                                                            `blur(40px) brightness(1.2)`,
+                                                            `blur(20px) brightness(1)`
+                                                        ]
+                                                    }}
+                                                    transition={{ 
+                                                        duration: player.grade === 'A' ? 2 : player.grade === 'B' ? 3 : 4,
+                                                        repeat: Infinity,
+                                                        ease: "easeInOut"
+                                                    }}
+                                                    className="absolute inset-0 rounded-3xl z-[-1]"
+                                                    style={{ 
+                                                        background: config.bgOuter,
+                                                        opacity: player.grade === 'A' ? 0.6 : player.grade === 'B' ? 0.4 : 0.2
+                                                    }}
+                                                />
+
+                                                <motion.div
+                                                    initial={{ scale: 0.8, opacity: 0, y: 40 }}
+                                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                                    exit={{ scale: 0.8, opacity: 0, y: 40 }}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="relative rounded-[22px] overflow-hidden"
+                                                >
+                                                    <div className="bg-[#0a1628]/90 rounded-[22px] overflow-hidden relative border border-white/5">
+                                                    {/* Decorative Header with Grade Gradient */}
+                                                    <div className="h-32 w-full absolute top-0 left-0 opacity-20" style={{ background: config.bgOuter }} />
+                                                    
+                                                    {/* Close Button */}
+                                                    <button 
+                                                        onClick={() => setExpandedPlayerId(null)}
+                                                        className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all z-50 border border-white/10"
+                                                    >
+                                                        <span className="text-2xl leading-none">×</span>
+                                                    </button>
+
+                                                    <div className="p-8 md:p-12 relative z-10">
+                                                        <div className="flex flex-col md:flex-row gap-10 items-center md:items-start text-white">
+                                                            {/* Avatar Section */}
+                                                            <div className="relative shrink-0">
+                                                                <motion.div 
+                                                                    initial={{ y: 20, opacity: 0 }}
+                                                                    animate={{ y: 0, opacity: 1 }}
+                                                                    transition={{ delay: 0.2 }}
+                                                                    className="w-48 h-48 md:w-64 md:h-64 rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl bg-black/80 relative group"
+                                                                >
+                                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80 z-10" />
+                                                                    <img 
+                                                                        src={`/player_photos/${player.rank}.avif`} 
+                                                                        alt={player.player}
+                                                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                                        onError={(e) => {
+                                                                            (e.target as HTMLImageElement).src = 'https://www.iplt20.com/assets/images/default-headshot.png';
+                                                                        }}
+                                                                    />
+                                                                    <div className="absolute bottom-4 left-4 z-20">
+                                                                        <div className="text-sm font-bold opacity-50 uppercase tracking-widest">Jersey #</div>
+                                                                        <div className="text-4xl font-black italic">{player.rank}</div>
+                                                                    </div>
+                                                                </motion.div>
+                                                                
+                                                                {/* Grade Badge */}
+                                                                <div 
+                                                                    className="absolute -top-4 -right-4 w-20 h-20 rounded-2xl flex flex-col items-center justify-center border-4 border-[#0a1628] shadow-2xl z-30 transform -rotate-12"
+                                                                    style={{ background: config.bgOuter }}
+                                                                >
+                                                                    <span className="text-[10px] font-black text-black/40 uppercase leading-none mb-1">Grade</span>
+                                                                    <span className="text-4xl font-black text-black leading-none">{player.grade}</span>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Details Section */}
+                                                            <div className="flex-1 w-full">
+                                                                <div className="mb-8 border-b border-white/10 pb-6">
+                                                                    <motion.h3 
+                                                                        initial={{ x: -20, opacity: 0 }}
+                                                                        animate={{ x: 0, opacity: 1 }}
+                                                                        transition={{ delay: 0.3 }}
+                                                                        className="text-5xl md:text-6xl font-black uppercase tracking-tighter italic mb-2"
+                                                                        style={{ color: '#ffffff', textShadow: '0 10px 20px rgba(0,0,0,0.5)' }}
+                                                                    >
+                                                                        {player.player}
+                                                                    </motion.h3>
+                                                                    <div className="flex flex-wrap gap-3 items-center">
+                                                                        <span className="px-4 py-1.5 rounded-full bg-[#2bb5cc]/20 border border-[#2bb5cc]/30 text-[#2bb5cc] text-xs font-black uppercase tracking-wider">{player.category}</span>
+                                                                        <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60 text-xs font-black uppercase tracking-wider">
+                                                                            {player.nationality === 'Overseas' ? '🌎 International Player' : '🇮🇳 Domestic Player'}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Unified Stats Card */}
+                                                                <div className="mt-6 p-6 rounded-2xl bg-white/5 border border-white/10">
+                                                                    <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-6 border-b border-white/5 pb-2">Technical Analysis • Stats</div>
+                                                                    
+                                                                    <div className="grid grid-cols-5 gap-4">
+                                                                        {/* Header Row */}
+                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Rating</div>
+                                                                        {player.category.toLowerCase().includes('bat') || player.category.toLowerCase().includes('wk') ? (
+                                                                            <>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Scoring</div>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Impact</div>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Cons.</div>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Exp.</div>
+                                                                            </>
+                                                                        ) : player.category.toLowerCase().includes('bowl') ? (
+                                                                            <>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Wickets</div>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Economy</div>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Eff.</div>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">-</div>
+                                                                            </>
+                                                                        ) : (
+                                                                            <>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Batting</div>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Bowling</div>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Vers.</div>
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">-</div>
+                                                                            </>
+                                                                        )}
+
+                                                                        {/* Value Row */}
+                                                                        <div className="text-3xl font-black italic text-[#2dd4a0] text-center">{player.rating}</div>
+                                                                        {player.category.toLowerCase().includes('bat') || player.category.toLowerCase().includes('wk') ? (
+                                                                            <>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_scoring}</div>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_impact}</div>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_consistency}</div>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_experience}</div>
+                                                                            </>
+                                                                        ) : player.category.toLowerCase().includes('bowl') ? (
+                                                                            <>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_wickettaking}</div>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_economy}</div>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_efficiency}</div>
+                                                                                <div className="text-3xl font-black italic text-center text-white/10">-</div>
+                                                                            </>
+                                                                        ) : (
+                                                                            <>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_batting}</div>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_bowling}</div>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_versatility}</div>
+                                                                                <div className="text-3xl font-black italic text-center text-white/10">-</div>
+                                                                            </>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        </div>
+                                        );
+                                    })()}
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
                 </ScrollReveal>
 
                 {/* Power Cards Section */}
