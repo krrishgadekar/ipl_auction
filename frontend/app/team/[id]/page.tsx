@@ -350,20 +350,26 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
     }, [teamId, requestState]);
 
     useEffect(() => {
-        const unbindStateSync = on('STATE_SYNC', (data: any) => {
+        const handleSync = (data?: any) => {
             if (data && data.teams) {
                 setAllTeams(data.teams);
                 setTeam(data.teams.find((t: any) => String(t.id) === teamId) || null);
+            } else {
+                requestState();
             }
-        });
-        
-        const unbindPlayerSold = on('PLAYER_SOLD', () => {
-             requestState();
-        });
+        };
+
+        const unsubs = [
+            on('STATE_SYNC', handleSync),
+            on('TEAM_STATE_SYNC', handleSync),
+            on('PLAYER_SOLD', requestState),
+            on('PLAYER_UNSOLD', requestState),
+            on('POWER_CARD_USED', requestState),
+            on('FRANCHISE_ASSIGNED', requestState)
+        ];
 
         return () => {
-            unbindStateSync();
-            unbindPlayerSold();
+            unsubs.forEach(u => u());
         };
     }, [teamId, on, requestState]);
 

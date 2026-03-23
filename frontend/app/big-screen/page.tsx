@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { mockPlayers } from '@/lib/mockData/players';
 import { Team } from '@/lib/api/teams';
-import { type Player, type AuctionState, getAuctionState, subscribeToAuctionUpdates } from '@/lib/api/auction';
+import { type Player, type AuctionState, getAuctionState } from '@/lib/api/auction';
 import { AUCTIONABLE_POWER_CARDS } from '@/lib/mockData/powercards';
 import { getAllTeams } from '@/lib/api/teams';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { preloadImages } from '@/lib/utils/playerImage';
 import Loader from '@/components/Loader';
+import { useAuctionSocket } from '@/lib/hooks/useAuctionSocket';
 
 /* ═══════════════════════════════════════════════════════════
    GRADE THEMES — Consistent Background, Colored Accents
@@ -104,6 +105,8 @@ export default function BigScreenPage() {
     const [isAuth, setIsAuth] = useState<boolean | null>(null);
     const router = useRouter();
 
+    const { on } = useAuctionSocket();
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const auth = localStorage.getItem('ipl_screen_auth');
@@ -127,31 +130,58 @@ export default function BigScreenPage() {
         });
     }, []);
 
+    // Fetch initial data and refresh function
+    const refreshData = useCallback(async () => {
+        try {
+            const [state, teamsData] = await Promise.all([getAuctionState(), getAllTeams()]);
+            setAuctionState(state as any);
+            setTeams(teamsData);
+            
+            // Preload next player images if possible
+            if (state.currentPlayerRank !== null) {
+                const idx = mockPlayers.findIndex(p => p.rank === state.currentPlayerRank);
+                preloadImages([1, 2].map(o => mockPlayers[idx + o]?.imageUrl));
+            }
+        } catch (e) {
+            console.error("Failed to fetch state:", e);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    // Initial Load
     useEffect(() => {
-        const load = async () => {
-            try {
-                const [s, t] = await Promise.all([getAuctionState(), getAllTeams()]);
-                setAuctionState(s as any); setTeams(t); setLoading(false);
-            } catch { setLoading(false); }
-        };
-        load();
-        const unsub = subscribeToAuctionUpdates((ns) => {
-            if (auctionState?.status === 'BIDDING' && ns.status === 'SOLD') { setShowSold(true); confetti(); setTimeout(() => setShowSold(false), 3200); }
-            // Detect riddle → revealed transition
-            if (auctionState?.currentPlayer?.isRiddle && ns.currentPlayer && !ns.currentPlayer.isRiddle && ns.currentPlayer.rank === auctionState.currentPlayer.rank) {
+        refreshData();
+    }, [refreshData]);
+
+    // WebSocket Event Listeners
+    useEffect(() => {
+        const unsubs = [
+            on('STATE_SYNC', refreshData),
+            on('TEAM_STATE_SYNC', refreshData),
+            on('PHASE_CHANGED', refreshData),
+            on('BID_UPDATED', refreshData),
+            on('PLAYER_UNSOLD', refreshData),
+            on('FRANCHISE_ASSIGNED', refreshData),
+            on('POWER_CARD_USED', refreshData),
+            on('PLAYER_ANNOUNCED', refreshData),
+            on('ITEM_ANNOUNCED', refreshData),
+            on('PLAYER_SOLD', () => {
+                setShowSold(true);
+                confetti();
+                setTimeout(() => setShowSold(false), 3200);
+                refreshData();
+            }),
+            on('RIDDLE_UNVEILED', () => {
                 setShowReveal(true);
                 confetti();
                 setTimeout(() => setShowReveal(false), 4000);
-            }
-            setAuctionState(ns as any);
-            if (ns.currentPlayerRank !== null) {
-                const idx = mockPlayers.findIndex(p => p.rank === ns.currentPlayerRank);
-                preloadImages([1, 2].map(o => mockPlayers[idx + o]?.imageUrl));
-            }
-        });
-        const ti = setInterval(async () => { setTeams(await getAllTeams()); }, 2000);
-        return () => { unsub(); clearInterval(ti); };
-    }, [auctionState?.status, confetti]);
+                refreshData();
+            })
+        ];
+
+        return () => { unsubs.forEach(unsub => unsub()); };
+    }, [on, refreshData, confetti]);
 
     if (!isAuth) return null;
 
