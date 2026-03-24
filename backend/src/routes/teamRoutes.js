@@ -4,8 +4,16 @@
 import { Router } from 'express';
 import prisma from '../config/db.js';
 import { serializeTeam, serializePlayer } from '../utils/serializer.js';
+import teamAuth from '../middleware/teamAuth.js';
 
 const router = Router();
+
+// Apply auth to all team-specific GET routes except the list
+// The list /api/teams is public (used by dashboard/admin)
+// The specific /api/teams/:id is used by the team dashboard
+router.use('/:id', teamAuth);
+router.use('/:id/squad', teamAuth);
+router.use('/:id/power-cards', teamAuth);
 
 /**
  * GET /api/teams
