@@ -17,7 +17,7 @@ router.post('/login', async (req, res) => {
         if (!username || !password) {
             return res.status(400).json({ error: 'Username and password required' });
         }
-        const result = await auctionService.loginTeam(username, password);
+        const result = await auctionService.loginTeam(username, password, req.body);
         res.json(result);
     } catch (err) {
         res.status(401).json({ error: err.message });

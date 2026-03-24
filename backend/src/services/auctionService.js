@@ -1005,14 +1005,19 @@ async function assignPowerCard(teamId, cardType, price) {
 // ═══════════════════════════════════════════════════════════════
 
 
-async function loginTeam(username, password) {
+async function loginTeam(username, password, reqBody = {}) {
     const team = await prisma.team.findUnique({ where: { username } });
     if (!team) throw new Error('Invalid username');
 
     const valid = await bcrypt.compare(password, team.password_hash);
     if (!valid) throw new Error('Invalid password');
 
-    // Generate session token (simple uuid-like)
+    // Block second login if session is active (unless 'force' is provided)
+    if (team.active_session_id && !reqBody?.force) {
+        throw new Error('This team is already logged in on another device.');
+    }
+
+    // Generate session token
     const sessionId = crypto.randomUUID();
 
     await prisma.team.update({

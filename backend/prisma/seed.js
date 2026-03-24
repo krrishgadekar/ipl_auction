@@ -210,11 +210,14 @@ async function main() {
   console.log(`  ✅ 159 players and auction records seeded`);
 
   // 4. Admin Users
+  const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+  const screenPass = process.env.SCREEN_PASSWORD || 'screen123';
+  
   await prisma.adminUser.create({
-    data: { username: 'admin', password_hash: await bcrypt.hash('admin123', SALT_ROUNDS), role: 'ADMIN' }
+    data: { username: 'admin', password_hash: await bcrypt.hash(adminPass, SALT_ROUNDS), role: 'ADMIN' }
   });
   await prisma.adminUser.create({
-    data: { username: 'screen', password_hash: await bcrypt.hash('screen123', SALT_ROUNDS), role: 'SCREEN' }
+    data: { username: 'screen', password_hash: await bcrypt.hash(screenPass, SALT_ROUNDS), role: 'SCREEN' }
   });
   console.log('  ✅ Admin users seeded');
 
