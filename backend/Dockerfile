@@ -1,25 +1,28 @@
 # ═══════════════════════════════════════════════════════════════
-# IPL Auction 2026 — Backend Dockerfile
-# Builds Node.js API + Prisma + PostgreSQL client
+# IPL Auction 2026 — Backend Dockerfile (Optimized for Render)
 # ═══════════════════════════════════════════════════════════════
 
 FROM node:20-alpine AS base
 WORKDIR /app
 
-# Install dependencies
-COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev
+# Install system dependencies for Prisma (libc6-compat is needed for binaries in Alpine)
+RUN apk add --no-cache curl openssl libc6-compat
 
-# Copy source
+# Install ALL dependencies first to allow Prisma generation
+COPY package.json package-lock.json* ./
+RUN npm install --legacy-peer-deps
+
+# Copy source code and Prisma schema
 COPY . .
 
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl
+# Prune dev dependencies after generation
+RUN npm prune --omit=dev
 
-EXPOSE 5000
+# The app listens on the port provided by the PORT env var (standard for Render)
+# Render default is usually 10000
 
-# Startup: push → conditional seed → start server
-CMD ["sh", "-c", "echo '🏏 Syncing Prisma schema...' && npx prisma db push --accept-data-loss && echo '🌱 Checking if seed needed...' && node prisma/seed.js && echo '🚀 Starting server...' && node server.js"]
+# Startup: start server immediately
+CMD ["sh", "-c", "echo '🚀 Starting server...' && node server.js"]

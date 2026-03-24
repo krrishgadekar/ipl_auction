@@ -1,0 +1,18 @@
+services:
+  # Backend Service (Docker)
+  - type: web
+    name: ipl-auction-backend
+    env: docker
+    repo: https://github.com/advait-marathe/IPL-AUCTION
+    branch: tanuj # IMPORTANT: Tell Render to use your new branch
+    rootDir: backend
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: PORT
+        value: 10000
