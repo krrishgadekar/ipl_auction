@@ -19,7 +19,8 @@ RUN npx prisma generate
 # Install curl for healthcheck
 RUN apk add --no-cache curl
 
-EXPOSE 5000
+# The app will listen on the port provided by the PORT env var (standard for Render)
+# EXPOSE is not strictly needed for Render but helps for local documentation
 
 # Startup: push → conditional seed → start server
 CMD ["sh", "-c", "echo '🏏 Syncing Prisma schema...' && npx prisma db push --accept-data-loss && echo '🌱 Checking if seed needed...' && node prisma/seed.js && echo '🚀 Starting server...' && node server.js"]
