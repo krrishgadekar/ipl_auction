@@ -11,6 +11,7 @@ import Link from 'next/link';
 import Loader from '@/components/Loader';
 import Image from 'next/image';
 import { getPowerCardImage } from '@/lib/utils/powerCard';
+import TeamAvatar from '@/components/team/TeamAvatar';
 
 // Floating Particles
 function FloatingParticles() {
@@ -357,9 +358,7 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
                         className="glass-card p-6 mb-8"
                     >
                         <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                            <div className="relative w-10 h-10">
-                                <Image src={currentTeam.logo} alt={currentTeam.shortName} fill className="object-contain drop-shadow-md" />
-                            </div>
+                            <TeamAvatar team={currentTeam} size={10} />
                             Your Power Cards Status
                         </h2>
                         <div className="grid grid-cols-5 gap-3">
@@ -451,9 +450,7 @@ export default function PowerCardsPage({ params }: { params: Promise<{ id: strin
                                     <tr key={team.id} className="border-b border-white/5 hover:bg-white/5">
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-2">
-                                                <div className="relative w-6 h-6">
-                                                    <Image src={team.logo} alt={team.shortName} fill className="object-contain drop-shadow-md" />
-                                                </div>
+                                                <TeamAvatar team={team} size={6} />
                                                 <span className="text-white font-medium">{team.shortName}</span>
                                             </div>
                                         </td>

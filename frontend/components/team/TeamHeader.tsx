@@ -5,6 +5,7 @@
 
 import { Team } from '@/lib/mockData/teams';
 import { motion } from 'framer-motion';
+import TeamAvatar from './TeamAvatar';
 
 interface TeamHeaderProps {
     team: Team;
@@ -23,9 +24,7 @@ export default function TeamHeader({ team }: TeamHeaderProps) {
             <div className="flex items-center justify-between">
                 {/* Team Info */}
                 <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl overflow-hidden p-2" style={{ background: 'linear-gradient(135deg, #0e4d5e, #1a8a9e)', border: '2px solid rgba(43,181,204,0.3)' }}>
-                        <img src={team.logo} alt={team.shortName} className="w-full h-full object-contain drop-shadow-md" />
-                    </div>
+                    <TeamAvatar team={team} size={64} className="shadow-2xl" />
                     <div>
                         <h1 className="text-4xl font-black text-white mb-1" style={{ fontFamily: "'Cinzel', serif" }}>{team.name}</h1>
                         <p style={{ color: 'rgba(122,148,176,0.6)' }}>Team ID: {team.id} • {team.shortName}</p>

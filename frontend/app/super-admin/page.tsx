@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import Loader from '@/components/Loader';
+import TeamAvatar from '@/components/team/TeamAvatar';
 
 export default function SuperAdminPage() {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -124,8 +125,8 @@ export default function SuperAdminPage() {
                         >
                             {/* Team Header */}
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-2xl mr-4 shadow-lg overflow-hidden p-1.5">
-                                    <img src={team.logo} alt={team.shortName} className="w-full h-full object-contain" />
+                                <div className="mr-4">
+                                    <TeamAvatar team={team} size={12} />
                                 </div>
                                 <div className="flex-1">
                                     <h3 className="font-bold text-white text-lg">{team.name}</h3>

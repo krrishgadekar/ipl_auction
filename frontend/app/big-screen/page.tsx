@@ -2,10 +2,9 @@
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { mockPlayers } from '@/lib/mockData/players';
-import { Team } from '@/lib/api/teams';
+import { Team, getTeamLeaderboard, getAllTeams } from '@/lib/api/teams';
 import { type Player, type AuctionState, getAuctionState } from '@/lib/api/auction';
 import { AUCTIONABLE_POWER_CARDS } from '@/lib/mockData/powercards';
-import { getAllTeams } from '@/lib/api/teams';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -13,6 +12,7 @@ import { preloadImages } from '@/lib/utils/playerImage';
 import Loader from '@/components/Loader';
 import { useAuctionSocket } from '@/lib/hooks/useAuctionSocket';
 import { getPowerCardImage, getPowerCardName } from '@/lib/utils/powerCard';
+import TeamAvatar from '@/components/team/TeamAvatar';
 
 /* ═══════════════════════════════════════════════════════════
    GRADE THEMES — Consistent Background, Colored Accents
@@ -94,34 +94,6 @@ function SpiderChart({ stats, theme }: { stats: { label: string; value: number; 
     );
 }
 
-/* ═══════════════════════════════════════════════════════════
-   TEAM AVATAR — Colored circle with initial for teams without logos
-   ═══════════════════════════════════════════════════════════ */
-const TEAM_COLORS = [
-    '#E74C3C', '#3498DB', '#2ECC71', '#F39C12', '#9B59B6',
-    '#1ABC9C', '#E67E22', '#2980B9', '#C0392B', '#27AE60',
-];
-
-function TeamAvatar({ team, size = 20 }: { team: { logo?: string; shortName: string; name: string; id: string | number }; size?: number }) {
-    // If team has a real image logo (starts with /), show it
-    if (team.logo && team.logo.startsWith('/')) {
-        return (
-            <div className="relative flex-shrink-0 rounded overflow-hidden bg-white/5" style={{ width: size, height: size }}>
-                <Image src={team.logo} alt={team.shortName} fill sizes={`${size}px`} className="object-contain" />
-            </div>
-        );
-    }
-    // Otherwise show colored initial circle
-    const colorIdx = typeof team.id === 'string' ? team.id.charCodeAt(0) % TEAM_COLORS.length : Number(team.id) % TEAM_COLORS.length;
-    const bgColor = TEAM_COLORS[colorIdx];
-    const initial = (team.shortName || team.name)?.[0]?.toUpperCase() || '?';
-    return (
-        <div className="flex-shrink-0 rounded-full flex items-center justify-center font-black"
-            style={{ width: size, height: size, background: `${bgColor}30`, border: `1px solid ${bgColor}60`, color: bgColor, fontSize: size * 0.45 }}>
-            {initial}
-        </div>
-    );
-}
 
 /* ═══════════════════════════════════════════════════════════
    MAIN PAGE
@@ -396,7 +368,7 @@ export default function BigScreenPage() {
                                                 </span>
                                             </motion.div>
 
-                                            {/* Bid Stats Grid */}
+                                                                                        {/* Bid Stats Grid */}
                                             <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
                                                 className="grid grid-cols-2 gap-3">
                                                 <div className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
@@ -411,9 +383,7 @@ export default function BigScreenPage() {
                                                     <div className="text-[0.65rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEXT_SEC }}>Highest Bidder</div>
                                                     {highestBidderTeam ? (
                                                         <div className="flex items-center gap-2">
-                                                            <div className="w-7 h-7 relative">
-                                                                <Image src={highestBidderTeam.logo} alt={highestBidderTeam.shortName} fill className="object-contain" />
-                                                            </div>
+                                                            <TeamAvatar team={highestBidderTeam} size={28} />
                                                             <span className="text-lg font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>
                                                                 {highestBidderTeam.shortName}
                                                             </span>
@@ -470,10 +440,8 @@ export default function BigScreenPage() {
                                                                 }}>
                                                                 <span className="text-[0.65rem] font-black w-4 text-center"
                                                                     style={{ color: i < 3 ? card.color : `${card.color}50` }}>{i + 1}</span>
-                                                                <div className="w-5 h-5 relative flex-shrink-0">
-                                                                    <Image src={team.logo} alt={team.shortName} fill sizes="20px" className="object-contain" />
-                                                                </div>
-                                                                <span className="text-[0.75rem] font-bold text-white flex-1 min-w-0 truncate"
+                                                                 <TeamAvatar team={team} size={20} />
+                                                                 <span className="text-[0.75rem] font-bold text-white flex-1 min-w-0 truncate"
                                                                     style={{ fontFamily: "'Cinzel', serif" }}>{team.shortName}</span>
                                                                 <span className="text-[0.55rem]" style={{ color: TEXT_SEC }}>{team.squadCount}/{team.squadLimit}</span>
                                                                 <span className="text-[0.8rem] font-black" style={{ color: '#2dd4a0', fontFamily: "'Cinzel', serif" }}>₹{team.budgetRemaining}</span>
@@ -817,7 +785,7 @@ export default function BigScreenPage() {
                                     </div>
                                 </div>
                             </motion.div>
-                        ) : auctionState.phase === 'FRANCHISE_PHASE' ? (() => {
+                        ) : (auctionState.phase === 'FRANCHISE_PHASE') ? (() => {
                             // Map franchise IDs to names
                             const FRANCHISE_NAMES: Record<string, { name: string; short: string; color: string }> = {
                                 '1': { name: 'Mumbai Indians', short: 'MI', color: '#004BA0' },

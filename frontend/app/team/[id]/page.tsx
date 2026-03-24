@@ -11,6 +11,7 @@ import { getAllTeams } from '@/lib/api/teams';
 import { getAllPlayers } from '@/lib/api/players';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useAuctionSocket } from '@/lib/hooks/useAuctionSocket';
+import TeamAvatar from '@/components/team/TeamAvatar';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -424,7 +425,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                 <div className="max-w-7xl mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-5">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#081a2e] to-[#040b14] border border-[#d4af37]/30 flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.2)] overflow-hidden p-1.5"><img src={team.logo} alt={team.shortName} className="w-full h-full object-contain drop-shadow-md" /></div>
+                            <TeamAvatar team={team} size={56} className="shadow-2xl !rounded-2xl" />
                             <div>
                                 <h1 className="text-2xl font-black text-[#e8ecf1]" style={{ fontFamily: "'Cinzel', serif", letterSpacing: "0.05em" }}>{team.name}</h1>
                                 <p className="text-[#bcdce6]/60 text-xs tracking-widest uppercase mt-0.5">{team.shortName} • Dashboard</p>

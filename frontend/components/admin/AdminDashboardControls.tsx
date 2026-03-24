@@ -141,10 +141,22 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
 
         if (phase === 'FRANCHISE_PHASE' && state.currentItemId) {
             const fr = franchises.find(f => f.id.toString() === state.currentItemId || f.short_name === state.currentItemId);
+            const franchiseId = state.currentItemId;
+            const franchiseShort = fr?.short_name || '';
+            
             return (
                 <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-4xl">
-                        🏢
+                    <div className="w-20 h-20 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center relative overflow-hidden">
+                        {franchiseShort ? (
+                            <img 
+                                src={`/teams/${franchiseShort.toLowerCase()}.png`} 
+                                alt={franchiseShort} 
+                                className="w-full h-full object-contain p-2" 
+                                onError={(e) => { (e.target as HTMLImageElement).src = '🏢'; }}
+                            />
+                        ) : (
+                            <span className="text-4xl">🏢</span>
+                        )}
                     </div>
                     <div>
                         <div className="text-[10px] text-purple-300 uppercase font-black tracking-widest mb-1">Franchise Auction</div>
@@ -393,9 +405,23 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                 {teams.map(team => (
                                     <tr key={team.id} className="hover:bg-white/[0.02] transition-colors">
                                         <td className="p-3">
-                                            <div className="font-bold text-white text-sm">{team.name}</div>
-                                            <div className="text-[10px] text-white/30 truncate max-w-[120px]">
-                                                {team.franchiseName || 'No Franchise'}
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex-shrink-0">
+                                                    {/* Import TeamAvatar where needed or use a local version */}
+                                                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold text-white/40 overflow-hidden">
+                                                        {team.logo && team.logo.startsWith('/') ? (
+                                                            <img src={team.logo} alt={team.shortName} className="w-full h-full object-contain" />
+                                                        ) : (
+                                                            <span>{team.shortName?.charAt(0) || 'T'}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <div className="font-bold text-white text-sm truncate">{team.name}</div>
+                                                    <div className="text-[10px] text-white/30 truncate max-w-[120px]">
+                                                        {team.franchiseName || 'No Franchise'}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="p-3">

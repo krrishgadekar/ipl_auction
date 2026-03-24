@@ -7,8 +7,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mockAuctionState } from '@/lib/mockData/auctionState';
+import { Team, getTeamLeaderboard } from '@/lib/api/teams';
+import TeamAvatar from '@/components/team/TeamAvatar';
 import { mockTeams } from '@/lib/mockData/teams';
-import type { Team } from '@/lib/mockData/teams';
 
 // Polling interval (ms)
 const POLL_MS = 2000;
@@ -43,7 +44,7 @@ function TeamRow({ team, rank }: { team: Team; rank: number }) {
             className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10"
         >
             <span className="text-white/30 font-bold text-sm w-5 text-center">{rank}</span>
-            <span className="text-xl">{team.logo}</span>
+            <TeamAvatar team={team} size={24} />
             <div className="flex-1 min-w-0">
                 <div className="text-white font-bold text-sm truncate">{team.shortName}</div>
                 <div className="h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden">
@@ -67,14 +68,14 @@ function TeamRow({ team, rank }: { team: Team; rank: number }) {
 
 export default function DisplayPage() {
     const [state, setState] = useState(mockAuctionState);
-    const [teams, setTeams] = useState<Team[]>(mockTeams);
+    const [teams, setTeams] = useState<any[]>(mockTeams);
     const [tick, setTick] = useState(0);
 
     // Mock poll
     useEffect(() => {
         const id = setInterval(() => {
             setState({ ...mockAuctionState });
-            setTeams([...mockTeams]);
+            setTeams([...mockTeams] as any[]);
             setTick(t => t + 1);
         }, POLL_MS);
         return () => clearInterval(id);

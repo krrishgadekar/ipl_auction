@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Loader from '@/components/Loader';
 import { useAuctionSocket } from '@/lib/hooks/useAuctionSocket';
+import TeamAvatar from '@/components/team/TeamAvatar';
 
 // Floating Particles
 function FloatingParticles() {
@@ -76,12 +77,7 @@ function TeamDetailCard({ team, index }: {
                 {/* Header */}
                 <div className="p-6">
                     <div className="flex items-center gap-4">
-                        <motion.div
-                            className="text-5xl"
-                            whileHover={{ scale: 1.1, rotate: 5 }}
-                        >
-                            {team.logo}
-                        </motion.div>
+                        <TeamAvatar team={team} size={64} className="shadow-2xl" />
                         <div className="flex-1 min-w-0">
                             <h3 className="font-black text-white text-xl truncate">
                                 {team.name}
