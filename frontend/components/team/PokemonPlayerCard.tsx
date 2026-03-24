@@ -11,16 +11,37 @@ interface PokemonPlayerCardProps {
     showPrice?: boolean;
     price?: number;
     size?: 'sm' | 'md' | 'lg';
+    isRiddle?: boolean;
+    riddleClue?: { id: number; title: string; question: string } | null;
 }
 
 export default function PokemonPlayerCard({
     player,
     showPrice = false,
     price,
-    size = 'md'
+    size = 'md',
+    isRiddle = false,
+    riddleClue = null
 }: PokemonPlayerCardProps) {
     // Card styles based on grade (Pokemon rarity system)
     const getCardStyles = () => {
+        if (isRiddle) {
+            return {
+                wrapper: 'riddle-card',
+                border: 'border-2 border-[rgba(212,175,55,0.6)]',
+                background: 'bg-gradient-to-br from-[#1a1a1a] via-[#2d2410] to-[#1a1a1a]',
+                glow: 'shadow-[0_0_20px_rgba(212,175,55,0.3)]',
+                headerBg: 'bg-gradient-to-r from-[#d4af37] via-[#f5d569] to-[#d4af37]',
+                headerText: 'text-black',
+                ratingBg: 'bg-gradient-to-br from-[#333] to-[#111]',
+                ratingText: 'text-[#d4af37]',
+                badge: '🧩 RIDDLE',
+                badgeColor: 'bg-[#d4af37] text-black',
+                shimmer: true,
+                holoEffect: false,
+            };
+        }
+
         switch (player.grade) {
             case 'A': // LEGENDARY - Gold/Rainbow holographic
                 return {
@@ -94,6 +115,7 @@ export default function PokemonPlayerCard({
     };
 
     const getPoolIcon = () => {
+        if (isRiddle) return '🎭';
         switch (player.pool) {
             case 'BAT_WK': return '🏏';
             case 'BOWL': return '🎯';
@@ -120,6 +142,7 @@ export default function PokemonPlayerCard({
                 transition-all duration-300
                 relative
                 group
+                flex flex-col h-full
             `}
             style={{ transformStyle: 'preserve-3d' }}
         >
@@ -136,7 +159,7 @@ export default function PokemonPlayerCard({
             )}
 
             {/* Card Header with Grade Badge */}
-            <div className={`${styles.headerBg} px-3 py-2 relative`}>
+            <div className={`${styles.headerBg} px-3 py-2 relative shrink-0`}>
                 <div className="flex items-center justify-between">
                     <span className={`text-xs font-black ${styles.headerText} tracking-wider`}>
                         {styles.badge}
@@ -146,25 +169,28 @@ export default function PokemonPlayerCard({
             </div>
 
             {/* Player Avatar Area */}
-            <div className="relative p-4 pb-2">
+            <div className="relative p-4 pb-2 shrink-0">
                 {/* Avatar */}
                 <div className={`
                     w-20 h-20 mx-auto rounded-2xl 
-                    ${player.grade === 'A' ? 'bg-gradient-to-br from-yellow-400/30 via-amber-300/20 to-yellow-400/30 border-2 border-yellow-400/50' :
+                    ${isRiddle ? 'bg-gradient-to-br from-[#111] to-[#333] border-2 border-[#d4af37]' :
+                        player.grade === 'A' ? 'bg-gradient-to-br from-yellow-400/30 via-amber-300/20 to-yellow-400/30 border-2 border-yellow-400/50' :
                         player.grade === 'B' ? 'bg-gradient-to-br from-purple-400/30 to-indigo-400/30 border border-purple-400/50' :
-                            player.grade === 'C' ? 'bg-gradient-to-br from-cyan-400/30 to-blue-400/30 border border-cyan-400/50' :
-                                'bg-white/10 border border-white/20'}
+                        player.grade === 'C' ? 'bg-gradient-to-br from-cyan-400/30 to-blue-400/30 border border-cyan-400/50' :
+                        'bg-white/10 border border-white/20'}
                     flex items-center justify-center
-                    ${player.grade === 'A' ? 'shadow-[0_0_20px_rgba(255,215,0,0.4)]' : ''}
+                    ${player.grade === 'A' && !isRiddle ? 'shadow-[0_0_20px_rgba(255,215,0,0.4)]' : ''}
+                    ${isRiddle ? 'shadow-[0_0_20px_rgba(212,175,55,0.4)]' : ''}
                 `}>
                     <span className={`
                         text-4xl font-black
-                        ${player.grade === 'A' ? 'text-yellow-300' :
+                        ${isRiddle ? 'text-[#d4af37]' :
+                            player.grade === 'A' ? 'text-yellow-300' :
                             player.grade === 'B' ? 'text-purple-300' :
-                                player.grade === 'C' ? 'text-cyan-300' :
-                                    'text-white/80'}
+                            player.grade === 'C' ? 'text-cyan-300' :
+                            'text-white/80'}
                     `}>
-                        {player.player.charAt(0)}
+                        {isRiddle ? '❓' : player.player.charAt(0)}
                     </span>
                 </div>
 
@@ -172,64 +198,77 @@ export default function PokemonPlayerCard({
                 <div className={`
                     absolute top-2 right-2
                     ${styles.ratingBg}
+                    border border-white/10
                     w-10 h-10 rounded-xl
                     flex items-center justify-center
                     ${styles.ratingText} font-black text-lg
-                    ${player.grade === 'A' ? 'shadow-lg shadow-yellow-500/50' : ''}
+                    ${player.grade === 'A' || isRiddle ? 'shadow-lg' : ''}
                 `}>
-                    {player.rating}
+                    {isRiddle ? '??' : player.rating}
                 </div>
             </div>
 
             {/* Player Name */}
-            <div className="px-3 text-center">
+            <div className="px-3 text-center shrink-0">
                 <h3 className={`
                     font-black text-sm truncate
-                    ${player.grade === 'A' ? 'text-yellow-300' :
+                    ${isRiddle ? 'text-[#d4af37]' :
+                        player.grade === 'A' ? 'text-yellow-300' :
                         player.grade === 'B' ? 'text-purple-300' :
-                            player.grade === 'C' ? 'text-cyan-300' :
-                                'text-white'}
+                        player.grade === 'C' ? 'text-cyan-300' :
+                        'text-white'}
                 `}>
-                    {player.player}
+                    {isRiddle ? (riddleClue?.title || '???') : player.player}
                 </h3>
                 <p className="text-xs text-white/50 truncate mt-0.5">
-                    {player.category}
+                    {isRiddle ? 'Mystery Player' : player.category}
                 </p>
             </div>
 
-            {/* Stats Section */}
-            <div className="p-3 mt-1">
-                <div className="grid grid-cols-2 gap-1.5">
-                    <div className="bg-black/20 rounded-lg p-1.5 text-center">
-                        <div className="text-[10px] text-white/40 uppercase">Legacy</div>
-                        <div className={`text-sm font-bold ${player.grade === 'A' ? 'text-yellow-400' : 'text-white'}`}>
-                            {player.legacy}/10
+            {/* Stats Section / Riddle Clue Section */}
+            <div className="p-3 mt-1 flex-1 flex flex-col justify-center">
+                {isRiddle ? (
+                    <div className="bg-black/40 rounded-lg p-2 border border-[#d4af37]/30 h-full flex flex-col items-center justify-center text-center">
+                        <div className="text-[9px] text-[#d4af37]/70 uppercase font-black tracking-widest mb-1">Clue</div>
+                        <div className="text-[10px] sm:text-xs font-medium text-white/90 line-clamp-4 leading-tight">
+                            {riddleClue?.question || "Question loading..."}
                         </div>
                     </div>
-                    <div className="bg-black/20 rounded-lg p-1.5 text-center">
-                        <div className="text-[10px] text-white/40 uppercase">Rank</div>
-                        <div className="text-sm font-bold text-white">
-                            #{player.rank}
+                ) : (
+                    <div className="grid grid-cols-2 gap-1.5">
+                        <div className="bg-black/20 rounded-lg p-1.5 text-center">
+                            <div className="text-[10px] text-white/40 uppercase">Legacy</div>
+                            <div className={`text-sm font-bold ${player.grade === 'A' ? 'text-yellow-400' : 'text-white'}`}>
+                                {player.legacy}/10
+                            </div>
+                        </div>
+                        <div className="bg-black/20 rounded-lg p-1.5 text-center">
+                            <div className="text-[10px] text-white/40 uppercase">Rank</div>
+                            <div className="text-sm font-bold text-white">
+                                #{player.rank}
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Price Footer (optional) */}
             {showPrice && price !== undefined && (
                 <div className={`
-                    px-3 py-2 text-center
-                    ${player.grade === 'A' ? 'bg-yellow-500/20 border-t border-yellow-400/30' :
+                    px-3 py-2 text-center shrink-0
+                    ${isRiddle ? 'bg-[#d4af37]/20 border-t border-[#d4af37]/30' :
+                        player.grade === 'A' ? 'bg-yellow-500/20 border-t border-yellow-400/30' :
                         player.grade === 'B' ? 'bg-purple-500/20 border-t border-purple-400/30' :
-                            player.grade === 'C' ? 'bg-cyan-500/20 border-t border-cyan-400/30' :
-                                'bg-white/5 border-t border-white/10'}
+                        player.grade === 'C' ? 'bg-cyan-500/20 border-t border-cyan-400/30' :
+                        'bg-white/5 border-t border-white/10'}
                 `}>
                     <div className={`
                         text-lg font-black
-                        ${player.grade === 'A' ? 'text-yellow-400' :
+                        ${isRiddle ? 'text-[#d4af37]' :
+                            player.grade === 'A' ? 'text-yellow-400' :
                             player.grade === 'B' ? 'text-purple-400' :
-                                player.grade === 'C' ? 'text-cyan-400' :
-                                    'text-white'}
+                            player.grade === 'C' ? 'text-cyan-400' :
+                            'text-white'}
                     `}>
                         ₹{price} CR
                     </div>
@@ -237,9 +276,9 @@ export default function PokemonPlayerCard({
             )}
 
             {/* Team badge at bottom */}
-            <div className="px-3 pb-3 pt-1">
+            <div className="px-3 pb-3 pt-1 shrink-0">
                 <div className="text-[10px] text-white/30 text-center truncate">
-                    {player.team}
+                    {isRiddle ? '???' : player.team}
                 </div>
             </div>
         </motion.div>

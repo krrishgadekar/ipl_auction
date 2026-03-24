@@ -2,8 +2,33 @@
 // WebSocket Handler — Broadcast-only (no client mutations)
 // Uses serializer for frontend-compatible responses
 // ═══════════════════════════════════════════════════════════════
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import prisma from '../config/db.js';
 import { serializeAuctionState, serializeTeam, serializePlayer } from '../utils/serializer.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ── Riddle Clues (shared with publicRoutes) ──────────────────
+let _riddleCluesCache = null;
+function parseRiddleClues() {
+    if (_riddleCluesCache) return _riddleCluesCache;
+    try {
+        const filePath = path.resolve(__dirname, '../../resources/sequence_1_riddles.txt');
+        const raw = fs.readFileSync(filePath, 'utf-8');
+        const blocks = raw.split(/Riddle Card \d+:\s*/i).filter(b => b.trim());
+        _riddleCluesCache = blocks.map((block, idx) => {
+            const lines = block.split(/\r?\n/).filter(l => l.trim());
+            const title = lines[0]?.trim() || `Riddle ${idx + 1}`;
+            const questionLine = lines.find(l => /^Question:/i.test(l));
+            const question = questionLine ? questionLine.replace(/^Question:\s*/i, '').trim() : '';
+            return { id: idx + 1, title, question };
+        });
+        return _riddleCluesCache;
+    } catch { return []; }
+}
 
 export default function socketHandler(io) {
     io.on('connection', (socket) => {
@@ -15,12 +40,22 @@ export default function socketHandler(io) {
                 const state = await prisma.auctionState.findUnique({ where: { id: 1 } });
 
                 let currentPlayer = null;
+                let riddleClue = null;
                 if (state?.current_player_id) {
                     currentPlayer = await prisma.player.findUnique({
                         where: { id: state.current_player_id },
                     });
                     // Hide riddle player identity during live auction
                     if (currentPlayer?.is_riddle && state.phase === 'LIVE') {
+                        const riddlePlayers = await prisma.player.findMany({
+                            where: { is_riddle: true },
+                            orderBy: { rank: 'asc' },
+                            select: { id: true, rank: true },
+                        });
+                        const riddleIndex = riddlePlayers.findIndex(rp => rp.id === currentPlayer.id);
+                        const clues = parseRiddleClues();
+                        riddleClue = clues[riddleIndex] || clues[0] || null;
+
                         currentPlayer = {
                             ...currentPlayer,
                             name: '??? RIDDLE PLAYER ???',
@@ -47,7 +82,9 @@ export default function socketHandler(io) {
                     orderBy: { purse_remaining: 'desc' },
                 });
 
-                socket.emit('STATE_SYNC', serializeAuctionState(state, currentPlayer, highestBidder, teams));
+                const serialized = serializeAuctionState(state, currentPlayer, highestBidder, teams);
+                if (riddleClue) serialized.riddleClue = riddleClue;
+                socket.emit('STATE_SYNC', serialized);
             } catch (err) {
                 socket.emit('ERROR', { message: err.message });
             }

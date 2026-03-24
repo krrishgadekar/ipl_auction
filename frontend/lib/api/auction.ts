@@ -70,6 +70,7 @@ export interface AuctionState {
     currentSequenceId?: number | null;
     currentSequenceIndex?: number | null;
     godsEyeRevealed?: boolean;
+    riddleClue?: { id: number; title: string; question: string } | null;
 }
 
 // No mock data fallback in production

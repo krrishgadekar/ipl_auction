@@ -11,6 +11,7 @@ import {
     unveilRiddlePlayer, sellPlayer, getAllSequences, selectSequence,
     getAllFranchises, fineTeam, togglePowerCard
 } from '@/lib/api/admin';
+import PokemonPlayerCard from '../team/PokemonPlayerCard';
 
 interface AdminDashboardControlsProps {
     teams: Team[];
@@ -102,23 +103,36 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
         if (state.currentPlayer) {
             const p = state.currentPlayer;
             return (
-                <div className="flex items-center gap-6">
-                    <div className="relative w-20 h-20 rounded-xl bg-black/40 border border-white/20 overflow-hidden flex items-center justify-center text-4xl shadow-inner shadow-cyan-500/20">
-                        {p.isRiddle ? '🎭' : '👤'}
-                        <div className="absolute top-0 right-0 bg-cyan-600 text-[10px] font-black px-1.5 py-0.5 rounded-bl-lg text-white border-l border-b border-white/10">
-                            #{p.rank}
-                        </div>
+                <div className="flex items-start gap-8">
+                    {/* The Player Card rendering */}
+                    <div className="shrink-0 transform scale-90 translate-y-[-10px] transform-origin-top-left">
+                        <PokemonPlayerCard 
+                            player={p as any} 
+                            showPrice={true}
+                            price={p.basePrice}
+                            isRiddle={p.isRiddle}
+                            riddleClue={state.riddleClue}
+                        />
                     </div>
-                    <div>
+                    {/* Compact Details next to the card for Quick Admin Reference */}
+                    <div className="pt-2">
                         <div className="text-[10px] text-blue-300 uppercase font-black tracking-widest mb-1">Current Player</div>
                         <div className="text-3xl font-black text-white tracking-tight leading-none mb-1">
                             {p.name || p.player}
                         </div>
-                        <div className="flex gap-3 text-xs font-bold text-white/60">
+                        <div className="flex gap-3 text-xs font-bold text-white/60 mt-3">
                             <span className="bg-white/10 px-2 py-0.5 rounded text-blue-300">{p.category}</span>
                             <span className="bg-white/10 px-2 py-0.5 rounded text-orange-300">Grade {p.grade}</span>
                             <span className="bg-white/10 px-2 py-0.5 rounded text-green-300">Base: ₹{p.basePrice} CR</span>
                         </div>
+                        {p.isRiddle && (
+                            <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg max-w-sm">
+                                <div className="text-[10px] font-black uppercase text-yellow-500 mb-1">⚠️ Riddle Player Note</div>
+                                <div className="text-xs text-yellow-200/70">
+                                    Identity is hidden from teams. They only see the clue on the player card until you press UNVEIL.
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             );

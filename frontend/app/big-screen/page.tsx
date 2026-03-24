@@ -528,85 +528,182 @@ export default function BigScreenPage() {
                                         )}
                                     </motion.div>
 
-                                    {/* Large rank number — center, behind everything */}
+                                    {/* Large background element */}
                                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[1]"
                                         style={{ paddingLeft: '10%' }}>
                                         <span style={{
                                             fontSize: 'clamp(12rem, 22vw, 20rem)', fontFamily: "'Cinzel', serif", fontWeight: 900,
-                                            color: theme.accent, opacity: 0.06, lineHeight: 1,
-                                        }}>{player.rank}</span>
+                                            color: player.isRiddle ? '#d4af37' : theme.accent, opacity: 0.06, lineHeight: 1,
+                                        }}>{player.isRiddle ? '?' : player.rank}</span>
                                     </div>
 
-                                    {/* Spider chart — center-ish */}
-                                    <div className="absolute z-[5] pointer-events-none"
-                                        style={{ top: '8%', left: '22%', width: '42%', height: '90%' }}>
-                                        <SpiderChart stats={getStats(player)} theme={theme} />
-                                    </div>
+                                    {player.isRiddle ? (
+                                        /* ═══ RIDDLE PLAYER MODE ═══ */
+                                        <>
+                                            {/* Mystery Silhouette — left side */}
+                                            <motion.div
+                                                initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: 0.1, duration: 0.5 }}
+                                                className="absolute bottom-0 left-0 z-10 flex items-center justify-center"
+                                                style={{ width: '38%', height: '95%' }}>
+                                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/2 z-0"
+                                                    style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(212,175,55,0.3) 0%, transparent 65%)' }} />
+                                                <motion.div
+                                                    className="relative z-10 flex flex-col items-center gap-3"
+                                                    animate={{ y: [0, -6, 0] }}
+                                                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
+                                                    <motion.div
+                                                        className="w-36 h-36 rounded-full flex items-center justify-center"
+                                                        style={{
+                                                            background: 'radial-gradient(circle, rgba(212,175,55,0.2) 0%, rgba(212,175,55,0.05) 60%, transparent 100%)',
+                                                            border: '2px solid rgba(212,175,55,0.35)',
+                                                            boxShadow: '0 0 60px rgba(212,175,55,0.2), inset 0 0 40px rgba(212,175,55,0.1)',
+                                                        }}
+                                                        animate={{
+                                                            boxShadow: [
+                                                                '0 0 40px rgba(212,175,55,0.15), inset 0 0 30px rgba(212,175,55,0.08)',
+                                                                '0 0 80px rgba(212,175,55,0.35), inset 0 0 50px rgba(212,175,55,0.15)',
+                                                                '0 0 40px rgba(212,175,55,0.15), inset 0 0 30px rgba(212,175,55,0.08)',
+                                                            ],
+                                                        }}
+                                                        transition={{ duration: 2.5, repeat: Infinity }}>
+                                                        <span style={{ fontSize: '5rem', filter: 'drop-shadow(0 0 20px rgba(212,175,55,0.5))' }}>🎭</span>
+                                                    </motion.div>
+                                                    <span className="text-[0.6rem] font-black tracking-[0.3em] uppercase"
+                                                        style={{ color: 'rgba(212,175,55,0.6)' }}>IDENTITY HIDDEN</span>
+                                                </motion.div>
+                                            </motion.div>
 
-                                    {/* Player Image — bottom-left corner, like the reference */}
-                                    <motion.div
-                                        initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.1, duration: 0.5 }}
-                                        className="absolute bottom-0 left-0 z-10"
-                                        style={{ width: '38%', height: '95%' }}>
-                                        {/* Glow under player */}
-                                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/2 z-0"
-                                            style={{ background: `radial-gradient(ellipse at 50% 100%, ${theme.accentGlow} 0%, transparent 65%)` }} />
-                                        {!player.isRiddle && player.imageUrl ? (
-                                            player.imageUrl.startsWith('/') ? (
-                                                <Image src={player.imageUrl} alt={player.player} fill priority sizes="35vw"
-                                                    className="object-contain object-bottom z-10"
-                                                    style={{ filter: `drop-shadow(0 6px 20px rgba(0,0,0,0.6)) drop-shadow(0 0 25px ${theme.accentGlow})` }} />
-                                            ) : (
-                                                <img src={player.imageUrl} alt={player.player}
-                                                    className="absolute inset-0 w-full h-full object-contain object-bottom z-10"
-                                                    style={{ filter: `drop-shadow(0 6px 20px rgba(0,0,0,0.6))` }}
-                                                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                                            )
-                                        ) : (
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <div className="w-24 h-24 rounded-full flex items-center justify-center"
-                                                    style={{ background: `radial-gradient(circle, ${theme.accent}25, transparent)`, border: `2px solid ${GLASS_BORDER}` }}>
-                                                    <span style={{ fontSize: '3rem', fontFamily: "'Cinzel', serif", color: theme.accentLight }}>
-                                                        {player.isRiddle ? '?' : player.player.charAt(0)}
+                                            {/* Riddle Clue — right side */}
+                                            <div className="absolute right-0 top-0 bottom-0 z-10 flex flex-col justify-center p-5 pr-6"
+                                                style={{ width: '55%' }}>
+
+                                                {/* Riddle Badge */}
+                                                <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
+                                                    className="flex items-center gap-2 mb-3">
+                                                    <span className="px-3 py-1 rounded-full font-black text-[0.6rem] tracking-[0.15em]"
+                                                        style={{ background: 'linear-gradient(135deg, #d4af37, #f5d569)', color: '#1a1000' }}>
+                                                        🧩 RIDDLE PLAYER
                                                     </span>
-                                                </div>
+                                                    {auctionState.riddleClue && (
+                                                        <span className="px-2 py-0.5 rounded-full text-[0.55rem] font-bold"
+                                                            style={{ background: GLASS_BG, border: `1px solid rgba(212,175,55,0.3)`, color: '#f5d569' }}>
+                                                            Card #{auctionState.riddleClue.id}
+                                                        </span>
+                                                    )}
+                                                </motion.div>
+
+                                                {/* Title */}
+                                                <motion.h2 initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
+                                                    className="font-black leading-[0.95] mb-3"
+                                                    style={{ fontSize: 'clamp(1.4rem, 3vw, 2.5rem)', fontFamily: "'Cinzel', serif", color: '#d4af37' }}>
+                                                    {auctionState.riddleClue?.title || '??? Mystery Player ???'}
+                                                </motion.h2>
+
+                                                {/* Question */}
+                                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+                                                    className="rounded-xl p-4 mb-4"
+                                                    style={{
+                                                        background: 'rgba(212,175,55,0.06)',
+                                                        border: '1px solid rgba(212,175,55,0.2)',
+                                                        boxShadow: 'inset 0 0 30px rgba(212,175,55,0.05)',
+                                                    }}>
+                                                    <div className="text-[0.6rem] uppercase tracking-widest font-black mb-2"
+                                                        style={{ color: 'rgba(212,175,55,0.5)' }}>🔍 CLUE</div>
+                                                    <p className="text-sm leading-relaxed font-medium"
+                                                        style={{ color: 'rgba(255,255,255,0.85)', lineHeight: '1.7' }}>
+                                                        {auctionState.riddleClue?.question || 'Riddle clue loading...'}
+                                                    </p>
+                                                </motion.div>
+
+                                                {/* Stats Grid — still visible for riddle */}
+                                                <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
+                                                    className="grid grid-cols-2 gap-3">
+                                                    {[
+                                                        { lbl: 'Grade', val: `Grade ${player.grade}` },
+                                                        { lbl: 'Nationality', val: player.nationality === 'Indian' ? '🇮🇳 Indian' : '🌍 Overseas' },
+                                                    ].map((c) => (
+                                                        <div key={c.lbl} className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
+                                                            style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
+                                                            <div className="text-[0.65rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEXT_SEC }}>{c.lbl}</div>
+                                                            <div className="text-xl font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>{c.val}</div>
+                                                        </div>
+                                                    ))}
+                                                </motion.div>
                                             </div>
-                                        )}
-                                    </motion.div>
+                                        </>
+                                    ) : (
+                                        /* ═══ NORMAL PLAYER MODE ═══ */
+                                        <>
+                                            {/* Spider chart — center-ish */}
+                                            <div className="absolute z-[5] pointer-events-none"
+                                                style={{ top: '8%', left: '22%', width: '42%', height: '90%' }}>
+                                                <SpiderChart stats={getStats(player)} theme={theme} />
+                                            </div>
 
-                                    {/* Player Info — right side */}
-                                    <div className="absolute right-0 top-0 bottom-0 z-10 flex flex-col justify-center p-5 pr-6"
-                                        style={{ width: '42%' }}>
+                                            {/* Player Image — bottom-left corner */}
+                                            <motion.div
+                                                initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: 0.1, duration: 0.5 }}
+                                                className="absolute bottom-0 left-0 z-10"
+                                                style={{ width: '38%', height: '95%' }}>
+                                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/2 z-0"
+                                                    style={{ background: `radial-gradient(ellipse at 50% 100%, ${theme.accentGlow} 0%, transparent 65%)` }} />
+                                                {player.imageUrl ? (
+                                                    player.imageUrl.startsWith('/') ? (
+                                                        <Image src={player.imageUrl} alt={player.player} fill priority sizes="35vw"
+                                                            className="object-contain object-bottom z-10"
+                                                            style={{ filter: `drop-shadow(0 6px 20px rgba(0,0,0,0.6)) drop-shadow(0 0 25px ${theme.accentGlow})` }} />
+                                                    ) : (
+                                                        <img src={player.imageUrl} alt={player.player}
+                                                            className="absolute inset-0 w-full h-full object-contain object-bottom z-10"
+                                                            style={{ filter: `drop-shadow(0 6px 20px rgba(0,0,0,0.6))` }}
+                                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                                                    )
+                                                ) : (
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <div className="w-24 h-24 rounded-full flex items-center justify-center"
+                                                            style={{ background: `radial-gradient(circle, ${theme.accent}25, transparent)`, border: `2px solid ${GLASS_BORDER}` }}>
+                                                            <span style={{ fontSize: '3rem', fontFamily: "'Cinzel', serif", color: theme.accentLight }}>
+                                                                {player.player.charAt(0)}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </motion.div>
 
-                                        {/* Name */}
-                                        <motion.h2 initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
-                                            className="font-black text-white leading-[0.95] mb-2"
-                                            style={{ fontSize: 'clamp(1.6rem, 3.5vw, 3rem)', fontFamily: "'Cinzel', serif" }}>
-                                            {player.isRiddle ? '???' : player.player}
-                                        </motion.h2>
-                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.22 }}
-                                            className="mb-8">
-                                            <span className="text-xl font-medium tracking-wide" style={{ color: TEXT_SEC }}>
-                                                {player.role}
-                                            </span>
-                                        </motion.div>
+                                            {/* Player Info — right side */}
+                                            <div className="absolute right-0 top-0 bottom-0 z-10 flex flex-col justify-center p-5 pr-6"
+                                                style={{ width: '42%' }}>
+                                                <motion.h2 initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
+                                                    className="font-black text-white leading-[0.95] mb-2"
+                                                    style={{ fontSize: 'clamp(1.6rem, 3.5vw, 3rem)', fontFamily: "'Cinzel', serif" }}>
+                                                    {player.player}
+                                                </motion.h2>
+                                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.22 }}
+                                                    className="mb-8">
+                                                    <span className="text-xl font-medium tracking-wide" style={{ color: TEXT_SEC }}>
+                                                        {player.role}
+                                                    </span>
+                                                </motion.div>
 
-                                        {/* Stats Grid */}
-                                        <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
-                                            className="grid grid-cols-2 gap-3">
-                                            {[
-                                                { lbl: 'Grade', val: `Grade ${player.grade}` },
-                                                { lbl: 'Nationality', val: player.nationality === 'Indian' ? '🇮🇳 Indian' : '🌍 Overseas' },
-                                            ].map((c) => (
-                                                <div key={c.lbl} className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
-                                                    style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
-                                                    <div className="text-[0.65rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEXT_SEC }}>{c.lbl}</div>
-                                                    <div className="text-xl font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>{c.val}</div>
-                                                </div>
-                                            ))}
-                                        </motion.div>
-                                    </div>
+                                                {/* Stats Grid */}
+                                                <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
+                                                    className="grid grid-cols-2 gap-3">
+                                                    {[
+                                                        { lbl: 'Grade', val: `Grade ${player.grade}` },
+                                                        { lbl: 'Nationality', val: player.nationality === 'Indian' ? '🇮🇳 Indian' : '🌍 Overseas' },
+                                                    ].map((c) => (
+                                                        <div key={c.lbl} className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
+                                                            style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
+                                                            <div className="text-[0.65rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEXT_SEC }}>{c.lbl}</div>
+                                                            <div className="text-xl font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>{c.val}</div>
+                                                        </div>
+                                                    ))}
+                                                </motion.div>
+                                            </div>
+                                        </>
+                                    )}
 
                                     {/* OVR circle — top right of the info area */}
                                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: 'spring' }}
