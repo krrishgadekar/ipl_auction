@@ -10,7 +10,7 @@ RUN apk add --no-cache curl openssl libc6-compat
 
 # Install ALL dependencies first to allow Prisma generation
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy source code and Prisma schema
 COPY . .
