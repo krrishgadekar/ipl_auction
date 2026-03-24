@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { preloadImages } from '@/lib/utils/playerImage';
 import Loader from '@/components/Loader';
 import { useAuctionSocket } from '@/lib/hooks/useAuctionSocket';
+import { getPowerCardImage, getPowerCardName } from '@/lib/utils/powerCard';
 
 /* ═══════════════════════════════════════════════════════════
    GRADE THEMES — Consistent Background, Colored Accents
@@ -313,8 +314,8 @@ export default function BigScreenPage() {
                 }}>
                     <AnimatePresence mode="wait">
                         {auctionState.phase === 'POWER_CARD_PHASE' ? (() => {
-                            const powerCardId = auctionState.activePowerCard;
-                            const card = AUCTIONABLE_POWER_CARDS.find(c => c.id === powerCardId) || AUCTIONABLE_POWER_CARDS[0];
+                            const powerCardId = auctionState.currentItemId || auctionState.activePowerCard;
+                            const card = AUCTIONABLE_POWER_CARDS.find(c => c.id.toLowerCase() === powerCardId?.toLowerCase()) || AUCTIONABLE_POWER_CARDS[0];
                             const pcBid = auctionState.currentBid || 0;
                             const highestBidderTeam = teams.find(t => t.id === auctionState.highestBidderId);
 
@@ -355,7 +356,7 @@ export default function BigScreenPage() {
                                                 style={{ background: `radial-gradient(ellipse at 50% 100%, ${card.color}40, transparent 65%)` }} />
                                             <motion.div className="relative z-10 flex flex-col items-center justify-center gap-4">
                                                 <motion.div
-                                                    className="w-36 h-36 rounded-3xl flex items-center justify-center relative"
+                                                    className="w-48 h-64 rounded-2xl flex items-center justify-center relative overflow-hidden"
                                                     style={{
                                                         background: `linear-gradient(135deg, ${card.color}20, ${card.color}08)`,
                                                         border: `2px solid ${card.color}40`,
@@ -369,9 +370,12 @@ export default function BigScreenPage() {
                                                         ],
                                                     }}
                                                     transition={{ duration: 3, repeat: Infinity }}>
-                                                    <span style={{ fontSize: '5rem', filter: `drop-shadow(0 0 20px ${card.color})` }}>
-                                                        {card.icon}
-                                                    </span>
+                                                    <Image 
+                                                        src={getPowerCardImage(powerCardId || 'finalStrike')} 
+                                                        alt={card.name}
+                                                        fill
+                                                        className="object-contain p-2"
+                                                    />
                                                 </motion.div>
                                             </motion.div>
                                         </motion.div>

@@ -4,6 +4,7 @@
 'use client';
 
 import { use, useEffect, useState, useRef } from 'react';
+import { AuctionState } from '@/lib/api/auction';
 import { Team } from '@/lib/api/teams';
 import { Player } from '@/lib/api/players';
 import { getAllTeams } from '@/lib/api/teams';
@@ -273,7 +274,7 @@ function FIFACard({ player, showPrice, price }: {
     );
 }
 
-import { getPowerCardImage } from '@/lib/utils/powerCard';
+import { getPowerCardImage, getPowerCardName } from '@/lib/utils/powerCard';
 
 const StatBox = ({ label, value }: { label: string; value?: number }) => (
     <div className="p-2 rounded bg-black/10 border border-black/5 flex flex-col items-center justify-center min-w-[70px]">
@@ -316,6 +317,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
     const [allPlayers, setAllPlayers] = useState<Player[]>([]);
     const [loading, setLoading] = useState(true);
     const [expandedPlayerId, setExpandedPlayerId] = useState<number | null>(null);
+    const [auctionState, setAuctionState] = useState<AuctionState | null>(null);
     
     const { on, requestState } = useAuctionSocket();
 
@@ -351,9 +353,14 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
 
     useEffect(() => {
         const handleSync = (data?: any) => {
-            if (data && data.teams) {
-                setAllTeams(data.teams);
-                setTeam(data.teams.find((t: any) => String(t.id) === teamId) || null);
+            if (data) {
+                if (data.teams) {
+                    setAllTeams(data.teams);
+                    setTeam(data.teams.find((t: any) => String(t.id) === teamId) || null);
+                }
+                if (data.phase || data.status) {
+                    setAuctionState(data);
+                }
             } else {
                 requestState();
             }
@@ -444,6 +451,55 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
             </motion.div>
 
             <div className="max-w-7xl mx-auto p-6 relative z-10 flex flex-col gap-10">
+
+                {/* Live Power Card Auction Banner */}
+                <AnimatePresence>
+                    {auctionState?.phase === 'POWER_CARD_PHASE' && auctionState?.currentItemId && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-600/20 to-orange-900/40 border border-amber-500/30 p-8 shadow-[0_0_50px_rgba(245,158,11,0.15)] backdrop-blur-xl"
+                        >
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[80px] -mr-32 -mt-32" />
+                            
+                            <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
+                                <div className="w-32 h-44 shrink-0 rounded-xl bg-black/40 border border-white/10 p-4 shadow-2xl transform hover:rotate-2 transition-transform duration-500">
+                                    <img 
+                                        src={getPowerCardImage(auctionState.currentItemId)} 
+                                        alt={auctionState.currentItemId}
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
+                                
+                                <div className="flex-1 text-center md:text-left">
+                                    <div className="flex items-center gap-3 justify-center md:justify-start mb-3">
+                                        <span className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 text-[10px] font-black uppercase tracking-[0.2em]">⚡ Live Auction ⚡</span>
+                                        <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 text-[10px] font-bold uppercase tracking-widest">Power Card</span>
+                                    </div>
+                                    <h2 className="text-4xl font-black text-white mb-3" style={{ fontFamily: "'Cinzel', serif" }}>
+                                        {getPowerCardName(auctionState.currentItemId)}
+                                    </h2>
+                                    <p className="text-[#bcdce6]/60 text-sm max-w-xl leading-relaxed">
+                                        A strategic asset is on the block. Bidding is active. Use your team purse to secure this advantage for the upcoming rounds.
+                                    </p>
+                                </div>
+                                
+                                <div className="shrink-0 bg-black/40 backdrop-blur-lg border border-white/10 rounded-2xl p-6 text-center min-w-[200px]">
+                                    <p className="text-[10px] text-[#7a9ab0] uppercase tracking-widest font-bold mb-1">Current Highest Bid</p>
+                                    <div className="text-4xl font-black text-amber-500 flex items-baseline justify-center gap-2" style={{ fontFamily: "'Cinzel', serif" }}>
+                                        <span className="text-lg">₹</span>
+                                        {auctionState.currentBid || '1.0'}
+                                        <span className="text-lg font-bold">CR</span>
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t border-white/5">
+                                        <p className="text-[9px] text-white/30 uppercase font-bold tracking-tighter">Bidding controlled by Admin</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Budget Bar */}
                 <ScrollReveal className="p-6 rounded-2xl bg-[#0a1628]/60 border border-[#2bb5cc]/10 backdrop-blur-xl">

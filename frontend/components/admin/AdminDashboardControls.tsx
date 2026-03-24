@@ -11,6 +11,7 @@ import {
     unveilRiddlePlayer, sellPlayer, getAllSequences, selectSequence,
     getAllFranchises, fineTeam, togglePowerCard
 } from '@/lib/api/admin';
+import { getPowerCardImage, getPowerCardName } from '@/lib/utils/powerCard';
 import PokemonPlayerCard from '../team/PokemonPlayerCard';
 
 interface AdminDashboardControlsProps {
@@ -162,13 +163,17 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
         if (phase === 'POWER_CARD_PHASE' && state.currentItemId) {
             return (
                 <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-4xl">
-                        ⚡
+                    <div className="w-20 h-28 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center relative overflow-hidden">
+                        <img 
+                            src={getPowerCardImage(state.currentItemId)} 
+                            alt={state.currentItemId}
+                            className="w-full h-full object-contain p-2"
+                        />
                     </div>
                     <div>
                         <div className="text-[10px] text-yellow-300 uppercase font-black tracking-widest mb-1">Power Card Auction</div>
                         <div className="text-3xl font-black text-white tracking-tight leading-none mb-1">
-                            {state.currentItemId.replace(/_/g, ' ')}
+                            {getPowerCardName(state.currentItemId)}
                         </div>
                         <div className="flex gap-3 text-xs font-bold text-white/60">
                             <span className="bg-yellow-500/20 px-2 py-0.5 rounded text-yellow-300">Base Price: ₹1.00 CR</span>
