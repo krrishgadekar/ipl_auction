@@ -1,69 +1,77 @@
-import auctionService from '../services/auctionService.js';
-const { sellPlayer, usePowerCard, updateAuctionStatus } = auctionService;
+// ═══════════════════════════════════════════════════════════════
+// WebSocket Handler — Broadcast-only (no client mutations)
+// Uses serializer for frontend-compatible responses
+// ═══════════════════════════════════════════════════════════════
+import prisma from '../config/db.js';
+import { serializeAuctionState, serializeTeam, serializePlayer } from '../utils/serializer.js';
 
-export default (io) => {
+export default function socketHandler(io) {
     io.on('connection', (socket) => {
-        console.log('User connected:', socket.id);
+        console.log(`📡 Socket connected: ${socket.id}`);
 
-        // Admin events
-        socket.on('START_AUCTION', async () => {
+        // ── REQUEST_STATE: Full auction state sync ───────────
+        socket.on('REQUEST_STATE', async () => {
             try {
-                await updateAuctionStatus('LIVE');
-                io.emit('AUCTION_STARTED');
+                const state = await prisma.auctionState.findUnique({ where: { id: 1 } });
+
+                let currentPlayer = null;
+                if (state?.current_player_id) {
+                    currentPlayer = await prisma.player.findUnique({
+                        where: { id: state.current_player_id },
+                    });
+                    // Hide riddle player identity during live auction
+                    if (currentPlayer?.is_riddle && state.phase === 'LIVE') {
+                        currentPlayer = {
+                            ...currentPlayer,
+                            name: '??? RIDDLE PLAYER ???',
+                            team: '???',
+                            url: null,
+                            image_url: null,
+                        };
+                    }
+                }
+
+                let highestBidder = null;
+                if (state?.highest_bidder_id) {
+                    highestBidder = await prisma.team.findUnique({
+                        where: { id: state.highest_bidder_id },
+                        select: { id: true, name: true, brand_key: true },
+                    });
+                }
+
+                const teams = await prisma.team.findMany({
+                    include: { power_cards: true },
+                    orderBy: { purse_remaining: 'desc' },
+                });
+
+                socket.emit('STATE_SYNC', serializeAuctionState(state, currentPlayer, highestBidder, teams));
             } catch (err) {
                 socket.emit('ERROR', { message: err.message });
             }
         });
 
-        socket.on('ASSIGN_PLAYER', (data) => {
-            io.emit('PLAYER_ANNOUNCED', data);
-        });
-
-        socket.on('END_AUCTION', async () => {
+        // ── REQUEST_TEAM_STATE: Single team sync ─────────────
+        socket.on('REQUEST_TEAM_STATE', async (data) => {
             try {
-                await updateAuctionStatus('POST_AUCTION');
-                io.emit('AUCTION_ENDED');
+                const team = await prisma.team.findUnique({
+                    where: { id: data?.teamId },
+                    include: {
+                        power_cards: true,
+                        team_players: { include: { player: true } },
+                    },
+                });
+                if (!team) {
+                    socket.emit('ERROR', { message: 'Team not found' });
+                    return;
+                }
+                socket.emit('TEAM_STATE_SYNC', serializeTeam(team));
             } catch (err) {
                 socket.emit('ERROR', { message: err.message });
             }
-        });
-
-        // Bid updates
-        socket.on('PLACE_BID', (data) => {
-            io.emit('BID_UPDATED', data);
-        });
-
-        // Power Card
-        socket.on('USE_POWER_CARD', async (data) => {
-            const { teamId, type } = data;
-            try {
-                await usePowerCard(teamId, type);
-                io.emit('POWER_CARD_USED', { teamId, type });
-            } catch (error) {
-                socket.emit('ERROR', { message: error.message });
-            }
-        });
-
-        // Sell player (Admin triggered)
-        socket.on('SELL_PLAYER', async (data) => {
-            const { playerId, teamId, pricePaid } = data;
-            try {
-                await sellPlayer(playerId, teamId, pricePaid);
-                io.emit('PLAYER_SOLD', { playerId, teamId, pricePaid });
-                io.emit('PURSE_UPDATED', { teamId });
-            } catch (error) {
-                socket.emit('ERROR', { message: error.message });
-            }
-        });
-
-        // Top 11
-        socket.on('SELECT_TOP11', (data) => {
-            // Logic handled in REST, but broadcast if needed
-            io.emit('TOP11_LOCKED', data);
         });
 
         socket.on('disconnect', () => {
-            console.log('User disconnected:', socket.id);
+            console.log(`📡 Socket disconnected: ${socket.id}`);
         });
     });
-};
+}

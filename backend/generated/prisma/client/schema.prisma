@@ -1,0 +1,265 @@
+// IPL Auction 2026 — Prisma Schema (Normalized)
+// All monetary values in CRORES (Decimal). e.g., 120 = ₹120 CR.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  // URL provided by prisma.config.ts → env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// §1  CORE MODELS
+// ═══════════════════════════════════════════════════════════════
+
+model Team {
+  id                String  @id @default(uuid())
+  name              String  @unique // Participant team name
+  password_hash     String // bcrypt hashed password
+  active_session_id String? // Enforce single-device access
+
+  // Franchise (assigned during FRANCHISE_PHASE)
+  brand_key      String? @unique // MI, CSK, RCB, etc. (null until franchise purchased)
+  franchise_name String? // IPL franchise full name
+  brand_score    Decimal @default(0) // Used to compute BrandMultiplier at scoring time
+
+  // Financials
+  purse_remaining Decimal @default(120) // 120 CR per rulebook
+
+  // Squad Composition (Counts)
+  squad_count    Int @default(0) // Exactly 15 required
+  overseas_count Int @default(0) // 2–5 foreign players required
+  batsmen_count  Int @default(0) // Min 3 required
+  bowlers_count  Int @default(0) // Min 3 required
+  ar_count       Int @default(0) // Min 2 required
+  wk_count       Int @default(0) // Min 2 required
+
+  // Consolidated Player Info
+  // Array of { player_id, player_name, sealed_bid_price }
+  purchased_players Json @default("[]")
+
+  // Display
+  logo          String? // Emoji or URL
+  primary_color String? // Hex color for UI
+  created_at    DateTime @default(now())
+
+  // Relations
+  team_players    TeamPlayer[]
+  power_cards     PowerCard[]
+  top11_selection Top11Selection?
+  auction_players AuctionPlayer[]
+}
+
+model Player {
+  id              String      @id @default(uuid())
+  rank            Int         @unique // 1–246, unique identifier from dataset
+  name            String
+  team            String // Original IPL franchise from dataset
+  role            String // Raw role string (Batsman, Bowler, etc.)
+  category        Category // BAT | BOWL | AR | WK
+  pool            Pool // BAT_WK | BOWL | AR
+  grade           Grade // A | B | C | D
+  rating          Int // 40–99 (primary rating)
+  nationality     Nationality // INDIAN | OVERSEAS
+  nationality_raw String? // Original text (e.g. "Australian", "West Indian")
+  base_price      Decimal // Starting bid in CR (from grade: A=2, B=1, C=0.5, D=0.2)
+  legacy          Int         @default(0) // 0–10
+  url             String? // Cricbuzz profile URL
+  image_url       String? // Player photo path
+  is_riddle       Boolean     @default(false) // Hidden identity during bidding
+
+  // Match stats from dataset (for display/reference)
+  matches      Int?
+  bat_runs     Int?
+  bat_sr       Decimal?
+  bat_average  Decimal?
+  bowl_wickets Int?
+  bowl_eco     Decimal?
+  bowl_avg     Decimal?
+
+  // Sub-ratings (0–100, pool-specific, DISPLAY ONLY)
+  sub_experience    Int? // Shared across all pools
+  // BAT_WK pool
+  sub_scoring       Int?
+  sub_impact        Int?
+  sub_consistency   Int?
+  // BOWL pool
+  sub_wicket_taking Int?
+  sub_economy       Int?
+  sub_efficiency    Int?
+  // AR pool
+  sub_batting       Int?
+  sub_bowling       Int?
+  sub_versatility   Int?
+
+  // Relations
+  auction_players AuctionPlayer[]
+  team_players    TeamPlayer[]
+}
+
+// Tracks auction lifecycle per player (UNSOLD → SOLD)
+model AuctionPlayer {
+  id              String              @id @default(uuid())
+  player_id       String              @unique
+  player          Player              @relation(fields: [player_id], references: [id])
+  status          PlayerAuctionStatus @default(UNSOLD)
+  sold_price      Decimal?
+  sold_to_team_id String?
+  sold_to_team    Team?               @relation(fields: [sold_to_team_id], references: [id])
+}
+
+// Junction: player assigned to a team's squad with price
+model TeamPlayer {
+  id         String  @id @default(uuid())
+  team_id    String
+  team       Team    @relation(fields: [team_id], references: [id])
+  player_id  String
+  player     Player  @relation(fields: [player_id], references: [id])
+  price_paid Decimal
+
+  @@unique([team_id, player_id])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// §2  AUCTION STATE
+// ═══════════════════════════════════════════════════════════════
+
+// Singleton row (id=1) tracking the global auction phase
+model AuctionState {
+  id                     Int          @id @default(1)
+  phase                  AuctionPhase @default(NOT_STARTED) // Global auction phase
+  current_player_id      String? // Player currently being auctioned
+  current_bid            Decimal? // Current live bid amount
+  highest_bidder_id      String? // Team ID of current highest bidder
+  current_sequence_id    Int? // Which of 5 sequences is active
+  current_sequence_index Int          @default(0) // Position within the active sequence
+  bid_frozen_team_id     String? // Team frozen by Bid Freezer (null = none)
+
+  // ── Display fields (consumed by frontend) ─────────────
+  auction_day            String  @default("Day 1") // "Day 1" or "Day 2"
+  active_power_card      String? // Currently active power card type
+  active_power_card_team String? // Team that played the active card
+  gods_eye_revealed      Boolean @default(false) // Did God's Eye reveal a sealed bid
+  bid_history            Json    @default("[]") // Array of {teamId, teamName, amount, timestamp}
+
+  // ── Last sold player info ─────────────────────────────
+  last_sold_player_id String? // Player ID of last sold player
+  last_sold_price     Decimal? // Price of last sold player
+  last_sold_team_id   String? // Team ID that bought last player
+  last_sold_team_name String? // Team name for display
+}
+
+// 5 pre-defined player orderings (deterministic, selected before auction)
+model AuctionSequence {
+  id      Int    @id // 1–5
+  name    String // "Sequence Alpha", etc.
+  // Array of { rank: Int, isRiddlePlayer: Boolean }
+  players Json   @default("[]")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// §4  POWER CARDS & TOP 11
+// ═══════════════════════════════════════════════════════════════
+
+model PowerCard {
+  id      String        @id @default(uuid())
+  team_id String
+  team    Team          @relation(fields: [team_id], references: [id])
+  type    PowerCardType
+  is_used Boolean       @default(false)
+
+  @@unique([team_id, type])
+}
+
+// Post-auction: team locks in Top 11 + Captain + Vice-Captain
+model Top11Selection {
+  team_id         String   @id
+  team            Team     @relation(fields: [team_id], references: [id])
+  player_ids      String[] // 11 player UUIDs
+  captain_id      String
+  vice_captain_id String
+  submitted_at    DateTime @default(now())
+}
+
+// ═══════════════════════════════════════════════════════════════
+// §5  AUDIT LOG
+// ═══════════════════════════════════════════════════════════════
+
+// Immutable log of all mutations for debugging and restart resilience
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String // e.g. "SELL_PLAYER", "USE_POWER_CARD"
+  details    Json // Free-form JSON payload
+  created_at DateTime @default(now())
+}
+
+// ═══════════════════════════════════════════════════════════════
+// §6  FRANCHISE DEFINITIONS (Static reference data)
+// ═══════════════════════════════════════════════════════════════
+
+// Pre-seeded IPL franchises available for purchase in FRANCHISE_PHASE
+model Franchise {
+  id            Int     @id // 1–10
+  name          String  @unique // "Mumbai Indians", etc.
+  short_name    String  @unique // "MI", "CSK", etc.
+  brand_score   Decimal @default(0) // Followers + Trophies based score
+  logo          String? // Emoji or URL
+  primary_color String? // Hex color
+}
+
+// ═══════════════════════════════════════════════════════════════
+// §7  ENUMS
+// ═══════════════════════════════════════════════════════════════
+
+enum Category {
+  BAT
+  BOWL
+  AR
+  WK
+}
+
+enum Pool {
+  BAT_WK
+  BOWL
+  AR
+}
+
+enum Grade {
+  A
+  B
+  C
+  D
+}
+
+enum Nationality {
+  INDIAN
+  OVERSEAS
+}
+
+// Global auction phase (state machine on AuctionState.phase)
+enum AuctionPhase {
+  NOT_STARTED
+  FRANCHISE_PHASE
+  POWER_CARD_PHASE
+  LIVE
+  CLOSED_BIDDING
+  POST_AUCTION
+  COMPLETED
+}
+
+// Per-player auction lifecycle (on AuctionPlayer.status)
+enum PlayerAuctionStatus {
+  UNSOLD
+  SOLD
+}
+
+enum PowerCardType {
+  GOD_EYE
+  MULLIGAN
+  FINAL_STRIKE
+  BID_FREEZER
+  RIGHT_TO_MATCH
+}

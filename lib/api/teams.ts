@@ -1,89 +1,67 @@
-// API Wrapper Layer - Teams
-// Provides interface to team data
-// Currently uses MOCK data, easily switchable to real backend
+// ═══════════════════════════════════════════════════════════════
+// Frontend API — Teams
+// Connects to real backend via NEXT_PUBLIC_API_URL
+// ═══════════════════════════════════════════════════════════════
 
-import { Team, mockTeams, getMockTeamById, getMockTeamByName } from '../mockData/teams';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-const USE_MOCK_DATA = true; // TODO: Change to false when backend is ready
+export interface Team {
+    id: string;
+    name: string;
+    brand_key: string | null;
+    franchise_name: string | null;
+    purse_remaining: number;
+    squad_count: number;
+    overseas_count: number;
+    logo: string | null;
+    primary_color: string | null;
+    brand_score: number;
+}
 
-/**
- * Get all teams
- * TODO: Replace with real API call: GET /api/teams
- */
+export interface TeamWithSquad extends Team {
+    power_cards: PowerCard[];
+    team_players: { player: import('./auction').Player; price_paid: number }[];
+}
+
+export interface PowerCard {
+    id: string;
+    team_id: string;
+    type: string;
+    is_used: boolean;
+}
+
+async function fetchJSON<T>(path: string): Promise<T> {
+    const res = await fetch(`${API_URL}${path}`, {
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error(err.error || `API error: ${res.status}`);
+    }
+    return res.json();
+}
+
+/** Get all teams */
 export async function getAllTeams(): Promise<Team[]> {
-    if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        return mockTeams;
-    }
-
-    // TODO: Real implementation
-    const response = await fetch('/api/teams');
-    if (!response.ok) throw new Error('Failed to fetch teams');
-    return response.json();
+    return fetchJSON('/api/teams');
 }
 
-/**
- * Get team by ID
- * TODO: Replace with real API call: GET /api/teams/:id
- */
-export async function getTeamById(id: number): Promise<Team | null> {
-    if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        return getMockTeamById(id) || null;
-    }
-
-    // TODO: Real implementation
-    const response = await fetch(`/api/teams/${id}`);
-    if (!response.ok) return null;
-    return response.json();
+/** Get team by ID with full squad and power cards */
+export async function getTeamById(id: string): Promise<TeamWithSquad> {
+    return fetchJSON(`/api/teams/${id}`);
 }
 
-/**
- * Get team by name
- * TODO: Replace with real API call: GET /api/teams/by-name/:name
- */
-export async function getTeamByName(name: string): Promise<Team | null> {
-    if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        return getMockTeamByName(name) || null;
-    }
-
-    // TODO: Real implementation
-    const response = await fetch(`/api/teams/by-name/${encodeURIComponent(name)}`);
-    if (!response.ok) return null;
-    return response.json();
+/** Get a team's squad */
+export async function getTeamSquad(id: string) {
+    return fetchJSON<{ player: import('./auction').Player; price_paid: number }[]>(`/api/teams/${id}/squad`);
 }
 
-/**
- * Get team squad (players)
- * TODO: Replace with real API call: GET /api/teams/:id/squad
- */
-export async function getTeamSquad(teamId: number): Promise<number[]> {
-    if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        const team = getMockTeamById(teamId);
-        return team?.players || [];
-    }
-
-    // TODO: Real implementation
-    const response = await fetch(`/api/teams/${teamId}/squad`);
-    if (!response.ok) throw new Error('Failed to fetch team squad');
-    return response.json();
+/** Get a team's power cards */
+export async function getTeamPowerCards(id: string): Promise<PowerCard[]> {
+    return fetchJSON(`/api/teams/${id}/power-cards`);
 }
 
-/**
- * Get leaderboard (teams sorted by budget used or other criteria)
- * TODO: Replace with real API call: GET /api/leaderboard
- */
-export async function getLeaderboard(): Promise<Team[]> {
-    if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        // Sort by budget used (descending)
-        return [...mockTeams].sort((a, b) => b.budgetUsed - a.budgetUsed);
-    }
-
-    // TODO: Real implementation
-    const response = await fetch('/api/leaderboard');
-    if (!response.ok) throw new Error('Failed to fetch leaderboard');
-    return response.json();
+/** Get leaderboard (teams ranked by purse remaining) */
+export async function getTeamLeaderboard(): Promise<Team[]> {
+    return fetchJSON('/api/public/auction/leaderboard');
 }
