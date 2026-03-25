@@ -294,7 +294,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
     const [allTeams, setAllTeams] = useState<Team[]>([]);
     const [allPlayers, setAllPlayers] = useState<Player[]>([]);
     const [loading, setLoading] = useState(true);
-    
+
     const { on, requestState } = useAuctionSocket();
 
     const { scrollYProgress } = useScroll({ container: containerRef });
@@ -317,7 +317,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                 setTeam(myTeam);
                 setAllPlayers(players);
                 setLoading(false);
-                
+
                 requestState();
             } catch (error) {
                 console.error('Error loading team dashboard:', error);
@@ -334,9 +334,9 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                 setTeam(data.teams.find((t: any) => String(t.id) === teamId) || null);
             }
         });
-        
+
         const unbindPlayerSold = on('PLAYER_SOLD', () => {
-             requestState();
+            requestState();
         });
 
         return () => {
@@ -501,9 +501,9 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                 >
                                     <div className="flex justify-center mb-3">
                                         <div className="relative w-24 h-32 flex items-center justify-center">
-                                            <Image 
-                                                src={getPowerCardImage(key, team.shortName)} 
-                                                alt={card.name} 
+                                            <Image
+                                                src={getPowerCardImage(key, team.shortName)}
+                                                alt={card.name}
                                                 fill
                                                 className="object-contain drop-shadow-[0_0_10px_rgba(43,181,204,0.4)]"
                                             />
