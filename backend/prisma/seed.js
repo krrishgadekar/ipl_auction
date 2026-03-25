@@ -183,6 +183,7 @@ async function main() {
         grade,
         rating: safeInt(row.Rating) || 50,
         nationality: mapNationality(row.Nationality),
+        nationality_raw: row.Nationality,
         base_price: GRADE_BASE_PRICE[grade],
         legacy: safeInt(row.Legacy) || 0,
         is_riddle: (rank === 20 || rank === 21),
