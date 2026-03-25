@@ -136,10 +136,10 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                     </div>
                     <div className="flex items-center gap-4 mt-1">
                         <span className="text-xs" style={{ color: 'rgba(122,148,176,0.7)' }}>
-                            ©️ {entry.captain.name}
+                            ©️ {entry.captain?.name || 'N/A'}
                         </span>
                         <span className="text-xs" style={{ color: 'rgba(122,148,176,0.5)' }}>
-                            VC: {entry.viceCaptain.name}
+                            VC: {entry.viceCaptain?.name || 'N/A'}
                         </span>
                     </div>
                 </div>
@@ -182,29 +182,16 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                         className="border-t overflow-hidden"
                         style={{ borderColor: 'rgba(43,181,204,0.1)' }}
                     >
-                        <div className="p-5 grid grid-cols-2 gap-6">
-                            {/* Left: Score breakdown */}
-                            <div className="space-y-3">
-                                <h4 className="text-sm font-bold tracking-widest" style={{ color: '#2bb5cc' }}>
-                                    SCORE BREAKDOWN
-                                </h4>
-                                <ScoreBar label="Base Score" value={entry.score.baseScore} max={2000} color="#d4af37" />
-                                <ScoreBar label="Captain" value={entry.score.captainBonus} max={300} color="#f5d569" />
-                                <ScoreBar label="Vice Capt" value={entry.score.vcBonus} max={150} color="#f5d569" />
-                                <ScoreBar label="Balance" value={entry.score.balanceBonus} max={30} color="#2dd4a0" />
-                                <ScoreBar label="Efficiency" value={entry.score.efficiencyBonus} max={15} color="#2bb5cc" />
-                                <ScoreBar label="Brand" value={entry.score.brandBonus} max={5} color="#c084fc" />
-                            </div>
-
-                            {/* Right: Playing XI */}
+                        <div className="p-5">
+                            {/* Playing XI (Now Full Width) */}
                             <div>
                                 <h4 className="text-sm font-bold tracking-widest mb-3" style={{ color: '#2bb5cc' }}>
                                     PLAYING XI
                                 </h4>
-                                <div className="space-y-1.5 max-h-64 overflow-y-auto pr-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-96 overflow-y-auto pr-2">
                                     {entry.top11.map(p => {
-                                        const isCaptain = p.id === entry.captain.id;
-                                        const isVC = p.id === entry.viceCaptain.id;
+                                        const isCaptain = p.id === entry.captain?.id;
+                                        const isVC = p.id === entry.viceCaptain?.id;
                                         return (
                                             <div
                                                 key={p.rank}
@@ -219,7 +206,7 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                                                 }}
                                             >
                                                 <span className="text-xs w-5" style={{ color: 'rgba(122,148,176,0.5)' }}>
-                                                    {p.nationality === 'Overseas' ? '🌍' : ''}
+                                                    {p.nationality === 'OVERSEAS' ? '🌍' : ''}
                                                 </span>
                                                 <span
                                                     className="flex-1 text-sm font-medium truncate"
@@ -230,10 +217,7 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                                                     {isVC && <span className="ml-1 text-xs font-bold text-cyan-400">(VC)</span>}
                                                 </span>
                                                 <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(4,11,20,0.6)', color: 'rgba(122,148,176,0.7)' }}>
-                                                    {p.category.replace('men', '').replace('ers', '')}
-                                                </span>
-                                                <span className="text-sm font-bold w-8 text-center" style={{ color: '#d4af37' }}>
-                                                    {p.rating}
+                                                    {p.category}
                                                 </span>
                                             </div>
                                         );
@@ -254,7 +238,7 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
 export default function LeaderboardPage() {
     const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
-    
+
     const { on } = useAuctionSocket();
 
     const loadData = useCallback(async () => {
@@ -270,7 +254,7 @@ export default function LeaderboardPage() {
 
     useEffect(() => {
         loadData();
-        
+
         const unbindLocked = on('LINEUP_LOCKED', () => {
             loadData();
         });
@@ -367,8 +351,8 @@ export default function LeaderboardPage() {
                                 {winner.score.finalScore.toFixed(1)} PTS
                             </div>
                             <div className="mt-2 flex items-center justify-center gap-6 text-sm" style={{ color: 'rgba(212,175,55,0.6)' }}>
-                                <span>©️ {winner.captain.name}</span>
-                                <span>VC: {winner.viceCaptain.name}</span>
+                                <span>©️ {winner.captain?.name}</span>
+                                <span>VC: {winner.viceCaptain?.name}</span>
                             </div>
                         </div>
                     </motion.div>
@@ -410,7 +394,7 @@ export default function LeaderboardPage() {
                     className="text-center mt-10 py-4"
                     style={{ color: 'rgba(122,148,176,0.3)', fontSize: '0.75rem' }}
                 >
-                    Scoring: FinalScore = BaseScore + CaptBonus + VCBonus + BalanceBonus + EfficiencyBonus + BrandBonus
+                    Scoring: V3.2 Locked Formula • Total Score based on Playing XI Strength, Squad Balance, Efficiency, and Brand.
                 </motion.div>
             </div>
         </div>

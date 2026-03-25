@@ -757,6 +757,9 @@ video {
 .col-span-8{
   grid-column: span 8 / span 8;
 }
+.col-span-2{
+  grid-column: span 2 / span 2;
+}
 .mx-1{
   margin-left: 0.25rem;
   margin-right: 0.25rem;
@@ -1015,8 +1018,8 @@ video {
 .max-h-\[400px\]{
   max-height: 400px;
 }
-.max-h-\[50vh\]{
-  max-height: 50vh;
+.max-h-96{
+  max-height: 24rem;
 }
 .min-h-0{
   min-height: 0px;
@@ -4790,11 +4793,6 @@ p {
 
   .sm\:grid-cols-2{
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .sm\:text-xs{
-    font-size: 0.75rem;
-    line-height: 1rem;
   }
 }
 

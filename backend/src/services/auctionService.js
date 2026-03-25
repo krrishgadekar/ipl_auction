@@ -415,8 +415,9 @@ async function usePowerCard(teamId, type, targetTeamId = null) {
                 break;
 
             case 'RIGHT_TO_MATCH':
-                // RTM is handled by separate useRTM function
-                throw new Error('RTM must be used via the dedicated RTM endpoint');
+                // RTM is handled physically during the auction.
+                // Admin marks it used via toggle-powercard endpoint.
+                throw new Error('RTM is handled physically. Use the toggle-powercard endpoint to mark it as used.');
 
             default:
                 throw new Error(`Unknown power card type: ${type}`);
@@ -485,145 +486,7 @@ async function usePowerCard(teamId, type, targetTeamId = null) {
     });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// RIGHT TO MATCH — Dedicated atomic handler
-// ═══════════════════════════════════════════════════════════════
 
-async function useRTM(teamId, playerId, finalBid) {
-    return await prisma.$transaction(async (tx) => {
-        const state = await tx.auctionState.findUnique({ where: { id: 1 } });
-
-        // RTM must be used immediately after hammer (player just sold, state shows no current player)
-        // The calling code must pass the finalBid and playerId of the just-sold player
-
-        // Validate RTM card exists and is unused
-        const rtmCard = await tx.powerCard.findFirst({
-            where: { team_id: teamId, type: 'RIGHT_TO_MATCH', is_used: false },
-        });
-        if (!rtmCard) throw new Error('RTM card not available or already used');
-
-        // FRANCHISE VALIDATION: Only the franchisor can RTM their own player
-        const foundPlayer = await tx.player.findUnique({ where: { id: playerId } });
-        if (!foundPlayer) throw new Error('Player not found');
-
-        const team = await tx.team.findUnique({ where: { id: teamId } });
-        if (!team) throw new Error('Team not found');
-
-        if (p.team !== team.brand_key) {
-            throw new Error(`RTM Violation: Team ${team.brand_key} cannot RTM a player from ${p.team}`);
-        }
-
-        // Validate purse for RTM (must match final bid + card cost)
-        const purse = Number(team.purse_remaining);
-        const totalCost = finalBid + POWER_CARD_COST;
-        if (purse < totalCost) {
-            throw new Error(`Insufficient purse for RTM: need ₹${totalCost} CR (₹${finalBid} bid + ₹${POWER_CARD_COST} card), have ₹${purse} CR`);
-        }
-
-        // Verify player was just sold (check auction_player status)
-        const auctionPlayer = await tx.auctionPlayer.findUnique({ where: { player_id: playerId } });
-        if (!auctionPlayer || auctionPlayer.status !== 'SOLD') {
-            throw new Error('Player was not just sold — RTM can only be used immediately post-hammer');
-        }
-
-        const previousTeamId = auctionPlayer.sold_to_team_id;
-        const previousPrice = Number(auctionPlayer.sold_price);
-
-        // Validate squad constraints for RTM team
-        if (team.squad_count >= MAX_SQUAD_SIZE) {
-            throw new Error(`Team already has max ${MAX_SQUAD_SIZE} players`);
-        }
-
-        const p = await tx.player.findUnique({ where: { id: playerId } });
-        if (!p) throw new Error('Player not found');
-
-        if (p.nationality === 'OVERSEAS' && team.overseas_count >= MAX_OVERSEAS) {
-            throw new Error(`Team already has max ${MAX_OVERSEAS} overseas players`);
-        }
-
-        const roleCounts = await getTeamRoleCounts(tx, teamId);
-        const roleError = wouldViolateRoleLimits(roleCounts, player.category, team.squad_count);
-        if (roleError) throw new Error(roleError);
-
-        // ── Execute RTM: reverse original sale, assign to RTM team ──
-        const playerCategory = mapRoleToCategory(p.role);
-        const categoryKeyMap = {
-            'BAT': 'batsmen_count',
-            'BOWL': 'bowlers_count',
-            'AR': 'ar_count',
-            'WK': 'wk_count'
-        };
-        const categoryKey = categoryKeyMap[playerCategory];
-
-        // 1. Refund previous buyer
-        if (previousTeamId) {
-            await tx.team.update({
-                where: { id: previousTeamId },
-                data: {
-                    purse_remaining: { increment: previousPrice },
-                    squad_count: { decrement: 1 },
-                    overseas_count: p.nationality === 'OVERSEAS' ? { decrement: 1 } : undefined,
-                    [categoryKey]: { decrement: 1 }
-                },
-            });
-
-            // Remove from previous team's squad
-            await tx.teamPlayer.deleteMany({
-                where: { team_id: previousTeamId, player_id: playerId },
-            });
-        }
-
-        // 2. Charge RTM team
-        await tx.team.update({
-            where: { id: teamId },
-            data: {
-                purse_remaining: { decrement: totalCost },
-                squad_count: { increment: 1 },
-                overseas_count: p.nationality === 'OVERSEAS' ? { increment: 1 } : undefined,
-                [categoryKey]: { increment: 1 }
-            },
-        });
-
-        // 3. Add to RTM team's squad
-        await tx.teamPlayer.create({
-            data: {
-                team_id: teamId,
-                player_id: playerId,
-                price_paid: finalBid,
-            },
-        });
-
-        // 4. Update auction player
-        await tx.auctionPlayer.update({
-            where: { player_id: playerId },
-            data: {
-                sold_to_team_id: teamId,
-                sold_price: finalBid,
-            },
-        });
-
-        // 5. Mark RTM card as used
-        await tx.powerCard.update({
-            where: { id: rtmCard.id },
-            data: { is_used: true },
-        });
-
-        await logAudit(tx, 'USE_RTM', {
-            teamId, playerId, finalBid,
-            previousTeamId, previousPrice,
-            playerName: player.name,
-        });
-
-        return {
-            success: true,
-            type: 'RIGHT_TO_MATCH',
-            teamId,
-            playerId,
-            finalBid,
-            previousTeamId,
-        };
-    });
-}
 
 // ═══════════════════════════════════════════════════════════════
 // STATE MACHINE: Auction Phase Transitions
@@ -1271,7 +1134,7 @@ export default {
     markUnsold,
     assignPlayer,
     usePowerCard,
-    useRTM,
+
     updateAuctionPhase,
     advanceToNextInSequence,
     selectSequence,
