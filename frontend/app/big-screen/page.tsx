@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { mockPlayers } from '@/lib/mockData/players';
@@ -13,6 +13,7 @@ import Loader from '@/components/Loader';
 import { useAuctionSocket } from '@/lib/hooks/useAuctionSocket';
 import { getPowerCardImage, getPowerCardName } from '@/lib/utils/powerCard';
 import TeamAvatar from '@/components/team/TeamAvatar';
+import { getAllFranchises } from '@/lib/api/admin';
 
 /* ═══════════════════════════════════════════════════════════
    GRADE THEMES — Consistent Background, Colored Accents
@@ -98,9 +99,24 @@ function SpiderChart({ stats, theme }: { stats: { label: string; value: number; 
 /* ═══════════════════════════════════════════════════════════
    MAIN PAGE
    ═══════════════════════════════════════════════════════════ */
+// Franchise type for big-screen use
+interface FranchiseInfo {
+    id: number;
+    name: string;
+    short_name: string;
+}
+
+// Fallback color map by short_name for visual accent
+const FRANCHISE_COLORS: Record<string, string> = {
+    MI: '#004BA0', CSK: '#FFCB05', RCB: '#EC1C24', KKR: '#3A225D',
+    DC: '#17479E', RR: '#EA1A85', SRH: '#F26522', PBKS: '#D71920',
+    LSG: '#A72056', GT: '#1C1C2B',
+};
+
 export default function BigScreenPage() {
     const [auctionState, setAuctionState] = useState<AuctionState | null>(null);
     const [teams, setTeams] = useState<Team[]>([]);
+    const [franchises, setFranchises] = useState<FranchiseInfo[]>([]);
     const [loading, setLoading] = useState(true);
     const [showSold, setShowSold] = useState(false);
     const [showReveal, setShowReveal] = useState(false);
@@ -155,6 +171,13 @@ export default function BigScreenPage() {
     useEffect(() => {
         refreshData();
     }, [refreshData]);
+
+    // Fetch franchises once on mount (used for franchise phase display)
+    useEffect(() => {
+        getAllFranchises()
+            .then((data: any[]) => setFranchises(data))
+            .catch(err => console.error('Failed to load franchises:', err));
+    }, []);
 
     // WebSocket Event Listeners
     useEffect(() => {
@@ -786,21 +809,17 @@ export default function BigScreenPage() {
                                 </div>
                             </motion.div>
                         ) : (auctionState.phase === 'FRANCHISE_PHASE') ? (() => {
-                            // Map franchise IDs to names
-                            const FRANCHISE_NAMES: Record<string, { name: string; short: string; color: string }> = {
-                                '1': { name: 'Mumbai Indians', short: 'MI', color: '#004BA0' },
-                                '2': { name: 'Chennai Super Kings', short: 'CSK', color: '#FFCB05' },
-                                '3': { name: 'Royal Challengers Bangalore', short: 'RCB', color: '#EC1C24' },
-                                '4': { name: 'Kolkata Knight Riders', short: 'KKR', color: '#3A225D' },
-                                '5': { name: 'Delhi Capitals', short: 'DC', color: '#17479E' },
-                                '6': { name: 'Rajasthan Royals', short: 'RR', color: '#EA1A85' },
-                                '7': { name: 'Sunrisers Hyderabad', short: 'SRH', color: '#F26522' },
-                                '8': { name: 'Punjab Kings', short: 'PBKS', color: '#D71920' },
-                                '9': { name: 'Lucknow Super Giants', short: 'LSG', color: '#A72056' },
-                                '10': { name: 'Gujarat Titans', short: 'GT', color: '#1C1C2B' },
-                            };
+                            // Resolve franchise dynamically from the API-fetched list
+                            // currentItemId may be a numeric ID string (e.g. '7') or a short_name (e.g. 'SRH')
                             const franchiseId = auctionState.currentItemId || '';
-                            const franchise = FRANCHISE_NAMES[franchiseId] || null;
+                            const rawFranchise = franchises.find(
+                                f => f.id.toString() === franchiseId || f.short_name === franchiseId
+                            ) || null;
+                            const franchise = rawFranchise ? {
+                                name: rawFranchise.name,
+                                short: rawFranchise.short_name,
+                                color: FRANCHISE_COLORS[rawFranchise.short_name] || '#8B5CF6',
+                            } : null;
                             const fcColor = franchise?.color || '#8B5CF6';
                             const highestBidderTeam = teams.find(t => t.id === auctionState.highestBidderId);
                             const currentBid = auctionState.currentBid || 0;

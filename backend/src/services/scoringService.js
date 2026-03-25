@@ -242,7 +242,9 @@ async function calculateLeaderboard() {
         const vc = players.find(p => p.id === sel.vice_captain_id);
         if (!captain || !vc) continue;
 
-        // Total spent = 120 - purse_remaining
+        // Filter out disqualified teams (must have 15 players)
+        if (sel.team.squad_count < 15) continue;
+
         const totalSpent = 120 - Number(sel.team.purse_remaining);
         const rawTop11 = players.reduce((sum, p) => sum + p.rating, 0);
 
@@ -256,6 +258,7 @@ async function calculateLeaderboard() {
             rawTop11,
         });
     }
+
 
     // 3. Compute scores for each team
     const allBrandScores = teamData.map(t => Number(t.team.brand_score));

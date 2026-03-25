@@ -192,13 +192,6 @@ async function sellPlayer(playerId, teamId, pricePaid) {
             throw new Error(`Bid ₹${pricePaid} CR is below base price ₹${basePrice} CR`);
         }
 
-        // 10. Validate remaining purse can fill remaining squad slots
-        const purseAfterSale = purseRemaining - pricePaid;
-        const minNeeded = minimumPurseForRemainingSlots(team.squad_count, pricePaid);
-        if (purseAfterSale < minNeeded) {
-            throw new Error(`Purchase would leave ₹${purseAfterSale.toFixed(2)} CR, need at least ₹${minNeeded.toFixed(2)} CR for remaining slots`);
-        }
-
         // ── All validations passed. Execute sale. ────────────────
 
         // 11. Deduct purse + update counters
