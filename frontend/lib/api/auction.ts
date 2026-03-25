@@ -14,6 +14,8 @@ export interface Player {
     basePrice: number;
     imageUrl: string;
     nationality: string;
+    nationalityRaw?: string; // Actual country e.g. "Australian"
+    _rawNationality?: string; // INDIAN | OVERSEAS
     team?: string;
     role?: string;
     pool?: string;
@@ -24,7 +26,7 @@ export interface Player {
     sub_scoring?: number;
     sub_impact?: number;
     sub_consistency?: number;
-    sub_wickettaking?: number;
+    sub_wicket_taking?: number; // DB column is sub_wicket_taking
     sub_economy?: number;
     sub_efficiency?: number;
     sub_batting?: number;

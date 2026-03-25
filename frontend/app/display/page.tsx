@@ -164,7 +164,7 @@ export default function DisplayPage() {
                                     {player.nationality === 'Overseas' && (
                                         <>
                                             <span>•</span>
-                                            <span className="text-cyan-400 font-bold">🌍 Overseas</span>
+                                            <span className="text-cyan-400 font-bold">🌍 {player.nationalityRaw || 'Overseas'}</span>
                                         </>
                                     )}
                                 </div>

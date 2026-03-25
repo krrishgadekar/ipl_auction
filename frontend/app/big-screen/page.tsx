@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { mockPlayers } from '@/lib/mockData/players';
@@ -46,15 +46,16 @@ const TEXT_SEC = 'rgba(122,148,176,0.5)';
    SPIDER CHART
    ═══════════════════════════════════════════════════════════ */
 function getStats(p: Player): { label: string; value: number; display: string }[] {
+    const isBatWK = p.pool === 'BAT_WK' || p.category?.toLowerCase().includes('wicketkeeper') || p.category?.toLowerCase().includes('bat');
 
-    if (p.pool === 'BAT_WK') return [
+    if (isBatWK) return [
         { label: 'SCR', value: p.sub_scoring ?? 0, display: String(p.sub_scoring ?? 0) },
         { label: 'IMP', value: p.sub_impact ?? 0, display: String(p.sub_impact ?? 0) },
         { label: 'CON', value: p.sub_consistency ?? 0, display: String(p.sub_consistency ?? 0) },
         { label: 'EXP', value: p.sub_experience ?? 0, display: String(p.sub_experience ?? 0) }
     ];
-    if (p.pool === 'BOWL') return [
-        { label: 'WKT', value: p.sub_wickettaking ?? 0, display: String(p.sub_wickettaking ?? 0) },
+    if (p.pool === 'BOWL' || p.category?.toLowerCase().includes('bowl')) return [
+        { label: 'WKT', value: p.sub_wicket_taking ?? 0, display: String(p.sub_wicket_taking ?? 0) },
         { label: 'ECO', value: p.sub_economy ?? 0, display: String(p.sub_economy ?? 0) },
         { label: 'EFF', value: p.sub_efficiency ?? 0, display: String(p.sub_efficiency ?? 0) }
     ];
@@ -518,7 +519,7 @@ export default function BigScreenPage() {
                                         {player.nationality === 'Overseas' && (
                                             <span className="px-2 py-0.5 rounded-full text-[0.55rem] font-bold"
                                                 style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}`, color: theme.accentLight }}>
-                                                🌍 OVERSEAS
+                                                🌍 {player.nationalityRaw || 'OVERSEAS'}
                                             </span>
                                         )}
                                     </motion.div>
@@ -616,7 +617,7 @@ export default function BigScreenPage() {
                                                     className="grid grid-cols-2 gap-3">
                                                     {[
                                                         { lbl: 'Grade', val: `Grade ${player.grade}` },
-                                                        { lbl: 'Nationality', val: player.nationality === 'Indian' ? '🇮🇳 Indian' : '🌍 Overseas' },
+                                                        { lbl: 'Nationality', val: player.nationality === 'Indian' ? '🇮🇳 Indian' : `🌍 ${player.nationalityRaw || 'Overseas'}` },
                                                     ].map((c) => (
                                                         <div key={c.lbl} className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
                                                             style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
@@ -687,7 +688,7 @@ export default function BigScreenPage() {
                                                     className="grid grid-cols-2 gap-3">
                                                     {[
                                                         { lbl: 'Grade', val: `Grade ${player.grade}` },
-                                                        { lbl: 'Nationality', val: player.nationality === 'Indian' ? '🇮🇳 Indian' : '🌍 Overseas' },
+                                                        { lbl: 'Nationality', val: player.nationality === 'Indian' ? '🇮🇳 Indian' : `🌍 ${player.nationalityRaw || 'Overseas'}` },
                                                     ].map((c) => (
                                                         <div key={c.lbl} className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
                                                             style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
