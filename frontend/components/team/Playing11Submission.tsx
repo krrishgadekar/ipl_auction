@@ -77,17 +77,19 @@ export default function Playing11Submission({ teamId, squadCount, purchasedPlaye
         }
     };
 
-    if (auctionPhase !== 'POST_AUCTION' && auctionPhase !== 'COMPLETED') {
-        return null;
-    }
-
-    if (isDisqualified || squadCount < 15) {
+    // During post-auction: show disqualified banner if applicable
+    if ((auctionPhase === 'POST_AUCTION' || auctionPhase === 'COMPLETED') && (isDisqualified || squadCount < 15)) {
         return (
             <div className="p-6 rounded-2xl bg-red-500/10 border border-red-500/20 mt-6 backdrop-blur-md">
                 <h3 className="text-red-400 font-black text-lg tracking-widest uppercase mb-2">Squad Disqualified</h3>
-                <p className="text-red-400/70 text-sm leading-relaxed">Your squad did not meet all mandatory requirements (exactly 15 players, strict role criteria, and 2-5 overseas players) at the end of the auction. You cannot submit an official Playing XI.</p>
+                <p className="text-red-400/70 text-sm leading-relaxed">Your squad did not meet all mandatory requirements (exactly 15 players, strict role criteria, and 2–5 overseas players) at the end of the auction. You cannot submit an official Playing XI.</p>
             </div>
         );
+    }
+
+    // Hide entirely if squad isn't full yet (and auction is not over)
+    if (squadCount < 15) {
+        return null;
     }
 
     return (
