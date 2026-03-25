@@ -34,6 +34,7 @@ export function serializePlayer(p) {
         // Display category/nationality
         category: CATEGORY_DISPLAY[p.category] || p.category,
         nationality: NATIONALITY_DISPLAY[p.nationality] || p.nationality,
+        nationalityRaw: p.nationality_raw || null, // Actual country (e.g. "Australian")
         // Keep raw for backend use
         _rawCategory: p.category,
         _rawNationality: p.nationality,

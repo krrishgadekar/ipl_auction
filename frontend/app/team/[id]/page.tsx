@@ -718,7 +718,9 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                                                     <div className="flex flex-wrap gap-3 items-center">
                                                                         <span className="px-4 py-1.5 rounded-full bg-[#2bb5cc]/20 border border-[#2bb5cc]/30 text-[#2bb5cc] text-xs font-black uppercase tracking-wider">{player.category}</span>
                                                                         <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60 text-xs font-black uppercase tracking-wider">
-                                                                            {player.nationality === 'Overseas' ? '🌎 International Player' : '🇮🇳 Domestic Player'}
+                                                                            {player._rawNationality === 'OVERSEAS'
+                                                                                ? `🌎 ${player.nationalityRaw || 'Overseas Player'}`
+                                                                                : '🇮🇳 Indian'}
                                                                         </span>
                                                                     </div>
                                                                 </div>
@@ -730,7 +732,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                                                     <div className="grid grid-cols-5 gap-4">
                                                                         {/* Header Row */}
                                                                         <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Rating</div>
-                                                                        {player.category.toLowerCase().includes('bat') || player.category.toLowerCase().includes('wk') ? (
+                                                                        {player.category.toLowerCase().includes('bat') || player.category.toLowerCase().includes('wicketkeeper') ? (
                                                                             <>
                                                                                 <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Scoring</div>
                                                                                 <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Impact</div>
@@ -755,7 +757,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
 
                                                                         {/* Value Row */}
                                                                         <div className="text-3xl font-black italic text-[#2dd4a0] text-center">{player.rating}</div>
-                                                                        {player.category.toLowerCase().includes('bat') || player.category.toLowerCase().includes('wk') ? (
+                                                                        {player.category.toLowerCase().includes('bat') || player.category.toLowerCase().includes('wicketkeeper') ? (
                                                                             <>
                                                                                 <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_scoring}</div>
                                                                                 <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_impact}</div>
@@ -764,7 +766,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                                                             </>
                                                                         ) : player.category.toLowerCase().includes('bowl') ? (
                                                                             <>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_wickettaking}</div>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_wicket_taking}</div>
                                                                                 <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_economy}</div>
                                                                                 <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_efficiency}</div>
                                                                                 <div className="text-3xl font-black italic text-center text-white/10">-</div>

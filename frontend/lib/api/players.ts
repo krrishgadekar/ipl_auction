@@ -17,6 +17,8 @@ export interface Player {
     grade: string;
     rating: number;
     nationality: string;
+    nationalityRaw?: string; // Actual country e.g. "Australian"
+    _rawNationality?: string; // INDIAN | OVERSEAS
     basePrice: number;
     imageUrl: string;
     legacy: number;
@@ -26,7 +28,7 @@ export interface Player {
     sub_scoring?: number;
     sub_impact?: number;
     sub_consistency?: number;
-    sub_wickettaking?: number;
+    sub_wicket_taking?: number;  // DB column is sub_wicket_taking
     sub_economy?: number;
     sub_efficiency?: number;
     sub_batting?: number;
