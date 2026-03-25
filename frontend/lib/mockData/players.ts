@@ -25,6 +25,7 @@ export interface Player {
     pool: PlayerPool;          // BAT_WK / BOWL / AR
     url: string;               // profile link
     nationality: PlayerNationality; // Indian / Overseas
+    nationalityRaw?: string; // Actual country
     isRiddle?: boolean;        // riddle player - identity hidden on big screen
 
     // Rating System (FC25-Style)
@@ -44,7 +45,7 @@ export interface Player {
     sub_consistency?: number;
 
     // BOWL Pool Only
-    sub_wickettaking?: number;
+    sub_wicket_taking?: number;
     sub_economy?: number;
     sub_efficiency?: number;
 
@@ -134,7 +135,7 @@ export const mockPlayers: Player[] = [
         basePrice: 0.5,
         legacy: 1,
         sub_experience: 20,
-        sub_wickettaking: 45,
+        sub_wicket_taking: 45,
         sub_economy: 50,
         sub_efficiency: 42,
     },
