@@ -56,12 +56,13 @@ export interface FinalTeamSubmission {
 }
 
 export interface ScoreBreakdown {
-    baseScore: number;           // Σ(rating^1.15) + captain^1.2 + 0.5×vc^1.15
-    balanceBonus: number;        // max 40
-    efficiencyBonus: number;     // max 15
-    overseasBonus: number;       // 0, 5, or 10
-    brandMultiplier: number;     // 1 + (norm × 0.05)
-    finalScore: number;          // (base+balance+efficiency+overseas) × brand
+    baseScore: number;
+    captainBonus: number;
+    vcBonus: number;
+    balanceBonus: number;
+    efficiencyBonus: number;
+    brandBonus: number;
+    finalScore: number;
 }
 
 export interface LeaderboardEntry {
@@ -302,10 +303,11 @@ export function calculateScore(
 
     return {
         baseScore: Math.round(baseScore * 100) / 100,
+        captainBonus: Math.round(Math.pow(captain.rating, 1.2) * 100) / 100, 
+        vcBonus: Math.round((0.5 * Math.pow(vc.rating, 1.15)) * 100) / 100, 
         balanceBonus: Math.round(balanceBonus * 100) / 100,
         efficiencyBonus: Math.round(efficiencyBonus * 100) / 100,
-        overseasBonus,
-        brandMultiplier: Math.round(brandMultiplier * 1000) / 1000,
+        brandBonus: Math.round((brandMultiplier - 1) * 1000) / 1000, 
         finalScore: Math.round(finalScore * 100) / 100,
     };
 }

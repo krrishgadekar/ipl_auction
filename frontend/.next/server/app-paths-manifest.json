@@ -2,7 +2,7 @@
   "/admin/page": "app/admin/page.js",
   "/big-screen/page": "app/big-screen/page.js",
   "/page": "app/page.js",
+  "/big-screen/login/page": "app/big-screen/login/page.js",
   "/login/page": "app/login/page.js",
-  "/admin/login/page": "app/admin/login/page.js",
-  "/big-screen/login/page": "app/big-screen/login/page.js"
+  "/team/[id]/page": "app/team/[id]/page.js"
 }

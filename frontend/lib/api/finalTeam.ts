@@ -7,10 +7,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export interface ScoreBreakdown {
     baseScore: number;
+    captainBonus: number;
+    vcBonus: number;
     balanceBonus: number;
     efficiencyBonus: number;
-    overseasBonus: number;
-    brandMultiplier: number;
+    brandBonus: number;
     finalScore: number;
 }
 

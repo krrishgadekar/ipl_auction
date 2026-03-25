@@ -189,15 +189,11 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                                     SCORE BREAKDOWN
                                 </h4>
                                 <ScoreBar label="Base Score" value={entry.score.baseScore} max={2000} color="#d4af37" />
-                                <ScoreBar label="Balance" value={entry.score.balanceBonus} max={40} color="#2dd4a0" />
+                                <ScoreBar label="Captain" value={entry.score.captainBonus} max={300} color="#f5d569" />
+                                <ScoreBar label="Vice Capt" value={entry.score.vcBonus} max={150} color="#f5d569" />
+                                <ScoreBar label="Balance" value={entry.score.balanceBonus} max={30} color="#2dd4a0" />
                                 <ScoreBar label="Efficiency" value={entry.score.efficiencyBonus} max={15} color="#2bb5cc" />
-                                <ScoreBar label="Overseas" value={entry.score.overseasBonus} max={10} color="#c084fc" />
-                                <div className="flex items-center gap-3 pt-2 border-t" style={{ borderColor: 'rgba(43,181,204,0.1)' }}>
-                                    <span className="text-xs w-24 text-right" style={{ color: 'rgba(122,148,176,0.7)' }}>Brand ×</span>
-                                    <span className="text-sm font-bold" style={{ color: '#f5d569' }}>
-                                        {entry.score.brandMultiplier.toFixed(3)}×
-                                    </span>
-                                </div>
+                                <ScoreBar label="Brand" value={entry.score.brandBonus} max={5} color="#c084fc" />
                             </div>
 
                             {/* Right: Playing XI */}
@@ -324,7 +320,7 @@ export default function LeaderboardPage() {
                         🏆 FINAL STANDINGS
                     </h1>
                     <p className="mt-2" style={{ color: 'rgba(122,148,176,0.6)' }}>
-                        IPL 2026 Mock Auction — Scored by Formula V3.1
+                        IPL 2026 Mock Auction — Official Scored Formula
                     </p>
                 </motion.div>
 
@@ -414,7 +410,7 @@ export default function LeaderboardPage() {
                     className="text-center mt-10 py-4"
                     style={{ color: 'rgba(122,148,176,0.3)', fontSize: '0.75rem' }}
                 >
-                    Scoring: V3.1 Locked Formula • Base (Σ rating^1.15) + Balance + Efficiency + Overseas × Brand
+                    Scoring: FinalScore = BaseScore + CaptBonus + VCBonus + BalanceBonus + EfficiencyBonus + BrandBonus
                 </motion.div>
             </div>
         </div>
