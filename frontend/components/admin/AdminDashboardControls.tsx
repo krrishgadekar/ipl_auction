@@ -356,9 +356,9 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                 className="w-full bg-black/60 border border-white/10 rounded-lg p-3 text-white font-bold text-sm outline-none focus:border-green-500/50 transition-colors"
                             >
                                 <option value="">Select Team...</option>
-                                {teams.map(t => (
+                                {[...teams].sort((a, b) => (a.franchiseName || '').localeCompare(b.franchiseName || '')).map(t => (
                                     <option key={t.id} value={t.id.toString()}>
-                                        {t.name} (₹{t.purseRemaining} CR)
+                                        {t.franchiseName || t.name} {t.franchiseName ? `(${t.name})` : ''} (₹{t.purseRemaining} CR)
                                     </option>
                                 ))}
                             </select>
@@ -402,7 +402,9 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {teams.map(team => (
+                                {[...teams]
+                                    .sort((a, b) => (a.franchiseName || '').localeCompare(b.franchiseName || ''))
+                                    .map(team => (
                                     <tr key={team.id} className="hover:bg-white/[0.02] transition-colors">
                                         <td className="p-3">
                                             <div className="flex items-center gap-3">
@@ -417,9 +419,11 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                                     </div>
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <div className="font-bold text-white text-sm truncate">{team.name}</div>
-                                                    <div className="text-[10px] text-white/30 truncate max-w-[120px]">
+                                                    <div className="font-bold text-white text-sm truncate uppercase tracking-tight">
                                                         {team.franchiseName || 'No Franchise'}
+                                                    </div>
+                                                    <div className="text-[10px] text-white/40 truncate max-w-[120px] font-medium">
+                                                        {team.name}
                                                     </div>
                                                 </div>
                                             </div>
@@ -498,7 +502,19 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                                             }`}
                                                             title={!isAssigned ? 'Click to Assign' : isUsed ? 'Click to mark Available' : 'Click to mark Used | Right-click to Deassign'}
                                                         >
-                                                            {type === 'RIGHT_TO_MATCH' ? 'RTM' : type.split('_').map(w => w[0]).join('')}
+                                                            {type === 'RIGHT_TO_MATCH' ? (
+                                                                <div className="flex items-center gap-1">
+                                                                    <img 
+                                                                        src={getPowerCardImage('rtm', team.shortName)} 
+                                                                        alt="RTM" 
+                                                                        className="w-4 h-5 object-contain"
+                                                                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                                                    />
+                                                                    <span className={isAssigned && !isUsed ? 'text-emerald-400' : ''}>RTM</span>
+                                                                </div>
+                                                            ) : (
+                                                                type.split('_').map(w => w[0]).join('')
+                                                            )}
                                                         </span>
                                                     );
                                                 })}

@@ -1,16 +1,5 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/mock/state/route": "app/api/mock/state/route.js",
-  "/admin/login/page": "app/admin/login/page.js",
-  "/big-screen/login/page": "app/big-screen/login/page.js",
-  "/leaderboard/page": "app/leaderboard/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/big-screen/page": "app/big-screen/page.js",
-  "/login/page": "app/login/page.js",
-  "/team/[id]/page": "app/team/[id]/page.js",
-  "/display/page": "app/display/page.js",
-  "/team/[id]/power-cards/page": "app/team/[id]/power-cards/page.js",
-  "/teams/page": "app/teams/page.js",
   "/page": "app/page.js",
-  "/super-admin/page": "app/super-admin/page.js"
+  "/login/page": "app/login/page.js",
+  "/team/[id]/page": "app/team/[id]/page.js"
 }

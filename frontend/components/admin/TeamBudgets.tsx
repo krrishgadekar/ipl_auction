@@ -11,11 +11,11 @@ interface TeamBudgetsProps {
 }
 
 export default function TeamBudgets({ teams }: TeamBudgetsProps) {
-    const sortedTeams = [...teams].sort((a, b) => b.purseRemaining - a.purseRemaining);
+    const sortedTeams = [...teams].sort((a, b) => (a.franchiseName || '').localeCompare(b.franchiseName || ''));
 
     return (
         <div className="backdrop-blur-md rounded-2xl p-6" style={{ background: 'rgba(10,22,40,0.7)', border: '1px solid rgba(43,181,204,0.15)' }}>
-            <h2 className="text-2xl font-bold mb-4 gradient-text" style={{ fontFamily: "'Cinzel', serif" }}>Team Budgets</h2>
+            <h2 className="text-2xl font-bold mb-4 gradient-text" style={{ fontFamily: "'Cinzel', serif" }}>Team Overviews</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {sortedTeams.map((team, index) => {
@@ -34,11 +34,11 @@ export default function TeamBudgets({ teams }: TeamBudgetsProps) {
                             {/* Team Header */}
                             <div className="flex items-center justify-between mb-3">
                                 <div>
-                                    <h3 className="font-bold text-white">{team.name}</h3>
-                                    <div className="text-xs" style={{ color: 'rgba(43,181,204,0.6)' }}>Rank #{index + 1}</div>
+                                    <h3 className="font-bold text-white uppercase tracking-tight">{team.franchiseName || 'No Franchise'}</h3>
+                                    <div className="text-xs" style={{ color: 'rgba(43,181,204,0.6)' }}>{team.name}</div>
                                 </div>
                                 <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style={{ background: 'linear-gradient(135deg, #0e4d5e, #1a8a9e)' }}>
-                                    {team.name.split(' ').map(w => w[0]).join('')}
+                                    {team.shortName || team.name.split(' ').map(w => w[0]).join('')}
                                 </div>
                             </div>
 
