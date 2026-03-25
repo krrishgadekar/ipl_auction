@@ -39,8 +39,8 @@ export default function SubRatingsDisplay({ player, animate = true }: SubRatings
                 break;
 
             case 'BOWL':
-                if (player.sub_wickettaking !== undefined) {
-                    ratings.push({ label: 'Wicket-Taking', value: player.sub_wickettaking, color: '#00d4ff' });
+                if (player.sub_wicket_taking !== undefined) {
+                    ratings.push({ label: 'Wicket-Taking', value: player.sub_wicket_taking, color: '#00d4ff' });
                 }
                 if (player.sub_economy !== undefined) {
                     ratings.push({ label: 'Economy', value: player.sub_economy, color: '#ff00e5' });
