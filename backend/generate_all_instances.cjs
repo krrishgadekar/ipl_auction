@@ -52,16 +52,16 @@ async function generateInstance(n) {
 
     // 2. Franchises (Static)
     sql += `INSERT INTO "Franchise" (id, name, short_name, brand_score, logo, primary_color) VALUES
-(1, 'Chennai Super Kings', 'CSK', 50, '/teams/csk.png', '#FCBD02'),
-(2, 'Mumbai Indians', 'MI', 50, '/teams/mi.png', '#004BA0'),
-(3, 'Royal Challengers Bengaluru', 'RCB', 50, '/teams/rcb.png', '#EC1C24'),
-(4, 'Kolkata Knight Riders', 'KKR', 50, '/teams/kkr.png', '#3A225D'),
-(5, 'Sunrisers Hyderabad', 'SRH', 50, '/teams/srh.png', '#F7A721'),
-(6, 'Rajasthan Royals', 'RR', 50, '/teams/rr.png', '#254AA5'),
-(7, 'Gujarat Titans', 'GT', 50, '/teams/gt.png', '#1D5E84'),
-(8, 'Delhi Capitals', 'DC', 50, '/teams/dc.png', '#0078BC'),
-(9, 'Punjab Kings', 'PBKS', 50, '/teams/pbks.png', '#ED1B24'),
-(10, 'Lucknow Super Giants', 'LSG', 50, '/teams/lsg.png', '#A72056');\n\n`;
+(1, 'Chennai Super Kings', 'CSK', 67.84, '/teams/csk.png', '#FCBD02'),
+(2, 'Mumbai Indians', 'MI', 66.46, '/teams/mi.png', '#004BA0'),
+(3, 'Royal Challengers Bengaluru', 'RCB', 56.50, '/teams/rcb.png', '#EC1C24'),
+(4, 'Kolkata Knight Riders', 'KKR', 52.87, '/teams/kkr.png', '#3A225D'),
+(5, 'Sunrisers Hyderabad', 'SRH', 47.12, '/teams/srh.png', '#F7A721'),
+(6, 'Rajasthan Royals', 'RR', 45.62, '/teams/rr.png', '#254AA5'),
+(7, 'Gujarat Titans', 'GT', 45.29, '/teams/gt.png', '#1D5E84'),
+(8, 'Delhi Capitals', 'DC', 42.23, '/teams/dc.png', '#0078BC'),
+(9, 'Punjab Kings', 'PBKS', 42.16, '/teams/pbks.png', '#ED1B24'),
+(10, 'Lucknow Super Giants', 'LSG', 40.00, '/teams/lsg.png', '#A72056');\n\n`;
 
     // 3. Teams (Unique Passwords)
     const teams = [
@@ -103,7 +103,11 @@ async function generateInstance(n) {
         // Map nationality to Enum values
         const nationality = p.Nationality.toUpperCase() === 'INDIAN' ? 'INDIAN' : 'OVERSEAS';
         
-        sql += `(${esc(id)}, ${p.Rank}, ${esc(p.Player)}, ${esc(p.Team)}, ${esc(p.Role)}, ${esc(p.Category)}, ${esc(p.Pool)}, ${esc(p.Grade)}, ${p.Rating}, ${esc(nationality)}, ${esc(p.Nationality)}, ${p.Base_Price || 2}, ${isRiddle}, ${p.Legacy || 0}, ${esc(p.URL)}, ${p.Matches || 'NULL'}, ${p.Bat_Runs || 'NULL'}, ${p.Bat_SR || 'NULL'}, ${p.Bat_Average || 'NULL'}, ${p.Bowl_Wickets || 'NULL'}, ${p.Bowl_Eco || 'NULL'}, ${p.Bowl_Avg || 'NULL'}, ${p.Sub_Scoring || 'NULL'}, ${p.Sub_Impact || 'NULL'}, ${p.Sub_Consistency || 'NULL'}, ${p.Sub_Experience || 'NULL'}, ${p.Sub_WicketTaking || 'NULL'}, ${p.Sub_Economy || 'NULL'}, ${p.Sub_Efficiency || 'NULL'}, ${p.Sub_Batting || 'NULL'}, ${p.Sub_Bowling || 'NULL'}, ${p.Sub_Versatility || 'NULL'})${i === players.length - 1 ? ';' : ','}\n`;
+        // Compute base price from grade (A=2, B=1, C=0.5)
+        const GRADE_PRICE = { A: 2, B: 1, C: 0.5 };
+        const basePrice = GRADE_PRICE[p.Grade] || 0.5;
+        
+        sql += `(${esc(id)}, ${p.Rank}, ${esc(p.Player)}, ${esc(p.Team)}, ${esc(p.Role)}, ${esc(p.Category)}, ${esc(p.Pool)}, ${esc(p.Grade)}, ${p.Rating}, ${esc(nationality)}, ${esc(p.Nationality)}, ${basePrice}, ${isRiddle}, ${p.Legacy || 0}, ${esc(p.URL)}, ${p.Matches || 'NULL'}, ${p.Bat_Runs || 'NULL'}, ${p.Bat_SR || 'NULL'}, ${p.Bat_Average || 'NULL'}, ${p.Bowl_Wickets || 'NULL'}, ${p.Bowl_Eco || 'NULL'}, ${p.Bowl_Avg || 'NULL'}, ${p.Sub_Scoring || 'NULL'}, ${p.Sub_Impact || 'NULL'}, ${p.Sub_Consistency || 'NULL'}, ${p.Sub_Experience || 'NULL'}, ${p.Sub_WicketTaking || 'NULL'}, ${p.Sub_Economy || 'NULL'}, ${p.Sub_Efficiency || 'NULL'}, ${p.Sub_Batting || 'NULL'}, ${p.Sub_Bowling || 'NULL'}, ${p.Sub_Versatility || 'NULL'})${i === players.length - 1 ? ';' : ','}\n`;
     });
     sql += `\n`;
 
@@ -122,9 +126,19 @@ async function generateInstance(n) {
     
     sql += `INSERT INTO "AdminUser" (id, username, password_hash, role) VALUES\n(${esc(crypto.randomUUID())}, 'admin', ${esc(adminHash)}, 'ADMIN'),\n(${esc(crypto.randomUUID())}, 'screen', ${esc(screenHash)}, 'SCREEN');\n\n`;
 
-    // 7. Sequence
-    const seqItems = playerIds.map(p => ({ rank: p.rank, type: 'PLAYER' }));
-    sql += `INSERT INTO "AuctionSequence" (id, name, type, sequence_items) VALUES\n(1, 'Sequence ${n}', 'PLAYER', ${esc(JSON.stringify(seqItems))});\n\n`;
+    // 7. Sequences (ID 1=Franchise, ID 2=PowerCard, ID 3=Player — matching phase auto-select in auctionService)
+    
+    // 7a. Franchise sequence (same order for all rooms, randomized once)
+    const franchiseItems = [3, 7, 1, 9, 5, 10, 2, 6, 8, 4]; // randomized franchise IDs 1-10
+    sql += `INSERT INTO "AuctionSequence" (id, name, type, sequence_items) VALUES\n(1, 'Franchise Auction', 'FRANCHISE', ${esc(JSON.stringify(franchiseItems))});\n\n`;
+
+    // 7b. PowerCard sequence (same order for all rooms)
+    const powerCardItems = ['GOD_EYE', 'MULLIGAN', 'FINAL_STRIKE', 'BID_FREEZER'];
+    sql += `INSERT INTO "AuctionSequence" (id, name, type, sequence_items) VALUES\n(2, 'Power Card Auction', 'POWER_CARD', ${esc(JSON.stringify(powerCardItems))});\n\n`;
+
+    // 7c. Player sequence — plain rank numbers (NOT objects), code does Number(items[i])
+    const seqItems = playerIds.map(p => p.rank);
+    sql += `INSERT INTO "AuctionSequence" (id, name, type, sequence_items) VALUES\n(3, 'Player Auction ${n}', 'PLAYER', ${esc(JSON.stringify(seqItems))});\n\n`;
 
     // 8. State
     sql += `INSERT INTO "AuctionState" (id, phase, auction_day) VALUES (1, 'NOT_STARTED', 'Day 1');\n\n`;
