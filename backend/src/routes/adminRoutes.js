@@ -260,24 +260,8 @@ router.post('/power-card', async (req, res) => {
     }
 });
 
-/**
- * POST /api/admin/auction/rtm
- * Use RTM. Body: { teamId, playerId, finalBid }
- */
-router.post('/rtm', async (req, res) => {
-    try {
-        const { teamId, playerId, finalBid } = req.body;
-        const result = await auctionService.useRTM(teamId, playerId, finalBid);
-        const team = await prisma.team.findUnique({ where: { id: teamId } });
-        const player = await prisma.player.findUnique({ where: { id: playerId } });
-
-        req.io.emit('RTM_USED', { ...result, teamName: team?.name, playerName: player?.name });
-        req.io.emit('PLAYER_SOLD', { playerId, teamId, pricePaid: finalBid, team, player, rtm: true });
-        res.json(result);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
-    }
-});
+// RTM is handled physically during the auction.
+// Admin marks RTM as used via POST /api/admin/auction/toggle-powercard
 
 /**
  * POST /api/admin/auction/assign-powercard

@@ -73,7 +73,7 @@ export default function PlayerActions({
         // ── Overseas check ──────────────────────────────────────────
         const warnings: string[] = [];
 
-        if (currentPlayer?.nationality === 'Overseas') {
+        if (currentPlayer?.nationality?.toUpperCase() === 'OVERSEAS') {
             if (team.overseasCount >= OVERSEAS_MAX) {
                 warnings.push(`⚠️ OVERSEAS LIMIT VIOLATION\n${team.shortName} already has ${team.overseasCount}/${OVERSEAS_MAX} overseas players. Selling this player will violate the rule!`);
             } else {
@@ -154,7 +154,7 @@ export default function PlayerActions({
             <h2 className="text-2xl font-bold mb-4 gradient-text" style={{ fontFamily: "'Cinzel', serif" }}>Player Actions</h2>
 
             {/* Overseas indicator */}
-            {currentPlayer?.nationality === 'Overseas' && (
+            {currentPlayer?.nationality?.toUpperCase() === 'OVERSEAS' && (
                 <div className="mb-3 px-3 py-2 rounded-xl" style={{ background: 'rgba(14,77,94,0.15)', border: '1px solid rgba(43,181,204,0.25)' }}>
                     <span className="text-xs font-bold" style={{ color: '#2bb5cc' }}>🌍 OVERSEAS PLAYER</span>
                     {team && (

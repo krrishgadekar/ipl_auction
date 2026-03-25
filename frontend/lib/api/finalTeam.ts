@@ -23,8 +23,8 @@ export interface LeaderboardEntry {
     purseRemaining: number;
     squadCount: number;
     top11: { id: string; name: string; rank: number; rating: number; category: string; nationality: string }[];
-    captain: { id: string; name: string; rating: number };
-    viceCaptain: { id: string; name: string; rating: number };
+    captain: { id: string; name: string; rating: number } | null;
+    viceCaptain: { id: string; name: string; rating: number } | null;
     score: ScoreBreakdown;
     rank: number;
 }
