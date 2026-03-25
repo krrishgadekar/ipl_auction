@@ -205,8 +205,9 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                                                     border: `1px solid ${isCaptain ? 'rgba(212,175,55,0.3)' : isVC ? 'rgba(43,181,204,0.2)' : 'transparent'}`,
                                                 }}
                                             >
-                                                <span className="text-xs w-5" title={p.nationalityRaw || p.nationality}>
+                                                <span className="text-xs w-5 flex items-center" title={p.nationalityRaw || p.nationality}>
                                                     {p.nationality === 'OVERSEAS' || p.nationality === 'Overseas' ? '🌍' : ''}
+                                                    {p.nationalityRaw && <span className="sr-only">({p.nationalityRaw})</span>}
                                                 </span>
                                                 <span
                                                     className="flex-1 text-sm font-medium truncate"

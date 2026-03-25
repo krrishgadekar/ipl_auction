@@ -161,7 +161,7 @@ export default function DisplayPage() {
                                     <span>{player.role}</span>
                                     <span>•</span>
                                     <span>{player.team}</span>
-                                    {player.nationality === 'Overseas' && (
+                                    {player.nationality?.toUpperCase() === 'OVERSEAS' && (
                                         <>
                                             <span>•</span>
                                             <span className="text-cyan-400 font-bold">🌍 {player.nationalityRaw || 'Overseas'}</span>
