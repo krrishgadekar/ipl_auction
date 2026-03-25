@@ -17,6 +17,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import Playing11Submission from '@/components/team/Playing11Submission';
 
 const Logo3D = dynamic(() => import('@/components/Logo3D'), {
     ssr: false,
@@ -585,6 +586,16 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                             </div>
                         )}
                     </div>
+                    
+                    <Playing11Submission 
+                        teamId={team.id} 
+                        squadCount={team.squadCount} 
+                        purchasedPlayers={purchasedPlayers} 
+                        onSuccess={() => {
+                            // Optionally trigger a re-fetch or show a success state
+                            requestState();
+                        }}
+                    />
 
                     {/* Modal Pop-out for Player Details */}
                     <AnimatePresence>

@@ -69,3 +69,17 @@ export async function getTeamPowerCards(id: string): Promise<PowerCard[]> {
 export async function getTeamLeaderboard(): Promise<Team[]> {
     return fetchJSON('/api/public/auction/leaderboard');
 }
+
+/** Submit final playing XI, Captain, and Vice-Captain */
+export async function lockLineup(teamId: string | number, playerIds: string[], captainId: string, viceCaptainId: string) {
+    const res = await fetch(`${API_URL}/api/scoring/lock-lineup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId, playerIds, captainId, viceCaptainId }),
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error(err.error || `Failed to submit lineup`);
+    }
+    return res.json();
+}
