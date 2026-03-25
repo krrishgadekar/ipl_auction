@@ -19,7 +19,7 @@ interface AuthState {
 }
 
 interface AuthContextValue extends AuthState {
-    login: (username: string, password: string) => Promise<LoginResponse>;
+    login: (username: string, password: string, force?: boolean) => Promise<LoginResponse>;
     logout: () => void;
 }
 
@@ -61,8 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    const login = useCallback(async (username: string, password: string) => {
-        const result = await apiLogin(username, password);
+    const login = useCallback(async (username: string, password: string, force?: boolean) => {
+        const result = await apiLogin(username, password, force);
 
         const authData = {
             teamId: result.teamId,

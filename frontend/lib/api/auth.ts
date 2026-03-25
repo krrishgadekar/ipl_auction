@@ -56,7 +56,7 @@ export async function fetchDatabaseTeams(): Promise<TeamData[]> {
     }
 }
 
-function mockLogin(username: string, password: string): LoginResponse {
+function mockLogin(username: string, password: string, force?: boolean): LoginResponse {
     const cred = MOCK_CREDENTIALS[username.toLowerCase()];
     if (!cred) throw new Error('Invalid username');
     if (cred.password !== password) throw new Error('Invalid password');
@@ -65,19 +65,19 @@ function mockLogin(username: string, password: string): LoginResponse {
         success: true,
         teamId: String(cred.teamId),
         teamName: cred.teamName,
-        sessionId: `mock-session-${Date.now()}`,
+        sessionId: `mock-session-${Date.now()}${force ? '-forced' : ''}`,
         brandKey: cred.shortName,
         franchiseName: cred.teamName,
     };
 }
 
-export async function loginTeam(username: string, password: string): Promise<LoginResponse> {
+export async function loginTeam(username: string, password: string, force?: boolean): Promise<LoginResponse> {
     // Try backend first
     try {
         const res = await fetch(`${API_URL}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({ username, password, force }),
         });
 
         if (!res.ok) {
@@ -90,7 +90,7 @@ export async function loginTeam(username: string, password: string): Promise<Log
         // If backend unreachable (fetch error), fall back to mock
         if (err.message === 'Failed to fetch' || err.message?.includes('ECONNREFUSED')) {
             console.warn('Backend unavailable, using mock login');
-            return mockLogin(username, password);
+            return mockLogin(username, password, force);
         }
         throw err;
     }

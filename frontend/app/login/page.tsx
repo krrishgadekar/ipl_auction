@@ -17,20 +17,25 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [shake, setShake] = useState(false);
 
+    const [showForceLogin, setShowForceLogin] = useState(false);
+
     const { login } = useAuth();
     const router = useRouter();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (e: React.FormEvent, force: boolean = false) => {
+        if (e) e.preventDefault();
         setError('');
         setLoading(true);
 
         try {
-            const result = await login(username, password);
+            const result = await login(username, password, force);
             // Redirect to team dashboard
             router.push(`/team/${result.teamId}`);
         } catch (err: any) {
             setError(err.message || 'Invalid credentials');
+            if (err.message && err.message.includes('already logged in')) {
+                setShowForceLogin(true);
+            }
             setShake(true);
             setTimeout(() => setShake(false), 600);
         } finally {
@@ -101,7 +106,7 @@ export default function LoginPage() {
                     </div>
 
                     {/* Login Form */}
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={(e) => handleSubmit(e)} className="space-y-5">
                         {/* Username */}
                         <div>
                             <label className="block text-[10px] text-[#7a9ab0] uppercase tracking-widest font-bold mb-2">
@@ -110,7 +115,10 @@ export default function LoginPage() {
                             <input
                                 type="text"
                                 value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                onChange={(e) => {
+                                    setUsername(e.target.value);
+                                    if (showForceLogin) setShowForceLogin(false);
+                                }}
                                 placeholder="Enter your team username"
                                 required
                                 className="w-full px-4 py-3 rounded-xl bg-[#040b14] border border-[#2bb5cc]/20 text-[#e8ecf1] placeholder-[#7a9ab0]/40 focus:outline-none focus:border-[#2bb5cc]/60 focus:shadow-[0_0_20px_rgba(43,181,204,0.15)] transition-all text-sm"
@@ -126,7 +134,10 @@ export default function LoginPage() {
                             <input
                                 type="password"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    if (showForceLogin) setShowForceLogin(false);
+                                }}
                                 placeholder="Enter your team password"
                                 required
                                 className="w-full px-4 py-3 rounded-xl bg-[#040b14] border border-[#2bb5cc]/20 text-[#e8ecf1] placeholder-[#7a9ab0]/40 focus:outline-none focus:border-[#2bb5cc]/60 focus:shadow-[0_0_20px_rgba(43,181,204,0.15)] transition-all text-sm"
@@ -141,9 +152,23 @@ export default function LoginPage() {
                                     initial={{ opacity: 0, y: -10, height: 0 }}
                                     animate={{ opacity: 1, y: 0, height: 'auto' }}
                                     exit={{ opacity: 0, y: -10, height: 0 }}
-                                    className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center font-medium"
+                                    className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center font-medium flex flex-col gap-3"
                                 >
-                                    ⚠️ {error}
+                                    <div className="flex items-center justify-center gap-2">
+                                        ⚠️ {error}
+                                    </div>
+                                    
+                                    {showForceLogin && (
+                                        <motion.button
+                                            type="button"
+                                            onClick={(e) => handleSubmit(null as any, true)}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="w-full py-2 px-4 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-lg"
+                                        >
+                                            Logout from other devices & Login
+                                        </motion.button>
+                                    )}
                                 </motion.div>
                             )}
                         </AnimatePresence>
