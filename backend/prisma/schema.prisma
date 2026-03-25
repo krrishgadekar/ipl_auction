@@ -3,7 +3,6 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -37,6 +36,7 @@ model Team {
   bowlers_count     Int               @default(0)          // Min 3 required
   ar_count          Int               @default(0)          // Min 2 required
   wk_count          Int               @default(0)          // Min 2 required
+  is_disqualified   Boolean           @default(false)      // True if team fails post-auction criteria
 
   // Consolidated Player Info
   // Array of { player_id, player_name, sealed_bid_price }

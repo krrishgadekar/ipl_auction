@@ -1,10 +1,4 @@
 {
-  "app\\big-screen\\page.tsx -> canvas-confetti": {
-    "id": "app\\big-screen\\page.tsx -> canvas-confetti",
-    "files": [
-      "static/chunks/_app-pages-browser_node_modules_canvas-confetti_dist_confetti_module_mjs.js"
-    ]
-  },
   "app\\page.tsx -> @/components/Logo3D": {
     "id": "app\\page.tsx -> @/components/Logo3D",
     "files": [

@@ -591,6 +591,8 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                         teamId={team.id} 
                         squadCount={team.squadCount} 
                         purchasedPlayers={purchasedPlayers} 
+                        isDisqualified={team.isDisqualified}
+                        auctionPhase={auctionState?.phase}
                         onSuccess={() => {
                             // Optionally trigger a re-fetch or show a success state
                             requestState();

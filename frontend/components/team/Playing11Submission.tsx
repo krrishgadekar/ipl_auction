@@ -7,10 +7,12 @@ interface Props {
     teamId: string | number;
     squadCount: number;
     purchasedPlayers: Player[];
+    isDisqualified?: boolean;
+    auctionPhase?: string;
     onSuccess?: () => void;
 }
 
-export default function Playing11Submission({ teamId, squadCount, purchasedPlayers, onSuccess }: Props) {
+export default function Playing11Submission({ teamId, squadCount, purchasedPlayers, isDisqualified, auctionPhase, onSuccess }: Props) {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [captainId, setCaptainId] = useState<number | null>(null);
@@ -75,11 +77,15 @@ export default function Playing11Submission({ teamId, squadCount, purchasedPlaye
         }
     };
 
-    if (squadCount < 15) {
+    if (auctionPhase !== 'POST_AUCTION' && auctionPhase !== 'COMPLETED') {
+        return null;
+    }
+
+    if (isDisqualified || squadCount < 15) {
         return (
             <div className="p-6 rounded-2xl bg-red-500/10 border border-red-500/20 mt-6 backdrop-blur-md">
-                <h3 className="text-red-400 font-black text-lg tracking-widest uppercase mb-2">Incomplete Squad (Disqualified)</h3>
-                <p className="text-red-400/70 text-sm leading-relaxed">Your squad currently has {squadCount} players. You must have exactly 15 players to submit your official Playing XI and qualify for the final scoring mechanics.</p>
+                <h3 className="text-red-400 font-black text-lg tracking-widest uppercase mb-2">Squad Disqualified</h3>
+                <p className="text-red-400/70 text-sm leading-relaxed">Your squad did not meet all mandatory requirements (exactly 15 players, strict role criteria, and 2-5 overseas players) at the end of the auction. You cannot submit an official Playing XI.</p>
             </div>
         );
     }
