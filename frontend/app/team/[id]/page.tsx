@@ -318,6 +318,8 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
     const [allTeams, setAllTeams] = useState<Team[]>([]);
     const [allPlayers, setAllPlayers] = useState<Player[]>([]);
     const [loading, setLoading] = useState(true);
+    const [expandedPlayerId, setExpandedPlayerId] = useState<number | null>(null);
+    const [auctionState, setAuctionState] = useState<AuctionState | null>(null);
 
     const { on, requestState } = useAuctionSocket();
 
@@ -364,11 +366,16 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
             } else {
                 requestState();
             }
-        });
+        };
 
-        const unbindPlayerSold = on('PLAYER_SOLD', () => {
-            requestState();
-        });
+        const unsubs = [
+            on('STATE_SYNC', handleSync),
+            on('TEAM_STATE_SYNC', handleSync),
+            on('PLAYER_SOLD', requestState),
+            on('PLAYER_UNSOLD', requestState),
+            on('POWER_CARD_USED', requestState),
+            on('FRANCHISE_ASSIGNED', requestState)
+        ];
 
         return () => {
             unsubs.forEach(u => u());
