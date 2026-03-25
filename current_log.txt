@@ -1,0 +1,1 @@
+﻿904ae12 fix: Incomplete Squad UI banner
