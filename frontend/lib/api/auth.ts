@@ -87,11 +87,6 @@ export async function loginTeam(username: string, password: string): Promise<Log
 
         return res.json();
     } catch (err: any) {
-        // If backend unreachable (fetch error), fall back to mock
-        if (err.message === 'Failed to fetch' || err.message?.includes('ECONNREFUSED')) {
-            console.warn('Backend unavailable, using mock login');
-            return mockLogin(username, password);
-        }
         throw err;
     }
 }

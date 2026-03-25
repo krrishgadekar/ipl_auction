@@ -16,7 +16,6 @@ const TOP11_RULES = {
     BOWL: { required: 4 },
     WK: { required: 1 },
     AR: { required: 2 },
-    maxOverseas: 4,
 };
 
 /** Ideal midpoints for balance (midpoint of full squad min–max) */
@@ -63,13 +62,7 @@ async function validateTop11(teamId, playerIds, captainId, viceCaptainId) {
         }
     }
 
-    // 5. Overseas limit in Top 11
-    const overseasCount = selected.filter(p => p.nationality === 'OVERSEAS').length;
-    if (overseasCount > TOP11_RULES.maxOverseas) {
-        errors.push(`Max ${TOP11_RULES.maxOverseas} overseas in Top 11 (have ${overseasCount})`);
-    }
-
-    // 6. Captain / Vice-Captain
+    // 5. Captain / Vice-Captain
     if (!captainId) errors.push('Captain must be selected');
     else if (!playerIds.includes(captainId)) errors.push('Captain must be in Top 11');
 

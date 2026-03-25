@@ -67,14 +67,7 @@ export default function FinalTeamPanel({ teams, allPlayers }: FinalTeamPanelProp
         return counts;
     }, [selectedRanks, teamPlayers]);
 
-    const overseasSelected = useMemo(() => {
-        let count = 0;
-        selectedRanks.forEach(r => {
-            const p = teamPlayers.find(pl => pl.rank === r);
-            if (p?.nationality === 'Overseas') count++;
-        });
-        return count;
-    }, [selectedRanks, teamPlayers]);
+    // (Overseas limit removed from Top 11)
 
     function togglePlayer(rank: number) {
         const next = new Set(selectedRanks);
@@ -195,19 +188,6 @@ export default function FinalTeamPanel({ teams, allPlayers }: FinalTeamPanelProp
                                 </div>
                             );
                         })}
-                        <div
-                            className="rounded-xl p-2 text-center"
-                            style={{
-                                background: overseasSelected <= TOP11_COMPOSITION.maxOverseas ? 'rgba(45,212,160,0.1)' : 'rgba(231,76,94,0.1)',
-                                border: `1px solid ${overseasSelected <= TOP11_COMPOSITION.maxOverseas ? 'rgba(45,212,160,0.3)' : 'rgba(231,76,94,0.3)'}`,
-                            }}
-                        >
-                            <div className="text-lg">🌍</div>
-                            <div className="text-xs font-bold" style={{ color: overseasSelected <= TOP11_COMPOSITION.maxOverseas ? '#2dd4a0' : '#e74c5e' }}>
-                                {overseasSelected}/{TOP11_COMPOSITION.maxOverseas}
-                            </div>
-                            <div className="text-[0.6rem]" style={{ color: 'rgba(122,148,176,0.5)' }}>Overseas</div>
-                        </div>
                     </div>
 
                     {/* Players by category */}
@@ -251,7 +231,7 @@ export default function FinalTeamPanel({ teams, allPlayers }: FinalTeamPanelProp
 
                                                 {/* Player name */}
                                                 <span className="flex-1 text-sm font-medium truncate" style={{ color: isSelected ? '#e8f0f8' : 'rgba(122,148,176,0.7)' }}>
-                                                    {p.nationality === 'Overseas' && '🌍 '}
+                                                    {p.nationality?.toUpperCase() === 'OVERSEAS' && '🌍 '}
                                                     {p.player}
                                                 </span>
 

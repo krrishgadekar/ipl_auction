@@ -23,7 +23,6 @@ export const TOP11_COMPOSITION = {
     BOWL: { required: 4 },
     WK: { required: 1 },
     AR: { required: 2 },
-    maxOverseas: 4,
 } as const;
 
 export interface ValidationResult {
@@ -77,11 +76,6 @@ export function validateTop11(
         errors.push(`Need ${rules.WK.required} Wicketkeeper (have ${counts.WK})`);
     if (counts.AR !== rules.AR.required)
         errors.push(`Need ${rules.AR.required} All-rounders (have ${counts.AR})`);
-
-    // Overseas count
-    const overseasCount = selected.filter(p => p.nationality === 'Overseas').length;
-    if (overseasCount > rules.maxOverseas)
-        errors.push(`Max ${rules.maxOverseas} overseas (have ${overseasCount})`);
 
     // Captain / VC
     if (!captainRank)
