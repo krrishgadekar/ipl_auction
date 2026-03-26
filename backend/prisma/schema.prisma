@@ -71,6 +71,8 @@ model Player {
   url             String?                             // Cricbuzz profile URL
   image_url       String?                             // Player photo path
   is_riddle       Boolean          @default(false)    // Hidden identity during bidding
+  riddle_title    String?                             // Clue title (e.g. "Mystery Bowler")
+  riddle_question String?                             // Riddle text
 
   // Match stats from dataset (for display/reference)
   matches         Int?

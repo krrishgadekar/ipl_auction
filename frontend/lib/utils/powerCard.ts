@@ -19,8 +19,20 @@ export function getPowerCardImage(cardKey: string, shortName?: string): string {
         return `/power_cards/${shortName.toLowerCase()}_rtm.png`;
     }
 
+    // Normalize backend API strings to mapping keys
+    // e.g., 'GOD_EYE' -> 'godsEye', 'FINAL_STRIKE' -> 'finalStrike'
+    const normalizedKey = {
+        'FINAL_STRIKE': 'finalStrike',
+        'BID_FREEZER': 'bidFreezer',
+        'GOD_EYE': 'godsEye',
+        'GODS_EYE': 'godsEye',
+        'MULLIGAN': 'mulligan',
+        'RIGHT_TO_MATCH': 'rightToMatch',
+        'SILENT_HEIST': 'silentHeist'
+    }[cardKey.toUpperCase().replace(/ /g, '_')] || cardKey;
+
     // Default mapping for other cards
-    return POWER_CARD_IMAGES[cardKey] || '/power_cards/FINAL_STRIKE.png';
+    return POWER_CARD_IMAGES[normalizedKey] || POWER_CARD_IMAGES[cardKey] || '/power_cards/FINAL_STRIKE.png';
 }
 
 /**

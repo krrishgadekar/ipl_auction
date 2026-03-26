@@ -26,6 +26,11 @@ const Logo3D = dynamic(() => import('@/components/Logo3D'), {
 
 // Floating Particles
 function FloatingParticles() {
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
+    if (!mounted) return null;
+
     return (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
             {[...Array(15)].map((_, i) => (
@@ -317,7 +322,12 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
     const [team, setTeam] = useState<Team | null>(null);
     const [allTeams, setAllTeams] = useState<Team[]>([]);
     const [allPlayers, setAllPlayers] = useState<Player[]>([]);
+    const [auctionState, setAuctionState] = useState<AuctionState | null>(null);
     const [loading, setLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
+    const [expandedPlayerId, setExpandedPlayerId] = useState<number | null>(null);
+
+    useEffect(() => setMounted(true), []);
 
     const { on, requestState } = useAuctionSocket();
 
@@ -352,7 +362,9 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
     }, [teamId, requestState]);
 
     useEffect(() => {
-        const handleSync = (data?: any) => {
+        const unsubs: (() => void)[] = [];
+
+        const unbindSync = on('STATE_SYNC', (data?: any) => {
             if (data) {
                 if (data.teams) {
                     setAllTeams(data.teams);
@@ -365,10 +377,12 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                 requestState();
             }
         });
+        if (unbindSync) unsubs.push(unbindSync);
 
         const unbindPlayerSold = on('PLAYER_SOLD', () => {
             requestState();
         });
+        if (unbindPlayerSold) unsubs.push(unbindPlayerSold);
 
         return () => {
             unsubs.forEach(u => u());
@@ -379,8 +393,9 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
 
     if (authLoading || loading) return (
         <div className="min-h-screen flex items-center justify-center overflow-hidden relative" style={{ background: 'radial-gradient(ellipse at center, #0a1628, #040b14)' }}>
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                {Array.from({ length: 20 }, (_, i) => (
+            {mounted && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    {Array.from({ length: 20 }, (_, i) => (
                     <div key={i} className="absolute rounded-full"
                         style={{
                             width: `${Math.random() * 4 + 1}px`, height: `${Math.random() * 4 + 1}px`,
@@ -393,6 +408,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                     />
                 ))}
             </div>
+            )}
             <div className="relative flex flex-col items-center z-10">
                 <div style={{ width: '280px', height: '280px' }}><Logo3D /></div>
                 <div className="coin-loading-text" style={{ marginTop: '-1rem' }}>
@@ -461,8 +477,8 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                             <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
                                 <div className="w-32 h-44 shrink-0 rounded-xl bg-black/40 border border-white/10 p-4 shadow-2xl transform hover:rotate-2 transition-transform duration-500">
                                     <img 
-                                        src={getPowerCardImage(auctionState.currentItemId)} 
-                                        alt={auctionState.currentItemId}
+                                        src={getPowerCardImage(auctionState?.currentItemId || '')} 
+                                        alt={auctionState?.currentItemId || ''}
                                         className="w-full h-full object-contain"
                                     />
                                 </div>
@@ -484,7 +500,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                     <p className="text-[10px] text-[#7a9ab0] uppercase tracking-widest font-bold mb-1">Current Highest Bid</p>
                                     <div className="text-4xl font-black text-amber-500 flex items-baseline justify-center gap-2" style={{ fontFamily: "'Cinzel', serif" }}>
                                         <span className="text-lg">₹</span>
-                                        {auctionState.currentBid || '1.0'}
+                                        {auctionState?.currentBid || '1.0'}
                                         <span className="text-lg font-bold">CR</span>
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-white/5">
@@ -755,7 +771,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                                                             </>
                                                                         ) : player.category.toLowerCase().includes('bowl') ? (
                                                                             <>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_wickettaking}</div>
+                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_wicket_taking}</div>
                                                                                 <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_economy}</div>
                                                                                 <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_efficiency}</div>
                                                                                 <div className="text-3xl font-black italic text-center text-white/10">-</div>

@@ -25,6 +25,7 @@ export interface Player {
     pool: PlayerPool;          // BAT_WK / BOWL / AR
     url: string;               // profile link
     nationality: PlayerNationality; // Indian / Overseas
+    nationality_raw?: string;
     isRiddle?: boolean;        // riddle player - identity hidden on big screen
 
     // Rating System (FC25-Style)
@@ -44,7 +45,7 @@ export interface Player {
     sub_consistency?: number;
 
     // BOWL Pool Only
-    sub_wickettaking?: number;
+    sub_wicket_taking?: number;
     sub_economy?: number;
     sub_efficiency?: number;
 
@@ -66,6 +67,7 @@ export const mockPlayers: Player[] = [
         url: 'https://www.cricbuzz.com/profiles/1413/virat-kohli',
         imageUrl: '/player_photos/1.avif',
         nationality: 'Indian',
+        nationality_raw: 'Indian',
         rating: 99,
         grade: 'A',
         basePrice: 2.0,
@@ -87,6 +89,7 @@ export const mockPlayers: Player[] = [
         url: 'https://www.cricbuzz.com/profiles/15107/shubman-gill',
         imageUrl: '/player_photos/14.avif',
         nationality: 'Indian',
+        nationality_raw: 'Indian',
         rating: 82,
         grade: 'B',
         basePrice: 1.0,
@@ -108,6 +111,7 @@ export const mockPlayers: Player[] = [
         url: 'https://www.cricbuzz.com/profiles/7592/deepak-hooda',
         imageUrl: '/player_photos/35.avif',
         nationality: 'Indian',
+        nationality_raw: 'Indian',
         rating: 68,
         grade: 'C',
         basePrice: 0.5,
@@ -129,12 +133,13 @@ export const mockPlayers: Player[] = [
         url: 'https://www.cricbuzz.com/profiles/19893/arjun-tendulkar',
         imageUrl: '/player_photos/72.avif',
         nationality: 'Indian',
+        nationality_raw: 'Indian',
         rating: 48,
         grade: 'C',
         basePrice: 0.5,
         legacy: 1,
         sub_experience: 20,
-        sub_wickettaking: 45,
+        sub_wicket_taking: 45,
         sub_economy: 50,
         sub_efficiency: 42,
     },

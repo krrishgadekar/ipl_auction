@@ -45,23 +45,11 @@ export default function socketHandler(io) {
                     currentPlayer = await prisma.player.findUnique({
                         where: { id: state.current_player_id },
                     });
-                    // Hide riddle player identity during live auction
-                    if (currentPlayer?.is_riddle && state.phase === 'LIVE') {
-                        const riddlePlayers = await prisma.player.findMany({
-                            where: { is_riddle: true },
-                            orderBy: { rank: 'asc' },
-                            select: { id: true, rank: true },
-                        });
-                        const riddleIndex = riddlePlayers.findIndex(rp => rp.id === currentPlayer.id);
-                        const clues = parseRiddleClues();
-                        riddleClue = clues[riddleIndex] || clues[0] || null;
-
-                        currentPlayer = {
-                            ...currentPlayer,
-                            name: '??? RIDDLE PLAYER ???',
-                            team: '???',
-                            url: null,
-                            image_url: null,
+                    // Fetch riddle content directly from the DB player record
+                    if (currentPlayer?.is_riddle) {
+                        riddleClue = {
+                            title: currentPlayer.riddle_title || 'Mystery Player',
+                            question: currentPlayer.riddle_question || 'Identity Locked. Solve the riddle to reveal.'
                         };
                     }
                 }

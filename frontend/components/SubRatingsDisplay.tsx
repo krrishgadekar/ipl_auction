@@ -15,53 +15,64 @@ interface SubRating {
 interface SubRatingsDisplayProps {
     player: Player;
     animate?: boolean;
+    hideOverall?: boolean;
+    themeColor?: string;
 }
 
-export default function SubRatingsDisplay({ player, animate = true }: SubRatingsDisplayProps) {
+export default function SubRatingsDisplay({ player, animate = true, hideOverall = false, themeColor }: SubRatingsDisplayProps) {
     // Get pool-specific sub-ratings
     const getSubRatings = (): SubRating[] => {
         const ratings: SubRating[] = [];
-        const exp = { label: 'Experience', value: player.sub_experience || 0, color: '#9333ea' };
-        const rat = { label: 'Overall Rating', value: player.rating, color: '#ffffff' };
+        const exp = { label: 'Experience', value: player.sub_experience || 0, color: themeColor || '#9333ea' };
+        const rat = { label: 'Overall Rating', value: player.rating, color: themeColor || '#ffffff' };
 
         switch (player.pool) {
             case 'BAT_WK':
                 if (player.sub_scoring !== undefined) {
-                    ratings.push({ label: 'Scoring', value: player.sub_scoring, color: '#00d4ff' });
+                    ratings.push({ label: 'Scoring', value: player.sub_scoring, color: themeColor || '#00d4ff' });
                 }
                 if (player.sub_impact !== undefined) {
-                    ratings.push({ label: 'Impact', value: player.sub_impact, color: '#ff00e5' });
+                    ratings.push({ label: 'Impact', value: player.sub_impact, color: themeColor || '#ff00e5' });
                 }
                 if (player.sub_consistency !== undefined) {
-                    ratings.push({ label: 'Consistency', value: player.sub_consistency, color: '#ffd700' });
+                    ratings.push({ label: 'Consistency', value: player.sub_consistency, color: themeColor || '#ffd700' });
                 }
-                ratings.push(exp, rat);
+                ratings.push(exp);
+                if (!hideOverall) {
+                    ratings.push(rat);
+                }
                 break;
 
             case 'BOWL':
-                if (player.sub_wickettaking !== undefined) {
-                    ratings.push({ label: 'Wicket-Taking', value: player.sub_wickettaking, color: '#00d4ff' });
+                // @ts-ignore - Handle frontend/backend schema mismatch during dynamic renders
+                const wicketTaking = player.sub_wicket_taking ?? player.sub_wickettaking;
+                if (wicketTaking !== undefined) {
+                    ratings.push({ label: 'Wicket-Taking', value: wicketTaking, color: themeColor || '#00d4ff' });
                 }
                 if (player.sub_economy !== undefined) {
-                    ratings.push({ label: 'Economy', value: player.sub_economy, color: '#ff00e5' });
+                    ratings.push({ label: 'Economy', value: player.sub_economy, color: themeColor || '#ff00e5' });
                 }
                 if (player.sub_efficiency !== undefined) {
-                    ratings.push({ label: 'Efficiency', value: player.sub_efficiency, color: '#ffd700' });
+                    ratings.push({ label: 'Efficiency', value: player.sub_efficiency, color: themeColor || '#ffd700' });
                 }
-                ratings.push(exp, rat);
+                if (!hideOverall) {
+                    ratings.push(rat);
+                }
                 break;
 
             case 'AR':
                 if (player.sub_batting !== undefined) {
-                    ratings.push({ label: 'Batting', value: player.sub_batting, color: '#00d4ff' });
+                    ratings.push({ label: 'Batting', value: player.sub_batting, color: themeColor || '#00d4ff' });
                 }
                 if (player.sub_bowling !== undefined) {
-                    ratings.push({ label: 'Bowling', value: player.sub_bowling, color: '#ff00e5' });
+                    ratings.push({ label: 'Bowling', value: player.sub_bowling, color: themeColor || '#ff00e5' });
                 }
                 if (player.sub_versatility !== undefined) {
-                    ratings.push({ label: 'Versatility', value: player.sub_versatility, color: '#ffd700' });
+                    ratings.push({ label: 'Versatility', value: player.sub_versatility, color: themeColor || '#ffd700' });
                 }
-                ratings.push(exp, rat);
+                if (!hideOverall) {
+                    ratings.push(rat);
+                }
                 break;
         }
 
@@ -71,19 +82,19 @@ export default function SubRatingsDisplay({ player, animate = true }: SubRatings
     const subRatings = getSubRatings();
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-4 lg:space-y-6">
             {subRatings.map((rating, index) => (
-                <div key={rating.label} className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                        <span className="text-white/80 font-medium">{rating.label}</span>
-                        <span className="text-white font-bold">{rating.value}</span>
+                <div key={rating.label} className="space-y-2">
+                    <div className="flex items-center justify-between text-base lg:text-xl px-1">
+                        <span className="text-white/80 font-black uppercase tracking-widest">{rating.label}</span>
+                        <span className="text-white font-black" style={{ textShadow: `0 0 10px ${rating.color}` }}>{rating.value}</span>
                     </div>
-                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-3 outline outline-1 outline-white/10 bg-black/40 rounded-full overflow-hidden shadow-inner flex items-center p-[2px]">
                         <motion.div
                             className="h-full rounded-full"
                             style={{
-                                background: `linear-gradient(90deg, ${rating.color}, ${rating.color}dd)`,
-                                boxShadow: `0 0 10px ${rating.color}80`
+                                background: `linear-gradient(90deg, ${rating.color}88, ${rating.color})`,
+                                boxShadow: `0 0 15px ${rating.color}aa`
                             }}
                             initial={animate ? { width: 0 } : { width: `${rating.value}%` }}
                             animate={{ width: `${rating.value}%` }}
