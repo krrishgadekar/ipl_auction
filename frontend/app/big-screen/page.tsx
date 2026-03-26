@@ -16,6 +16,51 @@ import TeamAvatar from '@/components/team/TeamAvatar';
 import { getAllFranchises } from '@/lib/api/admin';
 
 /* ═══════════════════════════════════════════════════════════
+   CUSTOM ANIMATIONS & STYLES
+   ═══════════════════════════════════════════════════════════ */
+const GlobalStyles = () => (
+    <style jsx global>{`
+        @keyframes floodlight-pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); filter: blur(60px); }
+            50% { opacity: 0.6; transform: scale(1.1); filter: blur(80px); }
+        }
+        @keyframes shimmer-sweep {
+            0% { transform: translateX(-150%) skewX(-25deg); }
+            100% { transform: translateX(150%) skewX(-25deg); }
+        }
+        @keyframes float-particle {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { transform: translateY(-100px) translateX(20px); opacity: 0.4; }
+        }
+        @keyframes subtle-zoom {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .floodlight {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: floodlight-pulse 8s infinite ease-in-out;
+        }
+        .shimmer-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .shimmer-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            animation: shimmer-sweep 3s infinite;
+            pointer-events: none;
+        }
+    `}</style>
+);
+
+
+/* ═══════════════════════════════════════════════════════════
    GRADE THEMES — Consistent Background, Colored Accents
    ═══════════════════════════════════════════════════════════ */
 const THEMES: Record<string, {
@@ -65,6 +110,15 @@ function getStats(p: Player): { label: string; value: number; display: string }[
         { label: 'VRS', value: p.sub_versatility ?? 0, display: String(p.sub_versatility ?? 0) }
     ];
 }
+
+const CornerAccents = ({ color }: { color: string }) => (
+    <>
+        <div className="absolute top-6 left-6 w-12 h-12 border-t-2 border-l-2 opacity-20 z-30" style={{ borderColor: color, borderRadius: '12px 0 0 0' }} />
+        <div className="absolute top-6 right-6 w-12 h-12 border-t-2 border-r-2 opacity-20 z-30" style={{ borderColor: color, borderRadius: '0 12px 0 0' }} />
+        <div className="absolute bottom-6 left-6 w-12 h-12 border-b-2 border-l-2 opacity-20 z-30" style={{ borderColor: color, borderRadius: '0 0 0 12px' }} />
+        <div className="absolute bottom-6 right-6 w-12 h-12 border-b-2 border-r-2 opacity-20 z-30" style={{ borderColor: color, borderRadius: '0 0 12px 0' }} />
+    </>
+);
 
 function SpiderChart({ stats, theme }: { stats: { label: string; value: number; display: string }[]; theme: typeof THEMES.A }) {
     const s = 260, cx = s / 2, cy = s / 2, r = 88, n = stats.length;
@@ -155,7 +209,7 @@ export default function BigScreenPage() {
             const [state, teamsData] = await Promise.all([getAuctionState(), getAllTeams()]);
             setAuctionState(state as any);
             setTeams(teamsData);
-            
+
             // Preload next player images if possible
             if (state.currentPlayerRank !== null) {
                 const idx = mockPlayers.findIndex(p => p.rank === state.currentPlayerRank);
@@ -366,8 +420,8 @@ export default function BigScreenPage() {
                                                         ],
                                                     }}
                                                     transition={{ duration: 3, repeat: Infinity }}>
-                                                    <Image 
-                                                        src={getPowerCardImage(powerCardId || 'finalStrike')} 
+                                                    <Image
+                                                        src={getPowerCardImage(powerCardId || 'finalStrike')}
                                                         alt={card.name}
                                                         fill
                                                         className="object-contain p-2"
@@ -392,7 +446,7 @@ export default function BigScreenPage() {
                                                 </span>
                                             </motion.div>
 
-                                                                                        {/* Bid Stats Grid */}
+                                            {/* Bid Stats Grid */}
                                             <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
                                                 className="grid grid-cols-2 gap-3">
                                                 <div className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
@@ -464,8 +518,8 @@ export default function BigScreenPage() {
                                                                 }}>
                                                                 <span className="text-[0.65rem] font-black w-4 text-center"
                                                                     style={{ color: i < 3 ? card.color : `${card.color}50` }}>{i + 1}</span>
-                                                                 <TeamAvatar team={team} size={20} />
-                                                                 <span className="text-[0.75rem] font-bold text-white flex-1 min-w-0 truncate"
+                                                                <TeamAvatar team={team} size={20} />
+                                                                <span className="text-[0.75rem] font-bold text-white flex-1 min-w-0 truncate"
                                                                     style={{ fontFamily: "'Cinzel', serif" }}>{team.shortName}</span>
                                                                 <span className="text-[0.55rem]" style={{ color: TEXT_SEC }}>{team.squadCount}/{team.squadLimit}</span>
                                                                 <span className="text-[0.8rem] font-black" style={{ color: '#2dd4a0', fontFamily: "'Cinzel', serif" }}>₹{team.budgetRemaining}</span>
@@ -831,228 +885,207 @@ export default function BigScreenPage() {
                                     className="h-full flex flex-col">
 
                                     {/* ═══ TOP SECTION (60%): Franchise Visual + Info ═══ */}
-                                    <div className="flex-1 relative min-h-0" style={{ height: '60%' }}>
-                                        {/* Accent stripe */}
-                                        <div className="absolute top-0 left-0 right-0 h-[2px] z-20"
-                                            style={{ background: `linear-gradient(90deg, ${fcColor}, ${fcColor}80, ${fcColor})` }} />
+                                    <div className="flex-1 relative min-h-0 h-full">
+                                        {/* Full-width Background Visual Enhancements */}
+                                        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                                            <div className="floodlight" style={{ top: '-10%', left: '-10%', background: `radial-gradient(circle, ${fcColor}40 0%, transparent 70%)` }} />
+                                            <div className="floodlight" style={{ top: '-10%', right: '-10%', background: `radial-gradient(circle, ${fcColor}20 0%, transparent 70%)`, animationDelay: '1s' }} />
+                                            <div className="floodlight" style={{ bottom: '-10%', left: '-10%', background: `radial-gradient(circle, ${fcColor}20 0%, transparent 70%)`, animationDelay: '3s' }} />
+                                            <div className="floodlight" style={{ bottom: '-10%', right: '-10%', background: `radial-gradient(circle, ${fcColor}40 0%, transparent 70%)`, animationDelay: '2s' }} />
+                                            
+                                            {/* Floating Particles */}
+                                            {Array.from({ length: 12 }).map((_, i) => (
+                                                <div key={i} className="absolute w-1 h-1 rounded-full bg-white/10"
+                                                    style={{
+                                                        top: `${Math.random() * 100}%`,
+                                                        left: `${Math.random() * 100}%`,
+                                                        animation: `float-particle ${6 + Math.random() * 6}s infinite ease-in-out`,
+                                                        animationDelay: `${Math.random() * 5}s`
+                                                    }} />
+                                            ))}
 
-                                        {/* Badge */}
-                                        <motion.div initial={{ y: -15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-                                            className="absolute top-3 left-3 z-30 flex items-center gap-2">
-                                            <span className="px-3 py-1 rounded-full font-black text-[0.6rem] tracking-[0.15em]"
-                                                style={{ background: `linear-gradient(135deg, ${fcColor}, ${fcColor}cc)`, color: '#fff' }}>
-                                                🏢 FRANCHISE RIGHTS AUCTION
-                                            </span>
-                                        </motion.div>
+                                            {/* Stadium Silhouette Base */}
+                                            <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none opacity-[0.05] z-0"
+                                                style={{
+                                                    background: `linear-gradient(to top, ${fcColor} 0%, transparent 100%)`,
+                                                    maskImage: `radial-gradient(ellipse at 50% 100%, black 0%, transparent 80%)`,
+                                                    WebkitMaskImage: `radial-gradient(ellipse at 50% 100%, black 0%, transparent 80%)`,
+                                                }} />
+                                        </div>
 
-                                        {hasFranchise ? (
-                                            <>
-                                                {/* Large background text */}
-                                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[1]"
-                                                    style={{ paddingLeft: '10%' }}>
-                                                    <span style={{
-                                                        fontSize: 'clamp(8rem, 16vw, 14rem)', fontFamily: "'Cinzel', serif", fontWeight: 900,
-                                                        color: fcColor, opacity: 0.06, lineHeight: 1,
-                                                    }}>{franchise!.short}</span>
-                                                </div>
+                                        <CornerAccents color={fcColor} />
 
-                                                {/* Franchise Logo — left side */}
-                                                <motion.div
-                                                    initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
-                                                    transition={{ delay: 0.1, duration: 0.5 }}
-                                                    className="absolute bottom-0 left-0 z-10 flex items-center justify-center"
-                                                    style={{ width: '38%', height: '95%' }}>
-                                                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/2 z-0"
-                                                        style={{ background: `radial-gradient(ellipse at 50% 100%, ${fcColor}40, transparent 65%)` }} />
-                                                    <motion.div className="relative z-10 flex flex-col items-center justify-center gap-4">
-                                                        <motion.div
-                                                            className="w-44 h-44 rounded-3xl flex items-center justify-center relative overflow-hidden"
-                                                            style={{
-                                                                background: `linear-gradient(135deg, ${fcColor}20, ${fcColor}08)`,
-                                                                border: `2px solid ${fcColor}40`,
-                                                                boxShadow: `0 0 60px ${fcColor}30, inset 0 0 40px ${fcColor}10`,
-                                                            }}
-                                                            animate={{
-                                                                boxShadow: [
-                                                                    `0 0 40px ${fcColor}20, inset 0 0 30px ${fcColor}08`,
-                                                                    `0 0 80px ${fcColor}40, inset 0 0 50px ${fcColor}15`,
-                                                                    `0 0 40px ${fcColor}20, inset 0 0 30px ${fcColor}08`,
-                                                                ],
-                                                            }}
-                                                            transition={{ duration: 3, repeat: Infinity }}>
-                                                            <Image
-                                                                src={`/teams/${franchise!.short.toLowerCase()}.png`}
-                                                                alt={franchise!.name}
-                                                                width={130} height={130}
-                                                                className="object-contain"
-                                                                style={{ filter: `drop-shadow(0 0 20px ${fcColor})` }}
-                                                            />
+                                        <div className="h-full w-full max-w-[1300px] mx-auto relative overflow-hidden">
+
+                                            {/* Accent stripe */}
+                                            <div className="absolute top-0 left-0 right-0 h-[2px] z-20"
+                                                style={{ background: `linear-gradient(90deg, transparent, ${fcColor}, transparent)` }} />
+
+                                            {hasFranchise ? (
+                                                <>
+                                                    {/* Background Watermark */}
+                                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[1]"
+                                                        style={{ paddingLeft: '2%' }}>
+                                                        <span style={{
+                                                            fontSize: 'clamp(10rem, 20vw, 18rem)', fontFamily: "'Cinzel', serif", fontWeight: 900,
+                                                            color: fcColor, opacity: 0.04, lineHeight: 1,
+                                                            filter: 'blur(15px)'
+                                                        }}>{franchise!.short}</span>
+                                                    </div>
+
+                                                    {/* Franchise Logo — left side */}
+                                                    <motion.div
+                                                        initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
+                                                        transition={{ delay: 0.1, duration: 0.5 }}
+                                                        className="absolute bottom-0 left-0 z-10 flex items-center justify-center"
+                                                        style={{ width: '45%', height: '100%' }}>
+                                                        
+                                                        {/* Pedestal Glow */}
+                                                        <div className="absolute bottom-[-10%] left-1/2 -translate-x-1/2 w-[120%] h-[40%] z-0"
+                                                            style={{ background: `radial-gradient(ellipse at 50% 50%, ${fcColor}50, transparent 70%)`, filter: 'blur(40px)' }} />
+                                                        
+                                                        <motion.div className="relative z-10 flex flex-col items-center justify-center gap-6"
+                                                            animate={{ y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}>
+                                                            
+                                                            {/* Premium Container */}
+                                                            <div className="relative p-1.5 rounded-[3rem] bg-gradient-to-br from-white/10 to-transparent backdrop-blur-md border border-white/10 shadow-2xl">
+                                                                <motion.div
+                                                                    className="w-64 h-64 rounded-[2.5rem] flex items-center justify-center relative overflow-hidden shimmer-container"
+                                                                    style={{
+                                                                        background: `linear-gradient(135deg, ${fcColor}30, ${fcColor}10)`,
+                                                                        border: `2px solid ${fcColor}60`,
+                                                                        boxShadow: `0 0 80px ${fcColor}40, inset 0 0 40px ${fcColor}20`,
+                                                                    }}>
+                                                                    <div className="shimmer-overlay" />
+                                                                    <Image
+                                                                        src={`/teams/${franchise!.short.toLowerCase()}.png`}
+                                                                        alt={franchise!.name}
+                                                                        width={300} height={300}
+                                                                        className="object-contain relative z-10 p-4"
+                                                                        style={{ filter: `drop-shadow(0 0 30px ${fcColor})` }}
+                                                                    />
+                                                                </motion.div>
+                                                            </div>
                                                         </motion.div>
                                                     </motion.div>
-                                                </motion.div>
 
-                                                {/* Franchise Info — right side */}
-                                                <div className="absolute right-0 top-0 bottom-0 z-10 flex flex-col justify-center p-5 pr-6"
-                                                    style={{ width: '55%' }}>
-                                                    <motion.h2 initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
-                                                        className="font-black text-white leading-[0.95] mb-2"
-                                                        style={{ fontSize: 'clamp(1.6rem, 3.5vw, 3rem)', fontFamily: "'Cinzel', serif" }}>
-                                                        {franchise!.name}
-                                                    </motion.h2>
-                                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.22 }}
-                                                        className="mb-6">
-                                                        <span className="text-base font-medium leading-relaxed" style={{ color: 'rgba(122,148,176,0.7)' }}>
-                                                            The winning team acquires this franchise&apos;s brand identity, logo, and an RTM card.
-                                                        </span>
-                                                    </motion.div>
+                                                    {/* Franchise Info — right side */}
+                                                    <div className="absolute right-0 top-0 bottom-0 z-10 flex flex-col justify-center p-5 pr-6"
+                                                        style={{ width: '50%' }}>
+                                                        <motion.h2 initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
+                                                            className="font-black text-white leading-[0.95] mb-2"
+                                                            style={{ fontSize: 'clamp(1.6rem, 3.5vw, 3rem)', fontFamily: "'Cinzel', serif" }}>
+                                                            {franchise!.name}
+                                                        </motion.h2>
+                                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.22 }}
+                                                            className="mb-6">
+                                                            <span className="text-base font-medium leading-relaxed" style={{ color: 'rgba(122,148,176,0.7)' }}>
+                                                                The winning team acquires this franchise&apos;s brand identity, logo, and an RTM card.
+                                                            </span>
+                                                        </motion.div>
 
-                                                    {/* Bid Stats Grid */}
-                                                    <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
-                                                        className="grid grid-cols-3 gap-3">
-                                                        <div className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
-                                                            style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
-                                                            <div className="text-[0.65rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEXT_SEC }}>Base Reserve</div>
-                                                            <div className="text-2xl font-black" style={{ color: '#d4af37', fontFamily: "'Cinzel', serif" }}>
-                                                                ₹3.0 <span className="text-sm text-white/50">CR</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
-                                                            style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
-                                                            <div className="text-[0.65rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEXT_SEC }}>Current Bid</div>
-                                                            <div className="text-2xl font-black" style={{ color: '#2dd4a0', fontFamily: "'Cinzel', serif" }}>
-                                                                ₹{currentBid ? Number(currentBid).toFixed(1) : '3.0'} <span className="text-sm text-white/50">CR</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="rounded-xl p-3 text-center flex flex-col items-center justify-center"
-                                                            style={{ background: 'rgba(45,212,160,0.08)', border: '1px solid rgba(45,212,160,0.2)' }}>
-                                                            <div className="text-[0.65rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: '#2dd4a0' }}>Awarded</div>
-                                                            <div className="text-lg font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>RTM Card</div>
-                                                        </div>
-                                                    </motion.div>
-                                                </div>
-
-                                                {/* RTM badge — top right */}
-                                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: 'spring' }}
-                                                    className="absolute top-5 right-6 z-20">
-                                                    <div className="w-16 h-16 rounded-full flex flex-col items-center justify-center"
-                                                        style={{ background: `linear-gradient(135deg, ${fcColor}, ${fcColor}cc)`, boxShadow: `0 4px 20px ${fcColor}60` }}>
-                                                        <span style={{ fontSize: '1.2rem', filter: `drop-shadow(0 0 10px ${fcColor})` }}>🎫</span>
-                                                        <span className="text-[0.35rem] tracking-widest uppercase font-bold" style={{ color: '#fffa' }}>RTM</span>
-                                                    </div>
-                                                </motion.div>
-                                            </>
-                                        ) : (
-                                            /* ═══ No franchise selected yet — waiting state ═══ */
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                                                <motion.div
-                                                    animate={{ scale: [1, 1.05, 1], opacity: [0.7, 1, 0.7] }}
-                                                    transition={{ duration: 3, repeat: Infinity }}
-                                                    className="text-7xl mb-6"
-                                                    style={{ filter: `drop-shadow(0 0 30px ${fcColor})` }}>
-                                                    🏛️
-                                                </motion.div>
-                                                <h2 className="font-black text-white mb-3 text-center"
-                                                    style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontFamily: "'Cinzel', serif", textShadow: `0 0 40px ${fcColor}40` }}>
-                                                    FRANCHISE RIGHTS AUCTION
-                                                </h2>
-                                                <motion.p
-                                                    animate={{ opacity: [0.4, 0.8, 0.4] }}
-                                                    transition={{ duration: 2, repeat: Infinity }}
-                                                    className="text-lg font-medium tracking-widest uppercase"
-                                                    style={{ color: `${fcColor}cc` }}>
-                                                    Awaiting Auctioneer…
-                                                </motion.p>
-                                            </div>
-                                        )}
-
-                                        {/* Scan line */}
-                                        <motion.div animate={{ y: ['0%', '100%', '0%'] }}
-                                            transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-                                            className="absolute left-0 right-0 h-px z-[6] pointer-events-none"
-                                            style={{ background: `linear-gradient(90deg, transparent, ${fcColor}50, transparent)` }} />
-                                    </div>
-
-                                    {/* ═══ BOTTOM SECTION (40%): Team Standings ═══ */}
-                                    <div className="flex-shrink-0 relative" style={{
-                                        height: '40%',
-                                        borderTop: `1px solid ${GLASS_BORDER}`,
-                                        background: `linear-gradient(180deg, ${GLASS_BG} 0%, rgba(4,8,16,0.5) 100%)`,
-                                    }}>
-                                        <div className="h-full flex">
-                                            {/* Team Standings */}
-                                            <div className="flex-1 p-3 overflow-hidden">
-                                                <div className="flex items-center gap-1.5 mb-2">
-                                                    <span className="text-xs">🏆</span>
-                                                    <span className="text-[0.7rem] font-black tracking-widest uppercase"
-                                                        style={{ color: fcColor, fontFamily: "'Cinzel', serif" }}>TEAM STANDINGS</span>
-                                                </div>
-                                                <div className="grid grid-cols-2 gap-x-3 gap-y-1 h-[calc(100%-28px)]">
-                                                    {sorted.map((team, i) => {
-                                                        const pct = (team.budgetRemaining / team.totalBudget) * 100;
-                                                        return (
-                                                            <motion.div key={team.id}
-                                                                initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
-                                                                transition={{ delay: 0.4 + i * 0.04 }}
-                                                                className="flex items-center gap-1.5 px-2 py-1 rounded-lg relative overflow-hidden"
-                                                                style={{
-                                                                    background: i < 3 ? `${fcColor}08` : 'rgba(255,255,255,0.02)',
-                                                                    borderLeft: `2px solid ${GLASS_BORDER}`,
-                                                                }}>
-                                                                <span className="text-[0.65rem] font-black w-4 text-center"
-                                                                    style={{ color: i < 3 ? fcColor : `${fcColor}50` }}>{i + 1}</span>
-                                                                <TeamAvatar team={team} size={20} />
-                                                                <span className="text-[0.75rem] font-bold text-white flex-1 min-w-0 truncate"
-                                                                    style={{ fontFamily: "'Cinzel', serif" }}>{team.shortName}</span>
-                                                                <span className="text-[0.55rem]" style={{ color: TEXT_SEC }}>{team.squadCount}/{team.squadLimit}</span>
-                                                                <span className="text-[0.8rem] font-black" style={{ color: '#2dd4a0', fontFamily: "'Cinzel', serif" }}>₹{team.budgetRemaining}</span>
-                                                                <div className="absolute bottom-0 left-0 right-0 h-[1.5px]" style={{ background: `${fcColor}08` }}>
-                                                                    <div className="h-full" style={{ width: `${pct}%`, background: fcColor }} />
+                                                        {/* Bid Stats Grid */}
+                                                        <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
+                                                            className="grid grid-cols-3 gap-4 transform-gpu">
+                                                            <div className="rounded-2xl p-4 text-center flex flex-col items-center justify-center shimmer-container overflow-hidden group"
+                                                                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)' }}>
+                                                                <div className="shimmer-overlay group-hover:opacity-100 opacity-60 transition-opacity" />
+                                                                <div className="absolute inset-0 opacity-20 pointer-events-none"
+                                                                    style={{ background: 'linear-gradient(135deg, transparent 45%, rgba(255,255,255,0.15) 50%, transparent 55%)', backgroundSize: '250% 250%', animation: 'shimmer 3s infinite linear' }} />
+                                                                <div className="text-[0.6rem] uppercase tracking-[0.2em] mb-2 font-bold text-white/40">Base Price</div>
+                                                                <div className="text-3xl font-black" style={{ color: '#d4af37', fontFamily: "'Cinzel', serif", textShadow: '0 0 20px rgba(212,175,55,0.3)' }}>
+                                                                    ₹3.0 <span className="text-base text-white/30">CR</span>
                                                                 </div>
-                                                            </motion.div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-
-                                            {/* Franchise Info panel */}
-                                            <div className="flex-shrink-0 flex flex-col items-center justify-center gap-3 px-4 py-3" style={{
-                                                width: '220px', borderLeft: `1px solid ${GLASS_BORDER}`,
-                                            }}>
-                                                <div className="text-[0.55rem] font-black tracking-widest uppercase" style={{ color: fcColor }}>
-                                                    📋 FRANCHISE DETAILS
-                                                </div>
-                                                <div className="flex-1 flex flex-col items-center justify-center gap-3">
-                                                    <div className="rounded-xl p-3 text-center w-full" style={{ background: GLASS_BG, border: `1px solid ${GLASS_BORDER}` }}>
-                                                        <div className="text-[0.6rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEXT_SEC }}>Highest Bidder</div>
-                                                        {highestBidderTeam ? (
-                                                            <div className="flex items-center justify-center gap-2">
-                                                                <span className="text-base font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>
-                                                                    {highestBidderTeam.shortName || highestBidderTeam.name}
-                                                                </span>
                                                             </div>
-                                                        ) : (
-                                                            <span className="text-sm font-medium text-white/30 italic">Awaiting bids…</span>
+
+                                                            <div className="rounded-2xl p-4 text-center flex flex-col items-center justify-center shimmer-container relative overflow-hidden group"
+                                                                style={{ background: 'rgba(45,212,160,0.05)', border: '1px solid rgba(45,212,160,0.3)', backdropFilter: 'blur(20px)' }}>
+                                                                <div className="shimmer-overlay group-hover:opacity-100 opacity-60 transition-opacity" />
+                                                                <div className="absolute inset-0 opacity-20 pointer-events-none"
+                                                                    style={{ background: 'linear-gradient(135deg, transparent 45%, rgba(255,255,255,0.15) 50%, transparent 55%)', backgroundSize: '250% 250%', animation: 'shimmer 3s infinite linear' }} />
+                                                            <div className="text-[0.6rem] uppercase tracking-[0.2em] mb-2 font-bold text-[#2dd4a0]/60">Current Bid</div>
+                                                                <div className="text-3xl font-black" style={{ color: '#2dd4a0', fontFamily: "'Cinzel', serif", textShadow: '0 0 20px rgba(45,212,160,0.3)' }}>
+                                                                    ₹{currentBid ? Number(currentBid).toFixed(1) : '3.0'} <span className="text-base text-white/30">CR</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="rounded-2xl p-4 text-center flex flex-col items-center justify-center relative bg-gradient-to-br from-[#8B5CF6]10 to-transparent border border-[#8B5CF6]30 backdrop-blur-[20px] overflow-hidden group">
+                                                                <div className="absolute inset-0 opacity-20 pointer-events-none"
+                                                                    style={{ background: 'linear-gradient(135deg, transparent 45%, rgba(139,92,246,0.2) 50%, transparent 55%)', backgroundSize: '250% 250%', animation: 'shimmer 4s infinite linear' }} />
+                                                                <div className="text-[0.6rem] uppercase tracking-[0.2em] mb-2 font-bold text-[#8B5CF6]">Main Reward</div>
+                                                                <div className="flex flex-col items-center">
+                                                                    <span className="text-xl font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>RTM CARD</span>
+                                                                </div>
+                                                            </div>
+                                                        </motion.div>
+
+                                                        {/* Highest Bidder Spotlight */}
+                                                        {highestBidderTeam && (
+                                                            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }}
+                                                                className="mt-6 p-4 rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm flex items-center justify-between">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                                                                        <span className="text-lg">👑</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="text-[0.55rem] uppercase tracking-[0.2em] text-white/30 font-bold mb-0.5">Leading Bidder</div>
+                                                                        <div className="text-lg font-black text-white uppercase tracking-wider" style={{ fontFamily: "'Cinzel', serif" }}>
+                                                                            {highestBidderTeam.shortName || highestBidderTeam.name}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#2dd4a0]/10 border border-[#2dd4a0]/20">
+                                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#2dd4a0] animate-ping" />
+                                                                    <span className="text-[0.6rem] font-black text-[#2dd4a0] uppercase tracking-widest">In Control</span>
+                                                                </motion.div>
+                                                            </motion.div>
                                                         )}
                                                     </div>
-                                                    <div className="rounded-xl p-3 text-center w-full" style={{ background: 'rgba(45,212,160,0.08)', border: '1px solid rgba(45,212,160,0.2)' }}>
-                                                        <div className="text-[0.6rem] uppercase tracking-wider mb-1 font-semibold" style={{ color: '#2dd4a0' }}>Awarded</div>
-                                                        <div className="text-lg font-black text-white" style={{ fontFamily: "'Cinzel', serif" }}>RTM Card</div>
-                                                    </div>
+                                                </>
+                                            ) : (
+                                                /* ═══ No franchise selected yet — waiting state ═══ */
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                                                    <motion.div
+                                                        animate={{ scale: [1, 1.05, 1], opacity: [0.7, 1, 0.7] }}
+                                                        transition={{ duration: 3, repeat: Infinity }}
+                                                        className="text-7xl mb-6"
+                                                        style={{ filter: `drop-shadow(0 0 30px ${fcColor})` }}>
+                                                        🏛️
+                                                    </motion.div>
+                                                    <h2 className="font-black text-white mb-3 text-center"
+                                                        style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontFamily: "'Cinzel', serif", textShadow: `0 0 40px ${fcColor}40` }}>
+                                                        FRANCHISE RIGHTS AUCTION
+                                                    </h2>
+                                                    <motion.p
+                                                        animate={{ opacity: [0.4, 0.8, 0.4] }}
+                                                        transition={{ duration: 2, repeat: Infinity }}
+                                                        className="text-lg font-medium tracking-widest uppercase"
+                                                        style={{ color: `${fcColor}cc` }}>
+                                                        Awaiting Auctioneer…
+                                                    </motion.p>
                                                 </div>
-                                            </div>
-                                        </div>
+                                            )}
+
+                                            {/* Scan line */}
+                                            <motion.div animate={{ y: ['0%', '100%', '0%'] }}
+                                                transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                                                className="absolute left-0 right-0 h-px z-[6] pointer-events-none"
+                                                style={{ background: `linear-gradient(90deg, transparent, ${fcColor}50, transparent)` }} />
+                                        </div> {/* End of Centered Wrapper */}
                                     </div>
+
+
                                 </motion.div>
                             );
                         })() : auctionState.phase === 'NOT_STARTED' || auctionState.phase === 'PRE_AUCTION' ? (
                             <motion.div key="not-started" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                 className="h-full flex flex-col items-center justify-center">
                                 <motion.div className="w-40 h-40 relative flex items-center justify-center rounded-full overflow-hidden border-2 border-[rgba(212,175,55,0.4)] shadow-[0_0_40px_rgba(212,175,55,0.2)] bg-black mb-8"
-                                            animate={{ boxShadow: ['0 0 20px rgba(212,175,55,0.2)', '0 0 60px rgba(212,175,55,0.4)', '0 0 20px rgba(212,175,55,0.2)'] }}
-                                            transition={{ duration: 3, repeat: Infinity }}>
+                                    animate={{ boxShadow: ['0 0 20px rgba(212,175,55,0.2)', '0 0 60px rgba(212,175,55,0.4)', '0 0 20px rgba(212,175,55,0.2)'] }}
+                                    transition={{ duration: 3, repeat: Infinity }}>
                                     <Image src="/auction_logo.jpg" alt="IPL Logo" fill className="object-cover" />
                                 </motion.div>
-                                <h2 className="font-black mb-2 text-center text-white" 
+                                <h2 className="font-black mb-2 text-center text-white"
                                     style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontFamily: "'Cinzel', serif", textShadow: '0 0 40px rgba(212,175,55,0.4)' }}>
                                     WELCOME TO IPL AUCTION 2026
                                 </h2>
@@ -1066,12 +1099,12 @@ export default function BigScreenPage() {
                                 <motion.div animate={{ scale: [1, 1.05, 1], rotate: [0, 5, -5, 0] }} transition={{ duration: 5, repeat: Infinity }} className="text-8xl mb-6 filter drop-shadow-[0_0_30px_rgba(212,175,55,0.6)]">
                                     🏆
                                 </motion.div>
-                                <h2 className="font-black mb-2 text-center text-[#d4af37]" 
+                                <h2 className="font-black mb-2 text-center text-[#d4af37]"
                                     style={{ fontSize: 'clamp(3rem, 6vw, 5rem)', fontFamily: "'Cinzel', serif", textShadow: '0 0 40px rgba(212,175,55,0.4)' }}>
                                     AUCTION CONCLUDED
                                 </h2>
                                 <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.2rem' }} className="mt-4 tracking-widest uppercase font-bold text-center max-w-2xl">
-                                    Thank you for participating in the most spectacular auction. <br/> See you on the pitch!
+                                    Thank you for participating in the most spectacular auction. <br /> See you on the pitch!
                                 </p>
                             </motion.div>
                         ) : (
