@@ -685,57 +685,62 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                                                 <div className="mt-6 p-6 rounded-2xl bg-white/5 border border-white/10">
                                                                     <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-6 border-b border-white/5 pb-2">Technical Analysis • Stats</div>
                                                                     
-                                                                    <div className="grid grid-cols-5 gap-4">
-                                                                        {/* Header Row */}
-                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Rating</div>
-                                                                        {player.category.toLowerCase().includes('bat') || player.category.toLowerCase().includes('wk') ? (
-                                                                            <>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Scoring</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Impact</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Cons.</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Exp.</div>
-                                                                            </>
-                                                                        ) : player.category.toLowerCase().includes('bowl') ? (
-                                                                            <>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Wickets</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Economy</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Eff.</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">-</div>
-                                                                            </>
-                                                                        ) : (
-                                                                            <>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Batting</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Bowling</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Vers.</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">-</div>
-                                                                            </>
-                                                                        )}
+                                                                    {(() => {
+                                                                        const cat = player.category?.toLowerCase() || '';
+                                                                        const isBatOrWk = cat.includes('bat') || cat.includes('wicket') || cat.includes('wk');
+                                                                        const isBowl = cat.includes('bowl');
+                                                                        const colsClass = isBatOrWk ? 'grid-cols-5' : 'grid-cols-4';
 
-                                                                        {/* Value Row */}
-                                                                        <div className="text-3xl font-black italic text-[#2dd4a0] text-center">{player.rating}</div>
-                                                                        {player.category.toLowerCase().includes('bat') || player.category.toLowerCase().includes('wk') ? (
-                                                                            <>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_scoring}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_impact}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_consistency}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_experience}</div>
-                                                                            </>
-                                                                        ) : player.category.toLowerCase().includes('bowl') ? (
-                                                                            <>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_wicket_taking}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_economy}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_efficiency}</div>
-                                                                                <div className="text-3xl font-black italic text-center text-white/10">-</div>
-                                                                            </>
-                                                                        ) : (
-                                                                            <>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_batting}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_bowling}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_versatility}</div>
-                                                                                <div className="text-3xl font-black italic text-center text-white/10">-</div>
-                                                                            </>
-                                                                        )}
-                                                                    </div>
+                                                                        return (
+                                                                            <div className={`grid ${colsClass} gap-4`}>
+                                                                                {/* Header Row */}
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Rating</div>
+                                                                                {isBatOrWk ? (
+                                                                                    <>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Scoring</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Impact</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Cons.</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Exp.</div>
+                                                                                    </>
+                                                                                ) : isBowl ? (
+                                                                                    <>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Wickets</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Economy</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Eff.</div>
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Batting</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Bowling</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Vers.</div>
+                                                                                    </>
+                                                                                )}
+
+                                                                                {/* Value Row */}
+                                                                                <div className="text-3xl font-black italic text-[#2dd4a0] text-center">{player.rating || '-'}</div>
+                                                                                {isBatOrWk ? (
+                                                                                    <>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_scoring || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_impact || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_consistency || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_experience || '-'}</div>
+                                                                                    </>
+                                                                                ) : isBowl ? (
+                                                                                    <>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_wicket_taking || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_economy || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_efficiency || '-'}</div>
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_batting || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_bowling || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_versatility || '-'}</div>
+                                                                                    </>
+                                                                                )}
+                                                                            </div>
+                                                                        );
+                                                                    })()}
                                                                 </div>
                                                             </div>
                                                         </div>
