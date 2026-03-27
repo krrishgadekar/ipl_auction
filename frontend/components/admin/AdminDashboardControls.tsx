@@ -228,6 +228,8 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
         }
     };
 
+    const sortedTeams = [...teams].sort((a, b) => a.name.localeCompare(b.name));
+
     return (
         <div className="bg-[#0a0a1a] border border-white/10 rounded-2xl p-6 space-y-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[100px] pointer-events-none" />
@@ -373,7 +375,7 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                 className="w-full bg-black/60 border border-white/10 rounded-lg p-3 text-white font-bold text-sm outline-none focus:border-green-500/50 transition-colors"
                             >
                                 <option value="">Select Team...</option>
-                                {teams.map(t => (
+                                {sortedTeams.map(t => (
                                     <option key={t.id} value={t.id.toString()}>
                                         {t.name} (₹{t.purseRemaining} CR)
                                     </option>
@@ -419,7 +421,7 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {teams.map(team => (
+                                {sortedTeams.map(team => (
                                     <tr key={team.id} className="hover:bg-white/[0.02] transition-colors">
                                         <td className="p-3">
                                             <div className="flex items-center gap-3">

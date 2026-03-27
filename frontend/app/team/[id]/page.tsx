@@ -822,7 +822,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                     <div className="flex justify-center mb-3">
                                         <div className="relative w-24 h-32 flex items-center justify-center">
                                             <Image
-                                                src={getPowerCardImage(key, team.shortName)}
+                                                src={getPowerCardImage(key, team.logo ? team.logo.split('/').pop()?.split('.')[0] : undefined)}
                                                 alt={card.name}
                                                 fill
                                                 className="object-contain drop-shadow-[0_0_10px_rgba(43,181,204,0.4)]"
@@ -881,7 +881,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                             <td className="py-3 px-5 text-sm text-[#7a9ab0] font-mono">{i + 1}</td>
                                             <td className="py-3 px-3">
                                                 <div className="flex items-center gap-3">
-                                                    <img src={t.logo} alt={t.shortName} className="w-8 h-8 object-contain drop-shadow-md" />
+                                                    <img src={t.logo || '/auction_logo.jpg'} alt={t.shortName} className="w-8 h-8 object-contain drop-shadow-md" onError={(e) => { (e.target as HTMLImageElement).src = '/auction_logo.jpg'; }} />
                                                     <div>
                                                         <span className={`font-bold text-sm ${isMyTeam ? 'text-[#2bb5cc]' : 'text-[#e8ecf1]'}`}>{t.name}</span>
                                                         {isMyTeam && <span className="ml-2 text-[8px] px-1.5 py-0.5 rounded bg-[#2bb5cc]/20 text-[#2bb5cc] font-black uppercase">You</span>}

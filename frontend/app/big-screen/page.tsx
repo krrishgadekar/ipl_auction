@@ -239,14 +239,62 @@ export default function BigScreenPage() {
                             if (!powerCardId) {
                                 return (
                                     <motion.div key="pc-waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                                        className="h-full flex flex-col items-center justify-center text-center">
-                                        <div className="text-8xl mb-6">⚡</div>
-                                        <h2 className="text-5xl font-black text-white uppercase italic tracking-tighter" style={{ fontFamily: "'Cinzel', serif" }}>
-                                            Power Card Auction
-                                        </h2>
-                                        <p className="text-[#2bb5cc] tracking-[0.5em] uppercase font-bold mt-4 opacity-60">
-                                            Preparing Next Advantage...
-                                        </p>
+                                        className="h-full w-full relative overflow-hidden">
+                                        {/* BG: Asymmetric cyan glow bottom-right */}
+                                        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 75% 70%, rgba(43,181,204,0.2) 0%, transparent 50%), radial-gradient(ellipse at 10% 20%, rgba(126,234,245,0.06) 0%, transparent 40%)' }} />
+                                        {/* Giant ⚡ watermark */}
+                                        <div className="absolute right-[-5%] top-1/2 -translate-y-1/2 z-[1] pointer-events-none select-none" style={{ fontSize: '28rem', lineHeight: 1, opacity: 0.03, color: '#2bb5cc' }}>⚡</div>
+                                        {/* Horizontal circuit traces */}
+                                        <motion.div className="absolute top-[25%] left-0 right-0 h-[1px] z-[2]" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(43,181,204,0.3) 20%, rgba(43,181,204,0.5) 50%, transparent 70%)' }}
+                                            animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 3, repeat: Infinity }} />
+                                        <motion.div className="absolute top-[75%] left-0 right-0 h-[1px] z-[2]" style={{ background: 'linear-gradient(90deg, transparent 30%, rgba(43,181,204,0.4) 60%, rgba(43,181,204,0.3) 80%, transparent 100%)' }}
+                                            animate={{ opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 4, repeat: Infinity, delay: 1 }} />
+                                        {/* Vertical accent bar left */}
+                                        <motion.div className="absolute left-[8%] top-[15%] bottom-[15%] w-[2px] z-[3]"
+                                            style={{ background: 'linear-gradient(180deg, transparent, #2bb5cc, transparent)' }}
+                                            animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 3, repeat: Infinity }} />
+                                        {/* Hex grid overlay right side */}
+                                        <svg className="absolute right-0 top-0 bottom-0 w-[40%] h-full z-[1] pointer-events-none" style={{ opacity: 0.04 }}>
+                                            <defs><pattern id="hexgrid" width="60" height="52" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+                                                <polygon points="30,2 54,15 54,37 30,50 6,37 6,15" fill="none" stroke="#2bb5cc" strokeWidth="1" />
+                                            </pattern></defs>
+                                            <rect width="100%" height="100%" fill="url(#hexgrid)" />
+                                        </svg>
+                                        {/* Particles */}
+                                        {[...Array(8)].map((_, i) => (
+                                            <motion.div key={i} className="absolute rounded-full pointer-events-none z-[2]"
+                                                style={{ width: 2 + (i % 3), height: 2 + (i % 3), background: 'rgba(43,181,204,0.5)', left: `${50 + (i * 6) % 45}%`, top: `${10 + (i * 12) % 80}%`, boxShadow: '0 0 6px rgba(43,181,204,0.4)' }}
+                                                animate={{ y: [0, -20 - (i % 3) * 10, 0], opacity: [0.1, 0.5, 0.1] }}
+                                                transition={{ duration: 4 + i, repeat: Infinity, delay: i * 0.5 }} />
+                                        ))}
+                                        {/* LEFT-ALIGNED content — unique asymmetric layout */}
+                                        <div className="relative z-10 h-full flex items-center pl-[12%]">
+                                            <div className="flex flex-col">
+                                                <motion.div initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.6 }}
+                                                    className="flex items-center gap-4 mb-6">
+                                                    <div className="w-16 h-16 rounded-xl overflow-hidden border border-[#2bb5cc]/40 relative" style={{ boxShadow: '0 0 20px rgba(43,181,204,0.3)' }}>
+                                                        <Image src="/auction_logo.jpg" alt="IPL" fill className="object-cover" />
+                                                    </div>
+                                                    <div className="h-[1px] w-12" style={{ background: 'linear-gradient(90deg, #2bb5cc, transparent)' }} />
+                                                    <span className="text-[10px] font-black tracking-[0.5em] uppercase px-4 py-1 border border-[#2bb5cc]/30 rounded" style={{ color: '#7eeaf5', background: 'rgba(43,181,204,0.06)' }}>Phase II</span>
+                                                </motion.div>
+                                                <motion.h2 initial={{ x: -40, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.7 }}>
+                                                    <span className="text-7xl md:text-8xl font-black uppercase block leading-[0.9]" style={{ fontFamily: "'Cinzel', serif", background: 'linear-gradient(135deg, #ffffff 0%, #7eeaf5 60%, #2bb5cc 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 30px rgba(43,181,204,0.4))' }}>
+                                                        Power<br />Card
+                                                    </span>
+                                                </motion.h2>
+                                                <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 }}
+                                                    className="mt-6 flex items-center gap-3">
+                                                    <div className="w-8 h-[2px] bg-[#2bb5cc]/60" />
+                                                    <span className="text-base tracking-[0.2em] uppercase font-medium" style={{ color: 'rgba(126,234,245,0.5)' }}>Strategic Advantages Await</span>
+                                                </motion.div>
+                                                <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.5, repeat: Infinity }}
+                                                    className="mt-6 flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#2bb5cc]" />
+                                                    <span className="text-[11px] font-bold tracking-[0.3em] uppercase" style={{ color: '#7eeaf5' }}>Preparing Next Advantage</span>
+                                                </motion.div>
+                                            </div>
+                                        </div>
                                     </motion.div>
                                 );
                             }
@@ -472,27 +520,234 @@ export default function BigScreenPage() {
                                                 </div>
                                             </>
                                         ) : (
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                                <div className="text-7xl mb-4">🏛️</div>
-                                                <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">Franchise Auction</h2>
-                                                <p className="text-white/40 tracking-widest uppercase text-xs mt-2">Awaiting Auctioneer...</p>
+                                            <div className="absolute inset-0 overflow-hidden">
+                                                {/* BG: Warm gold glow top-left */}
+                                                <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 25% 25%, rgba(212,175,55,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(212,175,55,0.06) 0%, transparent 40%)' }} />
+                                                {/* Giant "01" watermark */}
+                                                <div className="absolute left-[-3%] bottom-[-10%] z-[1] pointer-events-none select-none" style={{ fontSize: '22rem', fontFamily: "'Cinzel', serif", fontWeight: 900, lineHeight: 1, opacity: 0.025, color: '#d4af37' }}>01</div>
+                                                {/* Top decorative gold bar */}
+                                                <div className="absolute top-0 left-[10%] right-[10%] h-[2px] z-[3]" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.5), rgba(212,175,55,0.8), rgba(212,175,55,0.5), transparent)' }} />
+                                                {/* Vertical accent bar right */}
+                                                <motion.div className="absolute right-[8%] top-[10%] bottom-[10%] w-[3px] z-[3]"
+                                                    style={{ background: 'linear-gradient(180deg, transparent, #d4af37, #f5d569, #d4af37, transparent)' }}
+                                                    animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 4, repeat: Infinity }} />
+                                                {/* Gold shimmer sweep */}
+                                                <motion.div className="absolute inset-0 pointer-events-none z-[1]"
+                                                    style={{ background: 'linear-gradient(120deg, transparent 0%, rgba(212,175,55,0.04) 40%, rgba(245,213,105,0.08) 50%, rgba(212,175,55,0.04) 60%, transparent 100%)', backgroundSize: '200% 200%' }}
+                                                    animate={{ backgroundPosition: ['-100% -100%', '200% 200%'] }}
+                                                    transition={{ duration: 8, repeat: Infinity, ease: 'linear', repeatDelay: 2 }} />
+                                                {/* Particles - sparse, elegant */}
+                                                {[...Array(6)].map((_, i) => (
+                                                    <motion.div key={i} className="absolute rounded-full pointer-events-none z-[2]"
+                                                        style={{ width: 2 + (i % 2), height: 2 + (i % 2), background: 'rgba(212,175,55,0.5)', left: `${15 + (i * 14) % 70}%`, top: `${20 + (i * 13) % 60}%`, boxShadow: '0 0 6px rgba(212,175,55,0.3)' }}
+                                                        animate={{ y: [0, -15 - (i % 3) * 8, 0], opacity: [0.1, 0.4, 0.1] }}
+                                                        transition={{ duration: 5 + i, repeat: Infinity, delay: i * 0.6 }} />
+                                                ))}
+                                                {/* RIGHT-ALIGNED content */}
+                                                <div className="relative z-10 h-full flex items-center justify-end pr-[14%]">
+                                                    <div className="flex flex-col items-end text-right">
+                                                        <motion.div initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.6 }}
+                                                            className="flex items-center gap-4 mb-4">
+                                                            <span className="text-[10px] font-black tracking-[0.5em] uppercase px-4 py-1 border border-[#d4af37]/30 rounded" style={{ color: '#f5d569', background: 'rgba(212,175,55,0.06)' }}>Phase I</span>
+                                                            <div className="h-[1px] w-12" style={{ background: 'linear-gradient(90deg, transparent, #d4af37)' }} />
+                                                            <div className="w-14 h-14 rounded-lg overflow-hidden border border-[#d4af37]/30 relative" style={{ boxShadow: '0 0 20px rgba(212,175,55,0.2)' }}>
+                                                                <Image src="/auction_logo.jpg" alt="IPL" fill className="object-cover" />
+                                                            </div>
+                                                        </motion.div>
+                                                        <motion.h2 initial={{ x: 40, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.7 }}>
+                                                            <span className="text-7xl md:text-8xl font-black uppercase block leading-[0.9]" style={{ fontFamily: "'Cinzel', serif", background: 'linear-gradient(135deg, #ffffff 0%, #ffe599 40%, #d4af37 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 30px rgba(212,175,55,0.4))' }}>
+                                                                Franchise<br />Auction
+                                                            </span>
+                                                        </motion.h2>
+                                                        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 }}
+                                                            className="mt-6 flex items-center gap-3">
+                                                            <span className="text-base tracking-[0.2em] uppercase font-medium" style={{ color: 'rgba(245,213,105,0.5)' }}>Claim Your Legacy</span>
+                                                            <div className="w-8 h-[2px] bg-[#d4af37]/50" />
+                                                        </motion.div>
+                                                        <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 3, repeat: Infinity }}
+                                                            className="mt-6 flex items-center gap-2">
+                                                            <span className="text-[11px] font-bold tracking-[0.3em] uppercase" style={{ color: '#f5d569' }}>Awaiting Auctioneer</span>
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
+                                                        </motion.div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
                                 </motion.div>
                             );
-                        })() : auctionState.phase === 'NOT_STARTED' || auctionState.phase === 'PRE_AUCTION' ? (
-                            <motion.div key="not-started" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col items-center justify-center">
-                                <div className="w-40 h-40 relative rounded-full overflow-hidden border-2 border-white/20 mb-8 shadow-2xl">
-                                    <Image src="/auction_logo.jpg" alt="IPL Logo" fill className="object-cover" />
+                        })() : auctionState.phase === 'POST_AUCTION' ? (
+                            <motion.div key="post-auction" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="h-full w-full relative overflow-hidden">
+                                {/* BG: Centered emerald bloom */}
+                                <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 60%, rgba(45,212,160,0.12) 0%, transparent 55%), radial-gradient(ellipse at 80% 20%, rgba(43,181,204,0.06) 0%, transparent 40%)' }} />
+                                {/* Giant ✓ watermark */}
+                                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1] pointer-events-none select-none" style={{ fontSize: '30rem', lineHeight: 1, opacity: 0.025, color: '#2dd4a0' }}>✓</div>
+                                {/* Top + bottom accent bars */}
+                                <div className="absolute top-0 left-0 right-0 h-[3px] z-[3]" style={{ background: 'linear-gradient(90deg, transparent, rgba(45,212,160,0.6), transparent)' }} />
+                                <div className="absolute bottom-0 left-0 right-0 h-[3px] z-[3]" style={{ background: 'linear-gradient(90deg, transparent, rgba(45,212,160,0.4), transparent)' }} />
+                                {/* Vertical center line */}
+                                <div className="absolute left-1/2 top-[10%] bottom-[10%] w-[1px] z-[2] -translate-x-1/2" style={{ background: 'linear-gradient(180deg, transparent, rgba(45,212,160,0.15), transparent)' }} />
+                                {/* Content: centered with progress timeline */}
+                                <div className="relative z-10 h-full flex flex-col items-center justify-center">
+                                    {/* Mini logo */}
+                                    <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', bounce: 0.5 }}
+                                        className="w-20 h-20 rounded-full overflow-hidden border border-[#2dd4a0]/30 relative mb-5" style={{ boxShadow: '0 0 30px rgba(45,212,160,0.2)' }}>
+                                        <Image src="/auction_logo.jpg" alt="IPL" fill className="object-cover" />
+                                    </motion.div>
+                                    {/* Title */}
+                                    <motion.h2 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
+                                        <span className="text-5xl md:text-6xl font-black uppercase block" style={{ fontFamily: "'Cinzel', serif", background: 'linear-gradient(180deg, #ffffff 0%, #a8f0d4 50%, #2dd4a0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 25px rgba(45,212,160,0.3))' }}>
+                                            Auction Complete
+                                        </span>
+                                    </motion.h2>
+                                    {/* PROGRESS TIMELINE — unique to this screen */}
+                                    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+                                        className="mt-8 flex items-center gap-0">
+                                        {[
+                                            { label: 'Franchise', done: true },
+                                            { label: 'Power Cards', done: true },
+                                            { label: 'Player Auction', done: true },
+                                            { label: 'Playing XI', done: false },
+                                        ].map((step, i) => (
+                                            <React.Fragment key={i}>
+                                                {i > 0 && <div className="w-10 h-[1px]" style={{ background: step.done ? 'rgba(45,212,160,0.4)' : 'rgba(255,255,255,0.1)' }} />}
+                                                <div className="flex flex-col items-center gap-1.5">
+                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${step.done ? 'border-[#2dd4a0]/50' : 'border-white/15'}`}
+                                                        style={{ border: `1.5px solid`, borderColor: step.done ? 'rgba(45,212,160,0.5)' : 'rgba(255,255,255,0.15)', background: step.done ? 'rgba(45,212,160,0.1)' : 'transparent', color: step.done ? '#2dd4a0' : 'rgba(255,255,255,0.3)' }}>
+                                                        {step.done ? '✓' : (i + 1)}
+                                                    </div>
+                                                    <span className="text-[9px] tracking-[0.15em] uppercase font-bold" style={{ color: step.done ? 'rgba(45,212,160,0.6)' : 'rgba(255,255,255,0.2)' }}>{step.label}</span>
+                                                </div>
+                                            </React.Fragment>
+                                        ))}
+                                    </motion.div>
+                                    {/* Status */}
+                                    <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 3, repeat: Infinity }}
+                                        className="mt-8 flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-[#2dd4a0]" />
+                                        <span className="text-[11px] font-bold tracking-[0.3em] uppercase" style={{ color: '#2dd4a0' }}>Submit Your Playing XI</span>
+                                    </motion.div>
                                 </div>
-                                <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">Welcome to IPL Auction 2026</h2>
-                                <p className="text-[#d4af37] tracking-widest uppercase font-bold mt-4">PREPARE FOR THE ULTIMATE SHOWDOWN</p>
+                            </motion.div>
+                        ) : auctionState.phase === 'COMPLETED' ? (
+                            <motion.div key="completed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="h-full w-full relative overflow-hidden">
+                                {/* BG: Rich gold bloom center */}
+                                <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 40%, rgba(212,175,55,0.18) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(245,213,105,0.06) 0%, transparent 40%), radial-gradient(ellipse at 85% 15%, rgba(212,175,55,0.05) 0%, transparent 35%)' }} />
+                                {/* Full-width gold bars top & bottom */}
+                                <div className="absolute top-0 left-0 right-0 h-[3px] z-[3]" style={{ background: 'linear-gradient(90deg, transparent, #d4af37, transparent)' }} />
+                                <div className="absolute bottom-0 left-0 right-0 h-[3px] z-[3]" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent)' }} />
+                                {/* Concentric animated rings */}
+                                {[120, 180, 250].map((size, i) => (
+                                    <motion.div key={i} className="absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 rounded-full z-[1] pointer-events-none"
+                                        style={{ width: size, height: size, border: `1px solid rgba(212,175,55,${0.08 - i * 0.02})` }}
+                                        animate={{ scale: [1, 1.05, 1], opacity: [0.3 - i * 0.1, 0.6 - i * 0.15, 0.3 - i * 0.1] }}
+                                        transition={{ duration: 3 + i, repeat: Infinity, delay: i * 0.5 }} />
+                                ))}
+                                {/* Confetti-like gold particles — dense, celebratory */}
+                                {[...Array(20)].map((_, i) => (
+                                    <motion.div key={i} className="absolute pointer-events-none z-[2]"
+                                        style={{ width: i % 3 === 0 ? 3 : 2, height: i % 3 === 0 ? 3 : 2, borderRadius: i % 4 === 0 ? '0' : '50%', transform: i % 4 === 0 ? 'rotate(45deg)' : 'none', background: i % 3 === 0 ? 'rgba(212,175,55,0.7)' : i % 3 === 1 ? 'rgba(245,213,105,0.5)' : 'rgba(255,255,255,0.3)', left: `${3 + (i * 5) % 94}%`, top: `${5 + (i * 7) % 90}%`, boxShadow: `0 0 ${2 + i % 3 * 3}px rgba(212,175,55,0.3)` }}
+                                        animate={{ y: [0, -20 - (i % 6) * 8, 0], x: [0, (i % 2 === 0 ? 5 : -5), 0], opacity: [0.05, 0.5, 0.05] }}
+                                        transition={{ duration: 3 + (i % 5), repeat: Infinity, delay: i * 0.25 }} />
+                                ))}
+                                {/* CONTENT: Trophy-centric celebration layout */}
+                                <div className="relative z-10 h-full flex flex-col items-center justify-center">
+                                    {/* Large trophy with glow */}
+                                    <motion.div initial={{ scale: 0, rotateY: 180 }} animate={{ scale: 1, rotateY: 0 }} transition={{ duration: 0.8, type: 'spring' }}
+                                        className="relative mb-2">
+                                        <motion.div className="absolute inset-[-30px] rounded-full"
+                                            animate={{ boxShadow: ['0 0 60px rgba(212,175,55,0.15)', '0 0 120px rgba(212,175,55,0.3)', '0 0 60px rgba(212,175,55,0.15)'] }}
+                                            transition={{ duration: 2, repeat: Infinity }} />
+                                        <div className="text-center" style={{ fontSize: '6rem', filter: 'drop-shadow(0 0 40px rgba(212,175,55,0.5))' }}>🏆</div>
+                                    </motion.div>
+                                    {/* Title */}
+                                    <motion.h2 initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
+                                        <span className="text-5xl md:text-7xl font-black uppercase block" style={{ fontFamily: "'Cinzel', serif", background: 'linear-gradient(180deg, #ffffff 0%, #ffe599 30%, #d4af37 70%, #b8941e 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 40px rgba(212,175,55,0.5))' }}>
+                                            Season Complete
+                                        </span>
+                                    </motion.h2>
+                                    {/* Water Edition subtitle */}
+                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
+                                        className="mt-3 text-sm tracking-[0.5em] uppercase font-medium" style={{ color: 'rgba(245,213,105,0.45)' }}>
+                                        The Water Edition • 2026
+                                    </motion.p>
+                                    {/* Horizontal rule */}
+                                    <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.7, duration: 1 }}
+                                        className="mt-5 w-64 h-[1px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent)' }} />
+                                    {/* Status */}
+                                    <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, repeat: Infinity }}
+                                        className="mt-5 flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
+                                        <span className="text-[11px] font-bold tracking-[0.4em] uppercase" style={{ color: '#f5d569' }}>Thank You For Participating</span>
+                                        <div className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
+                                    </motion.div>
+                                </div>
+                            </motion.div>
+                        ) : auctionState.phase === 'NOT_STARTED' || auctionState.phase === 'PRE_AUCTION' ? (
+                            <motion.div key="not-started" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="h-full w-full relative overflow-hidden">
+                                {/* BG: Deep dark with subtle dual glow */}
+                                <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(43,181,204,0.08) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(212,175,55,0.04) 0%, transparent 40%)' }} />
+                                {/* Giant watermark logo */}
+                                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full overflow-hidden z-[1] pointer-events-none" style={{ opacity: 0.04 }}>
+                                    <Image src="/auction_logo.jpg" alt="" fill className="object-cover" />
+                                </div>
+                                {/* Diagonal shimmer */}
+                                <motion.div className="absolute inset-0 pointer-events-none z-[1]"
+                                    style={{ background: 'linear-gradient(135deg, transparent 0%, rgba(212,175,55,0.03) 45%, rgba(212,175,55,0.07) 50%, rgba(212,175,55,0.03) 55%, transparent 100%)', backgroundSize: '300% 300%' }}
+                                    animate={{ backgroundPosition: ['-150% -150%', '250% 250%'] }}
+                                    transition={{ duration: 10, repeat: Infinity, ease: 'linear', repeatDelay: 3 }} />
+                                {/* Subtle bottom bar */}
+                                <div className="absolute bottom-0 left-0 right-0 h-[2px] z-[3]" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.3), transparent)' }} />
+                                {/* CONTENT: Clean centered welcome */}
+                                <div className="relative z-10 h-full flex flex-col items-center justify-center">
+                                    <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.8, type: 'spring' }}
+                                        className="w-24 h-24 rounded-full overflow-hidden border border-[#d4af37]/25 relative mb-6" style={{ boxShadow: '0 0 25px rgba(212,175,55,0.15)' }}>
+                                        <Image src="/auction_logo.jpg" alt="IPL" fill className="object-cover" />
+                                    </motion.div>
+                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+                                        className="text-[10px] tracking-[0.6em] uppercase font-bold mb-3" style={{ color: 'rgba(212,175,55,0.4)' }}>
+                                        Welcome To
+                                    </motion.p>
+                                    <motion.h2 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
+                                        <span className="text-5xl md:text-7xl font-black uppercase block" style={{ fontFamily: "'Cinzel', serif", background: 'linear-gradient(180deg, #ffffff 0%, rgba(212,175,55,0.7) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 25px rgba(212,175,55,0.2))' }}>
+                                            IPL Auction 2026
+                                        </span>
+                                    </motion.h2>
+                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+                                        className="mt-3 text-sm tracking-[0.3em] uppercase" style={{ color: 'rgba(255,255,255,0.2)' }}>
+                                        The Ultimate Showdown Awaits
+                                    </motion.p>
+                                    <motion.div animate={{ opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 4, repeat: Infinity }}
+                                        className="mt-8 flex items-center gap-2">
+                                        <div className="w-1 h-1 rounded-full bg-[#d4af37]/40" />
+                                        <span className="text-[10px] tracking-[0.3em] uppercase" style={{ color: 'rgba(212,175,55,0.3)' }}>Awaiting Start</span>
+                                    </motion.div>
+                                </div>
                             </motion.div>
                         ) : (
-                            <motion.div key="w" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col items-center justify-center">
-                                <div className="text-7xl mb-4">🏏</div>
-                                <h2 className="text-2xl font-black text-white/30 uppercase italic">Next Player Incoming</h2>
+                            <motion.div key="w" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="h-full w-full relative overflow-hidden">
+                                {/* Minimal BG */}
+                                <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(126,234,245,0.06) 0%, transparent 50%)' }} />
+                                {/* CONTENT: Ultra clean loading */}
+                                <div className="relative z-10 h-full flex flex-col items-center justify-center">
+                                    <motion.h2 initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+                                        <span className="text-4xl md:text-5xl font-black uppercase block" style={{ fontFamily: "'Cinzel', serif", background: 'linear-gradient(180deg, #ffffff 0%, rgba(126,234,245,0.6) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 2px 15px rgba(126,234,245,0.2))' }}>
+                                            Next Player
+                                        </span>
+                                    </motion.h2>
+                                    {/* Three bouncing dots */}
+                                    <div className="flex items-center gap-2 mt-6">
+                                        {[0, 1, 2].map(i => (
+                                            <motion.div key={i} className="w-2 h-2 rounded-full bg-[#7eeaf5]/40"
+                                                animate={{ y: [0, -8, 0], opacity: [0.3, 0.7, 0.3] }}
+                                                transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }} />
+                                        ))}
+                                    </div>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
