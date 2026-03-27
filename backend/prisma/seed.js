@@ -183,10 +183,16 @@ async function main() {
         grade,
         rating: safeInt(row.Rating) || 50,
         nationality: mapNationality(row.Nationality),
-        nationality_raw: row.Nationality,
+        nationality_raw: row.Nationality || null,
         base_price: GRADE_BASE_PRICE[grade],
         legacy: safeInt(row.Legacy) || 0,
         is_riddle: (rank === 20 || rank === 21),
+        riddle_title: rank === 20 ? "The Scoop King" : rank === 21 ? "The Intense Allrounder" : null,
+        riddle_question: rank === 20 
+            ? "I am the absolute 'Boss' of scooping terrifyingly fast bowlers right over the keeper's head. I spent years painting the town pink with my centuries, but now I’m taking my English royalty to the biggest cricket stadium in the world. Who am I?" 
+            : rank === 21 
+                ? "I’ve got a cabinet full of IPL trophies, but I’m probably best known for my intense on-field death stares and my very famous younger brother. I recently traded my Nawabi vibes in Lucknow to join the chaos at the Chinnaswamy. Who am I?" 
+                : null,
         matches: safeInt(row.Matches),
         bat_runs: safeInt(row.Bat_Runs),
         bat_sr: safeFloat(row.Bat_SR),

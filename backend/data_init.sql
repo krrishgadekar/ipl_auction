@@ -24,7 +24,7 @@ INSERT INTO "Team" (id, name, username, password_hash, purse_remaining, squad_co
 ('5e739e4a-253a-492c-ac44-66f7411d471f', 'Team India', 'india', '$2b$10$xLxQYiWH41dbqcvzqeP0XOzErMwKVEqTXdWIRUMAru1Hnpw/7Im8C', 120, 0),
 ('48d48316-f184-4920-ba13-a08e1097b23d', 'Team Juliet', 'juliet', '$2b$10$/.B7Um/ODyoOwYGtTuO0Su5s5FbcFzfsm05kRF//V.p5xQRvwfYAe', 120, 0);
 
-INSERT INTO "Player" (id, rank, name, team, role, category, pool, grade, rating, nationality, base_price, is_riddle) VALUES
+INSERT INTO "Player" (id, rank, name, team, role, category, pool, grade, rating, nationality, nationality_raw, base_price, is_riddle, riddle_title, riddle_question) VALUES
 ('f30dd00e-1395-4759-831a-4812a99a3c8c', 1, 'Virat Kohli', 'Royal Challengers Bengaluru', 'Batsman', 'BAT', 'BAT_WK', 'A', 99, 'INDIAN', 2, false),
 ('5214e58d-88c0-4c9b-986a-30ae9b195a1d', 2, 'Yuzvendra Chahal', 'Punjab Kings', 'Bowler', 'BOWL', 'BOWL', 'A', 99, 'INDIAN', 2, false),
 ('5bf613fe-bd79-44d7-ab3f-29169c1906ec', 3, 'Jasprit Bumrah', 'Mumbai Indians', 'Bowler', 'BOWL', 'BOWL', 'A', 99, 'INDIAN', 2, false),

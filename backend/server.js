@@ -62,6 +62,8 @@ app.use((req, res) => {
 // ── WebSocket ────────────────────────────────────────────────
 socketHandler(io);
 
+import { startKeepAlive } from './src/utils/keepAlive.js';
+
 // ── Start Server ─────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, '0.0.0.0', () => {
@@ -70,6 +72,7 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`📄 Swagger UI: http://localhost:${PORT}/api/docs`);
     console.log(`💚 Health:     http://localhost:${PORT}/api/health`);
     console.log('═══════════════════════════════════════════════════');
+    startKeepAlive();
 });
 
 export { app, server, io };

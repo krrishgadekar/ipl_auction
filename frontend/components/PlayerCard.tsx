@@ -26,7 +26,7 @@ export default function PlayerCard({ player, currentBid = 0, isRiddle = false, s
             ];
         } else if (player.pool === 'BOWL') {
             return [
-                { label: 'Wicket Taking', value: player.sub_wicket_taking || 0, color: '#00d9ff' },
+                { label: 'Wicket Taking', value: player.sub_wickettaking || 0, color: '#00d9ff' },
                 { label: 'Economy', value: player.sub_economy || 0, color: '#b537f2' },
                 { label: 'Efficiency', value: player.sub_efficiency || 0, color: '#ffd700' },
                 exp,

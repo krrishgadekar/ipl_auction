@@ -29,7 +29,6 @@ export interface Team {
     overseasCount: number;
     players: number[]; // Array of player ranks
     powerCards: Record<string, PowerCard>;
-    isDisqualified?: boolean;
 }
 
 export interface TeamWithSquad extends Team {

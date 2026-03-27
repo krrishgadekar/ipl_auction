@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 
@@ -53,6 +54,11 @@ function IconTrophy() {
 
 /* ─── Floating Particles ─── */
 function FloatingParticles() {
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
+    if (!mounted) return null;
+
     return (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
             {Array.from({ length: 30 }, (_, i) => (

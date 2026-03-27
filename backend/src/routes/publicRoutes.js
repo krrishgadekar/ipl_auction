@@ -61,26 +61,13 @@ router.get('/state', async (req, res) => {
             currentPlayer = await prisma.player.findUnique({
                 where: { id: state.current_player_id },
             });
-            // Hide riddle player identity during live auction
-            if (currentPlayer?.is_riddle && state.phase === 'LIVE') {
-                // Find the matching riddle clue for this player
-                const riddlePlayers = await prisma.player.findMany({
-                    where: { is_riddle: true },
-                    orderBy: { rank: 'asc' },
-                    select: { id: true, rank: true },
-                });
-                const riddleIndex = riddlePlayers.findIndex(rp => rp.id === currentPlayer.id);
-                const clues = parseRiddleClues();
-                riddleClue = clues[riddleIndex] || clues[0] || null;
-
-                currentPlayer = {
-                    ...currentPlayer,
-                    name: '??? RIDDLE PLAYER ???',
-                    team: '???',
-                    url: null,
-                    image_url: null,
-                    // Keep category/pool/grade/rating visible
+            // Hide riddle player identity until unveiled
+            if (currentPlayer?.is_riddle) {
+                riddleClue = {
+                    title: currentPlayer.riddle_title || 'Mystery Player',
+                    question: currentPlayer.riddle_question || 'Identity Locked. Solve the riddle to reveal.'
                 };
+                // Identity fields are now masked in serializePlayer
             }
         }
 

@@ -14,19 +14,20 @@ export interface Player {
     basePrice: number;
     imageUrl: string;
     nationality: string;
-    nationalityRaw?: string; // Actual country e.g. "Australian"
-    _rawNationality?: string; // INDIAN | OVERSEAS
+    nationality_raw?: string;
     team?: string;
     role?: string;
     pool?: string;
     legacy?: number;
     isRiddle?: boolean;
+    riddleTitle?: string;
+    riddleQuestion?: string;
     // Sub-ratings (Performance Metrics)
     sub_experience?: number;
     sub_scoring?: number;
     sub_impact?: number;
     sub_consistency?: number;
-    sub_wicket_taking?: number; // DB column is sub_wicket_taking
+    sub_wicket_taking?: number;
     sub_economy?: number;
     sub_efficiency?: number;
     sub_batting?: number;

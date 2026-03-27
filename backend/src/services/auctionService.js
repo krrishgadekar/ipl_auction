@@ -8,7 +8,7 @@ import crypto from 'crypto';
 
 const MAX_SQUAD_SIZE = 15;
 const MAX_OVERSEAS = 5;
-const MIN_OVERSEAS = 2;
+const MIN_OVERSEAS = 3;
 const POWER_CARD_COST = 1; // 1 CR per card
 
 // Rulebook §5 — Role composition limits
@@ -69,34 +69,6 @@ async function getTeamRoleCounts(tx, teamId) {
         counts[tp.player.category] = (counts[tp.player.category] || 0) + 1;
     }
     return counts;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// HELPER: Validate squads against rules and disqualify if needed
-// ═══════════════════════════════════════════════════════════════
-
-async function validateAndDisqualifySquads(tx) {
-    const teams = await tx.team.findMany();
-    
-    for (const team of teams) {
-        let disqualify = false;
-        
-        // Rules validation
-        if (team.squad_count !== MAX_SQUAD_SIZE) disqualify = true;
-        else if (team.batsmen_count < ROLE_LIMITS.BAT.min) disqualify = true;
-        else if (team.bowlers_count < ROLE_LIMITS.BOWL.min) disqualify = true;
-        else if (team.ar_count < ROLE_LIMITS.AR.min) disqualify = true;
-        else if (team.wk_count < ROLE_LIMITS.WK.min) disqualify = true;
-        else if (team.overseas_count < MIN_OVERSEAS || team.overseas_count > MAX_OVERSEAS) disqualify = true;
-        
-        if (disqualify && !team.is_disqualified) {
-            await tx.team.update({
-                where: { id: team.id },
-                data: { is_disqualified: true }
-            });
-            await logAudit(tx, 'TEAM_DISQUALIFIED', { teamId: team.id, reason: 'Failed minimum squad requirements' });
-        }
-    }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -534,11 +506,6 @@ async function updateAuctionPhase(newPhase) {
             data: { phase: newPhase }
         });
 
-        // Trigger squad validation upon transition to POST_AUCTION
-        if (newPhase === 'POST_AUCTION') {
-            await validateAndDisqualifySquads(tx);
-        }
-
         // AUTO-SELECT SEQUENCE based on phase
         const phaseToSequence = {
             'FRANCHISE_PHASE': 1,
@@ -619,8 +586,6 @@ async function advanceToNextInSequence() {
                         phase: 'POST_AUCTION',
                     }
                 });
-                // Automatic transition to POST_AUCTION requires validation
-                await validateAndDisqualifySquads(tx);
                 return { success: true, finished: true, message: 'All players in sequence have been auctioned' };
             }
 

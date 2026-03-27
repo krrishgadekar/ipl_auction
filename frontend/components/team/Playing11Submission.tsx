@@ -1,18 +1,79 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Player } from '@/lib/api/players';
 import { lockLineup } from '@/lib/api/teams';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Squad validation rules (mirroring scoringService.js)
+const SQUAD_RULES = {
+    total: 15,
+    BAT: { min: 3 },
+    BOWL: { min: 3 },
+    AR: { min: 2 },
+    WK: { min: 2 },
+    overseas: { min: 2, max: 5 },
+};
+
+// Category mapping for display names
+const CATEGORY_LABELS: Record<string, string> = {
+    BAT: 'Batsmen',
+    Batsmen: 'Batsmen',
+    BOWL: 'Bowlers',
+    Bowlers: 'Bowlers',
+    AR: 'All-Rounders',
+    'All-rounders': 'All-Rounders',
+    WK: 'Wicketkeepers',
+    Wicketkeepers: 'Wicketkeepers',
+};
+
+// Normalize category to short key
+function normCategory(cat: string): string {
+    const map: Record<string, string> = {
+        'Batsmen': 'BAT', 'BAT': 'BAT',
+        'Bowlers': 'BOWL', 'BOWL': 'BOWL',
+        'All-rounders': 'AR', 'AR': 'AR',
+        'Wicketkeepers': 'WK', 'WK': 'WK',
+    };
+    return map[cat] || cat;
+}
 
 interface Props {
     teamId: string | number;
     squadCount: number;
     purchasedPlayers: Player[];
-    isDisqualified?: boolean;
-    auctionPhase?: string;
+    auctionPhase: string;
     onSuccess?: () => void;
 }
 
-export default function Playing11Submission({ teamId, squadCount, purchasedPlayers, isDisqualified, auctionPhase, onSuccess }: Props) {
+function validateSquad(players: Player[]): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    if (players.length !== SQUAD_RULES.total) {
+        errors.push(`Squad must have exactly ${SQUAD_RULES.total} players (have ${players.length})`);
+    }
+
+    const counts: Record<string, number> = { BAT: 0, BOWL: 0, AR: 0, WK: 0, OVERSEAS: 0 };
+    players.forEach(p => {
+        const cat = normCategory(p.category);
+        if (counts[cat] !== undefined) counts[cat]++;
+        if (p.nationality === 'OVERSEAS' || p.nationality === 'Overseas') counts.OVERSEAS++;
+    });
+
+    if (counts.BAT < SQUAD_RULES.BAT.min)
+        errors.push(`Minimum ${SQUAD_RULES.BAT.min} Batsmen required (have ${counts.BAT})`);
+    if (counts.BOWL < SQUAD_RULES.BOWL.min)
+        errors.push(`Minimum ${SQUAD_RULES.BOWL.min} Bowlers required (have ${counts.BOWL})`);
+    if (counts.AR < SQUAD_RULES.AR.min)
+        errors.push(`Minimum ${SQUAD_RULES.AR.min} All-Rounders required (have ${counts.AR})`);
+    if (counts.WK < SQUAD_RULES.WK.min)
+        errors.push(`Minimum ${SQUAD_RULES.WK.min} Wicketkeepers required (have ${counts.WK})`);
+    if (counts.OVERSEAS < SQUAD_RULES.overseas.min || counts.OVERSEAS > SQUAD_RULES.overseas.max) {
+        errors.push(`Overseas players must be between ${SQUAD_RULES.overseas.min}–${SQUAD_RULES.overseas.max} (have ${counts.OVERSEAS})`);
+    }
+
+    return { valid: errors.length === 0, errors };
+}
+
+export default function Playing11Submission({ teamId, squadCount, purchasedPlayers, auctionPhase, onSuccess }: Props) {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [captainId, setCaptainId] = useState<number | null>(null);
@@ -20,6 +81,12 @@ export default function Playing11Submission({ teamId, squadCount, purchasedPlaye
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+
+    // Phase
+    const phase = auctionPhase?.toUpperCase() || '';
+
+    // Squad validation MUST be called before any early returns (Rules of Hooks)
+    const squadValidation = useMemo(() => validateSquad(purchasedPlayers), [purchasedPlayers]);
 
     const toggleSelection = (id: number) => {
         if (selectedIds.includes(id)) {
@@ -34,7 +101,7 @@ export default function Playing11Submission({ teamId, squadCount, purchasedPlaye
     };
 
     const handleRoleAssign = (id: number, role: 'C' | 'VC') => {
-        if (!selectedIds.includes(id)) return; // Must be in top 11 first
+        if (!selectedIds.includes(id)) return;
         
         if (role === 'C') {
             if (captainId === id) setCaptainId(null);
@@ -77,21 +144,82 @@ export default function Playing11Submission({ teamId, squadCount, purchasedPlaye
         }
     };
 
-    // During post-auction: show disqualified banner if applicable
-    if ((auctionPhase === 'POST_AUCTION' || auctionPhase === 'COMPLETED') && (isDisqualified || squadCount < 15)) {
+    // Render states based on phase and validation
+    if (phase !== 'POST_AUCTION' && phase !== 'COMPLETED') {
+        // LIVE PHASE — Show locked state
         return (
-            <div className="p-6 rounded-2xl bg-red-500/10 border border-red-500/20 mt-6 backdrop-blur-md">
-                <h3 className="text-red-400 font-black text-lg tracking-widest uppercase mb-2">Squad Disqualified</h3>
-                <p className="text-red-400/70 text-sm leading-relaxed">Your squad did not meet all mandatory requirements (exactly 15 players, strict role criteria, and 2–5 overseas players) at the end of the auction. You cannot submit an official Playing XI.</p>
-            </div>
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-8"
+            >
+                <div className="p-6 rounded-2xl bg-[#0a1628]/40 border border-[#2bb5cc]/20 border-dashed text-center backdrop-blur-md">
+                    <div className="text-3xl mb-3 opacity-50">🔒</div>
+                    <h3 className="text-[#e8ecf1] font-black text-sm tracking-widest uppercase mb-1">Final XI Selection Locked</h3>
+                    <p className="text-[#7a9ab0] text-xs">Unlock conditions: Survive the auction phase with a valid 15-player squad.</p>
+                </div>
+            </motion.div>
         );
     }
 
-    // Hide entirely if squad isn't full yet (and auction is not over)
-    if (squadCount < 15) {
-        return null;
+    // ELIMINATED: Squad doesn't meet criteria during POST_AUCTION or COMPLETED
+    if (!squadValidation.valid) {
+        return (
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-8"
+            >
+                <div className="rounded-2xl overflow-hidden border border-red-500/30 bg-gradient-to-br from-red-950/40 to-red-900/10 backdrop-blur-xl">
+                    {/* Header */}
+                    <div className="px-6 py-4 bg-red-500/10 border-b border-red-500/20 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-xl">🚫</div>
+                        <div>
+                            <h3 className="text-red-400 font-black text-lg tracking-widest uppercase">Eliminated</h3>
+                            <p className="text-red-400/50 text-xs tracking-wider">Squad does not meet minimum requirements</p>
+                        </div>
+                    </div>
+                    {/* Violations */}
+                    <div className="p-6 space-y-3">
+                        {squadValidation.errors.map((err, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                className="flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/10"
+                            >
+                                <span className="text-red-500 text-sm">✕</span>
+                                <span className="text-red-300/80 text-sm font-medium">{err}</span>
+                            </motion.div>
+                        ))}
+                        <p className="text-red-400/40 text-xs mt-4 text-center italic tracking-wider">
+                            Your team cannot submit a Playing XI and will not be scored.
+                        </p>
+                    </div>
+                </div>
+            </motion.div>
+        );
     }
 
+    // COMPLETED phase — show locked state
+    if (phase === 'COMPLETED') {
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-8"
+            >
+                <div className="p-6 rounded-2xl bg-[#2bb5cc]/10 border border-[#2bb5cc]/20 backdrop-blur-md text-center">
+                    <div className="text-4xl mb-3">🏆</div>
+                    <h3 className="text-[#2bb5cc] font-black text-lg tracking-widest uppercase mb-2">Auction Complete</h3>
+                    <p className="text-[#7a9ab0] text-sm">Final standings are being calculated. Check the leaderboard for results.</p>
+                </div>
+            </motion.div>
+        );
+    }
+
+    // POST_AUCTION with valid squad — show submission button + modal
     return (
         <div className="mt-8">
             <button 

@@ -22,7 +22,7 @@ export interface LeaderboardEntry {
     franchiseName: string | null;
     purseRemaining: number;
     squadCount: number;
-    top11: { id: string; name: string; rank: number; rating: number; category: string; nationality: string; nationalityRaw?: string }[];
+    top11: { id: string; name: string; rank: number; rating: number; category: string; nationality: string }[];
     captain: { id: string; name: string; rating: number } | null;
     viceCaptain: { id: string; name: string; rating: number } | null;
     score: ScoreBreakdown;

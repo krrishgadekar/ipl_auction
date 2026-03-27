@@ -71,6 +71,8 @@ CREATE TABLE "Player" (
     "url" TEXT,
     "image_url" TEXT,
     "is_riddle" BOOLEAN NOT NULL DEFAULT false,
+    "riddle_title" TEXT,
+    "riddle_question" TEXT,
     "matches" INTEGER,
     "bat_runs" INTEGER,
     "bat_sr" DECIMAL(65,30),

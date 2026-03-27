@@ -23,18 +23,32 @@ const NATIONALITY_DISPLAY = {
 
 export function serializePlayer(p) {
     if (!p) return null;
+    const isRiddle = !!p.is_riddle;
+    
     return {
         // Original fields (snake_case preserved for backend consumers)
         ...p,
         // camelCase aliases for frontend
-        player: p.name,
-        basePrice: Number(p.base_price),
-        imageUrl: `/player_photos/${p.rank}.avif`,
-        isRiddle: p.is_riddle,
+        player: isRiddle ? '??? RIDDLE PLAYER ???' : p.name,
+        basePrice: isRiddle ? null : Number(p.base_price),
+        grade: isRiddle ? '?' : p.grade,
+        imageUrl: isRiddle ? null : `/player_photos/${p.rank}.avif`,
+        isRiddle: isRiddle,
+        nationality_raw: isRiddle ? 'Overseas' : p.nationality_raw, // Mask specific nationality too
+        riddleTitle: p.riddle_title,
+        riddleQuestion: p.riddle_question,
         // Display category/nationality
-        category: CATEGORY_DISPLAY[p.category] || p.category,
-        nationality: NATIONALITY_DISPLAY[p.nationality] || p.nationality,
-        nationalityRaw: p.nationality_raw || null, // Actual country (e.g. "Australian")
+        category: isRiddle ? '???' : (CATEGORY_DISPLAY[p.category] || p.category),
+        nationality: isRiddle ? '???' : (NATIONALITY_DISPLAY[p.nationality] || p.nationality),
+        // Mask all numeric stats if riddle
+        ...(isRiddle ? {
+            rating: 0, matches: 0, bat_runs: 0, bat_sr: 0, bat_average: 0,
+            bowl_wickets: 0, bowl_eco: 0, bowl_avg: 0,
+            sub_experience: 0, sub_scoring: 0, sub_impact: 0, sub_consistency: 0,
+            sub_wicket_taking: 0, sub_economy: 0, sub_efficiency: 0,
+            sub_batting: 0, sub_bowling: 0, sub_versatility: 0,
+            legacy: 0
+        } : {}),
         // Keep raw for backend use
         _rawCategory: p.category,
         _rawNationality: p.nationality,
@@ -61,7 +75,6 @@ export function serializeTeam(t) {
         bowlerCount: t.bowlers_count,
         allrounderCount: t.ar_count,
         wicketkeeperCount: t.wk_count,
-        isDisqualified: !!t.is_disqualified,
         brandScore: Number(t.brand_score),
         logo: t.logo || (t.brand_key ? `/teams/${t.brand_key.toLowerCase()}.png` : null), // Auto-derive from brand_key
         // Power cards transform (array → named object for frontend)

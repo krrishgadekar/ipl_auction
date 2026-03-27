@@ -71,10 +71,10 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
         try {
             await fn();
             setSuccess('Action successful');
-            setTimeout(() => setSuccess(''), 6000);
+            setTimeout(() => setSuccess(''), 3000);
         } catch (err: any) {
             setError(err.message || 'Action failed');
-            setTimeout(() => setError(''), 8000);
+            setTimeout(() => setError(''), 5000);
         } finally {
             setLoading(false);
         }
@@ -205,29 +205,6 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
     const handleFinalSale = () => {
         if (!selectedTeam) { setError('Select winning team'); return; }
         const price = parseFloat(finalPrice);
-
-        const team = teams.find(t => t.id.toString() === selectedTeam);
-        if (team) {
-            // Budget Check
-            if (team.purseRemaining < price) {
-                setError(`Insufficient Budget: ${team.franchiseName || team.name} only has ₹${team.purseRemaining} CR`);
-                return;
-            }
-            // Squad Limit Check
-            if (team.squadCount >= (team.squadLimit || 15)) {
-                setError(`Squad Full: ${team.franchiseName || team.name} already has ${team.squadCount} players`);
-                return;
-            }
-            // Overseas Limit Check
-            if (state.currentPlayer) {
-                const isOverseas = state.currentPlayer._rawNationality === 'OVERSEAS' || 
-                                 (state.currentPlayer.nationality && state.currentPlayer.nationality.toUpperCase() === 'OVERSEAS');
-                if (isOverseas && team.overseasCount >= 5) {
-                    setError(`Overseas Limit Reached: ${team.franchiseName || team.name} already has 5 overseas players`);
-                    return;
-                }
-            }
-        }
 
         if (state.currentPlayer) {
             const pid = state.currentPlayer.id || state.currentPlayer.rank?.toString();
@@ -379,15 +356,9 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                 className="w-full bg-black/60 border border-white/10 rounded-lg p-3 text-white font-bold text-sm outline-none focus:border-green-500/50 transition-colors"
                             >
                                 <option value="">Select Team...</option>
-                                {[...teams]
-                                    .sort((a, b) => {
-                                        const nameA = a.franchiseName || a.name;
-                                        const nameB = b.franchiseName || b.name;
-                                        return nameA.localeCompare(nameB);
-                                    })
-                                    .map(t => (
+                                {teams.map(t => (
                                     <option key={t.id} value={t.id.toString()}>
-                                        {t.franchiseName || t.name} {t.franchiseName ? `(${t.name})` : ''} (₹{t.purseRemaining} CR)
+                                        {t.name} (₹{t.purseRemaining} CR)
                                     </option>
                                 ))}
                             </select>
@@ -431,13 +402,7 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {[...teams]
-                                    .sort((a, b) => {
-                                        const nameA = a.franchiseName || a.name;
-                                        const nameB = b.franchiseName || b.name;
-                                        return nameA.localeCompare(nameB);
-                                    })
-                                    .map(team => (
+                                {teams.map(team => (
                                     <tr key={team.id} className="hover:bg-white/[0.02] transition-colors">
                                         <td className="p-3">
                                             <div className="flex items-center gap-3">
@@ -452,11 +417,9 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                                     </div>
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <div className="font-bold text-white text-sm truncate uppercase tracking-tight">
+                                                    <div className="font-bold text-white text-sm truncate">{team.name}</div>
+                                                    <div className="text-[10px] text-white/30 truncate max-w-[120px]">
                                                         {team.franchiseName || 'No Franchise'}
-                                                    </div>
-                                                    <div className="text-[10px] text-white/40 truncate max-w-[120px] font-medium">
-                                                        {team.name}
                                                     </div>
                                                 </div>
                                             </div>
@@ -535,24 +498,7 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                                             }`}
                                                             title={!isAssigned ? 'Click to Assign' : isUsed ? 'Click to mark Available' : 'Click to mark Used | Right-click to Deassign'}
                                                         >
-                                                            {type === 'RIGHT_TO_MATCH' ? (
-                                                                <div className="flex items-center gap-1">
-                                                                    <img 
-                                                                        src={getPowerCardImage('rtm', team.shortName)} 
-                                                                        alt="RTM" 
-                                                                        className="w-4 h-5 object-contain"
-                                                                        onError={(e) => { 
-                                                                            (e.target as HTMLImageElement).style.display = 'none';
-                                                                            const sibling = (e.target as HTMLElement).nextElementSibling as HTMLElement;
-                                                                            if (sibling) sibling.style.display = 'inline';
-                                                                        }}
-                                                                    />
-                                                                    <span className={`hidden text-[8px] px-1 bg-white/10 rounded ${isAssigned && !isUsed ? 'text-emerald-400' : ''}`}>RTM</span>
-                                                                    {!isAssigned && <span className="text-[8px] opacity-20">RTM</span>}
-                                                                </div>
-                                                            ) : (
-                                                                type.split('_').map(w => w[0]).join('')
-                                                            )}
+                                                            {type === 'RIGHT_TO_MATCH' ? 'RTM' : type.split('_').map(w => w[0]).join('')}
                                                         </span>
                                                     );
                                                 })}
