@@ -158,7 +158,7 @@ export default function HomePage() {
             >
                 {[
                     { label: 'Teams', value: '10', dot: '#2bb5cc' },
-                    { label: 'Players', value: '246', dot: '#d4af37' },
+                    { label: 'Players', value: '150+', dot: '#d4af37' },
                     { label: 'Budget', value: '₹1200 CR', dot: '#2dd4a0' },
                 ].map((stat, i) => (
                     <div key={stat.label} className="home-stat-item">
@@ -173,15 +173,7 @@ export default function HomePage() {
             </motion.div>
 
             {/* Season Badge Top Left */}
-            <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                className="home-season-badge"
-            >
-                <div className="home-season-dot" />
-                <span>Season 19 • Live Auction</span>
-            </motion.div>
+
 
             <div className="home-content">
 
@@ -233,9 +225,7 @@ export default function HomePage() {
                                     <div className="home-card-glow" />
 
                                     {/* Tag */}
-                                    <div className="home-card-tag">
-                                        {link.tag}
-                                    </div>
+
 
                                     {/* Icon */}
                                     <div className="home-card-icon">
@@ -264,17 +254,6 @@ export default function HomePage() {
                     ))}
                 </div>
 
-                {/* ── Footer ── */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1, duration: 0.5 }}
-                    className="home-footer"
-                >
-                    <span>Powered by Next.js</span>
-                    <span className="home-footer-sep">•</span>
-                    <span>Designed for Champions</span>
-                </motion.div>
             </div>
         </div>
     );

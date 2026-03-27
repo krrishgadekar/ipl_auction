@@ -68,13 +68,18 @@ body {
 
 @layer components {
   .glass-card {
-    @apply backdrop-blur-md rounded-2xl shadow-xl;
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
     background: rgba(10, 22, 40, 0.6);
     border: 1px solid rgba(43, 181, 204, 0.12);
   }
 
   .glass-card-hover {
-    @apply glass-card transition-all duration-300;
+    transition: all 0.3s;
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   }
 
   .glass-card-hover:hover {
@@ -217,22 +222,33 @@ body {
    SCROLLBAR — OCEAN TEAL
    ════════════════════════════════════════ */
 
+/* Styles for all scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--accent-teal-deep), var(--accent-teal));
-  border-radius: 10px;
+  background: rgba(43, 181, 204, 0.4);
+  /* Slightly more visible for touch/mobile */
+  border-radius: 100px;
+}
+
+/* Allow global scroll while home-root remains locked */
+
+/* Ensure scrollbar appears for mobile/tablet */
+@media (max-width: 900px) {
+  ::-webkit-scrollbar {
+    display: block;
+  }
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--accent-teal), var(--accent-teal-bright));
+  background: rgba(43, 181, 204, 0.6);
 }
 
 /* ════════════════════════════════════════
@@ -334,15 +350,118 @@ p {
   animation: ocean-gradient-shift 15s ease infinite;
 }
 
-/* Gold Shimmer */
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
+/* Gold-White Flow (Champion Background) */
+@keyframes gold-white-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
-  100% {
-    background-position: 200% center;
+.winner-banner-gold-white {
+  background: linear-gradient(135deg, 
+    #d4af37 0%, 
+    #f5d569 15%,
+    #fff9e6 45%, /* Whitish yellow / Cream */
+    #f5d569 75%, 
+    #d4af37 100%
+  ) !important;
+  background-size: 200% 200% !important;
+  animation: gold-white-flow 12s linear infinite !important;
+  border: 2px solid rgba(212, 175, 55, 0.8) !important;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.25),
+    0 0 30px rgba(212, 175, 55, 0.2),
+    inset 0 0 40px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Champion Text Glow (Radial Pulse) */
+@keyframes champion-glow-pulse {
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(212, 175, 55, 0.4);
+    transform: scale(1);
   }
+  50% {
+    text-shadow: 0 0 35px rgba(255, 255, 255, 1), 0 0 60px rgba(212, 175, 55, 0.6);
+    transform: scale(1.02);
+  }
+}
+
+.champion-text-dark {
+  color: #1a1200 !important; /* Charcoal Dark */
+  font-family: 'Cinzel', serif !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 20px rgba(212, 175, 55, 0.15) !important;
+  transition: all 0.3s ease !important;
+}
+
+.champion-text-dark-glow {
+  color: #1a1200 !important;
+  font-family: 'Cinzel', serif !important;
+  animation: champion-glow-pulse-dark 5s ease-in-out infinite !important;
+}
+
+@keyframes champion-glow-pulse-dark {
+  0%, 100% {
+    text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    text-shadow: 0 0 25px rgba(212, 175, 55, 0.5);
+    transform: scale(1.01);
+  }
+}
+
+/* High-Contrast Accessory Info for Champion Banner */
+.champion-accessory-info {
+  color: #1a1200 !important;
+  font-family: 'Outfit', sans-serif !important; /* Modern Subtext Font */
+  font-weight: 700 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  letter-spacing: 0.02em !important;
+}
+
+.champion-accessory-label {
+  color: #4a3a00 !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-weight: 600 !important;
+  opacity: 0.8 !important;
+}
+
+/* Royal Metallic Gold Text */
+.metallic-gold-text {
+  font-family: 'Times New Roman', serif !important;
+  letter-spacing: 5px !important;
+  font-weight: bold !important;
+  background: linear-gradient(
+    to right,
+    #462523 0%,
+    #cb9b51 22%, 
+    #f6e27a 45%,
+    #f6f2c0 50%,
+    #f6e27a 55%,
+    #cb9b51 78%,
+    #462523 100%
+  ) !important;
+  color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) !important;
+}
+
+/* Premium Normal Card Glass */
+.premium-glass-card {
+  background: rgba(10, 22, 40, 0.5) !important;
+  border: 1px solid rgba(43, 181, 204, 0.15) !important;
+  backdrop-filter: blur(16px) !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.premium-glass-card:hover {
+  background: rgba(14, 30, 52, 0.7) !important;
+  border-color: rgba(43, 181, 204, 0.35) !important;
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(43, 181, 204, 0.15) !important;
 }
 
 .shimmer {
@@ -877,7 +996,7 @@ p {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradient-text-flow 5s ease infinite;
+  animation: gradient-text-flow 12s ease infinite;
 }
 
 /* Scale In */
@@ -1043,8 +1162,17 @@ p {
 }
 
 @keyframes coinGlowPulse {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.08); opacity: 1; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
 }
 
 .coin-flip {
@@ -1065,9 +1193,17 @@ p {
 }
 
 @keyframes coinRotate {
-  0%   { transform: rotateY(0deg); }
-  50%  { transform: rotateY(180deg); }
-  100% { transform: rotateY(360deg); }
+  0% {
+    transform: rotateY(0deg);
+  }
+
+  50% {
+    transform: rotateY(180deg);
+  }
+
+  100% {
+    transform: rotateY(360deg);
+  }
 }
 
 .coin-logo-img {
@@ -1093,22 +1229,61 @@ p {
   animation: letterWave 1.4s ease-in-out infinite;
 }
 
-.coin-loading-text span:nth-child(1) { animation-delay: 0s; }
-.coin-loading-text span:nth-child(2) { animation-delay: 0.1s; }
-.coin-loading-text span:nth-child(3) { animation-delay: 0.2s; }
-.coin-loading-text span:nth-child(4) { animation-delay: 0.3s; }
-.coin-loading-text span:nth-child(5) { animation-delay: 0.4s; }
-.coin-loading-text span:nth-child(6) { animation-delay: 0.5s; }
-.coin-loading-text span:nth-child(7) { animation-delay: 0.6s; }
+.coin-loading-text span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.coin-loading-text span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.coin-loading-text span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.coin-loading-text span:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+.coin-loading-text span:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+.coin-loading-text span:nth-child(6) {
+  animation-delay: 0.5s;
+}
+
+.coin-loading-text span:nth-child(7) {
+  animation-delay: 0.6s;
+}
 
 @keyframes letterWave {
-  0%, 100% { transform: translateY(0); opacity: 0.4; }
-  50% { transform: translateY(-6px); opacity: 1; color: #d4af37; }
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+
+  50% {
+    transform: translateY(-6px);
+    opacity: 1;
+    color: #d4af37;
+  }
 }
 
 @keyframes floatUp {
-  0%, 100% { transform: translateY(0) scale(1); opacity: 0.2; }
-  50% { transform: translateY(-30px) scale(1.5); opacity: 0.5; }
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.2;
+  }
+
+  50% {
+    transform: translateY(-30px) scale(1.5);
+    opacity: 0.5;
+  }
 }
 
 /* ════════════════════════════════════════
@@ -1121,13 +1296,31 @@ p {
 
 .home-root {
   position: relative;
-  height: 100vh;
+  height: 100vh !important;
+  /* Single page for laptop */
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  overflow: hidden;
+  overflow: hidden !important;
+  /* No scroll on laptop */
   background-color: #040b14;
+}
+
+@media (max-width: 900px) {
+  .home-root {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-root {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 3rem;
+  }
 }
 
 .home-bg {
@@ -1193,8 +1386,13 @@ p {
 }
 
 @keyframes orbFloat {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(30px, -20px) scale(1.15); }
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  100% {
+    transform: translate(30px, -20px) scale(1.15);
+  }
 }
 
 /* Season Badge - Top Left */
@@ -1228,8 +1426,15 @@ p {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .home-content {
@@ -1243,18 +1448,28 @@ p {
   align-items: center;
   height: 100%;
   gap: 0;
-  padding: 2rem 0 1rem;
+  padding: 1rem 0;
 }
 
 /* Hero Section */
 .home-hero {
   text-align: center;
   flex-shrink: 0;
+  margin-top: 40vh;
+  /* Pushed down further as requested */
+  transition: margin-top 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .home-hero {
+    margin-top: 0;
+  }
 }
 
 .home-title {
   font-family: 'Cinzel', serif;
-  font-size: clamp(1.8rem, 4vw, 3.2rem);
+  font-size: clamp(1.5rem, 6vw, 3.2rem);
+  /* Adjusted clamp for better mobile scaling */
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1268,7 +1483,8 @@ p {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   margin-top: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
+  /* Increased to push cards lower and fill the bottom gap */
   font-weight: 500;
 }
 
@@ -1286,6 +1502,28 @@ p {
   background: rgba(10, 22, 40, 0.5);
   border: 1px solid rgba(43, 181, 204, 0.1);
   backdrop-filter: blur(16px);
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+  .home-stats-corner {
+    top: 1rem;
+    right: 1rem;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-stats-corner {
+    position: relative;
+    top: 0;
+    right: 0;
+    margin-bottom: 2.5rem;
+    align-self: center;
+    order: -1;
+    /* Move it above the hero content */
+  }
 }
 
 .home-stat-item {
@@ -1328,8 +1566,11 @@ p {
 .home-cards-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 1.8rem;
+  /* Increased gap for a more expansive, immersive layout */
   width: 100%;
+  max-width: 72rem;
+  margin-top: 1.25rem;
   flex-shrink: 0;
 }
 
@@ -1348,7 +1589,8 @@ p {
 /* Card */
 .home-card {
   position: relative;
-  padding: 1.5rem 1.25rem 1.25rem;
+  padding: 2.2rem 1.5rem 1.8rem;
+  /* Increased padding to enlarge card appearance */
   border-radius: 14px;
   background: rgba(10, 22, 40, 0.6);
   border: 1px solid rgba(43, 181, 204, 0.08);
@@ -1358,6 +1600,8 @@ p {
   height: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   transition: background 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s;
 }
 
@@ -1417,8 +1661,9 @@ p {
 }
 
 .home-card-icon {
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
+  /* Increased icon container size */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1437,7 +1682,8 @@ p {
 
 .home-card-title {
   font-family: 'Cinzel', serif;
-  font-size: 0.95rem;
+  font-size: 1.25rem;
+  /* Larger title for prominence */
   font-weight: 700;
   color: #e8ecf1;
   margin-bottom: 0.3rem;
@@ -1445,7 +1691,8 @@ p {
 }
 
 .home-card-desc {
-  font-size: 0.72rem;
+  font-size: 0.88rem;
+  /* Larger description for better legibility and content fill */
   color: rgba(122, 148, 176, 0.55);
   line-height: 1.45;
   margin-bottom: 0.75rem;
@@ -1457,6 +1704,8 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1.25rem;
+  /* Added gap to prevent clipping */
   padding: 0.4rem 0.6rem;
   border-radius: 8px;
   background: rgba(4, 11, 20, 0.5);
@@ -1470,6 +1719,8 @@ p {
   letter-spacing: 0.08em;
   color: rgba(122, 148, 176, 0.5);
   font-weight: 600;
+  flex-shrink: 0;
+  /* Prevent label from shrinking */
 }
 
 .home-card-stat-value {
@@ -1498,9 +1749,10 @@ p {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding-top: 1.25rem;
+  padding-top: 0.75rem;
+  /* Reduced top padding to move it up slightly */
   font-size: 0.65rem;
-  color: rgba(122, 148, 176, 0.25);
+  color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
   letter-spacing: 0.15em;
   flex-shrink: 0;
@@ -1512,11 +1764,43 @@ p {
 
 /* 3D Logo — Fixed Clipping */
 .logo3d-container {
-  width: min(42vh, 380px);
-  height: min(42vh, 380px);
-  margin: 0 auto -0.5rem;
-  position: relative;
-  cursor: grab;
+  width: min(60vh, 600px);
+  height: min(60vh, 600px);
+  /* Safely enlarged container to prevent clipping */
+  position: absolute;
+  top: 1vh;
+  /* Moved to top to maximize vertical space */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+  .logo3d-container {
+    width: min(40vh, 400px);
+    height: min(25vh, 250px);
+  }
+}
+
+@media (max-width: 768px) {
+  .logo3d-container {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+    margin: 0 auto;
+    width: 80px;
+    height: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo3d-container {
+    width: 220px;
+    height: 220px;
+  }
 }
 
 .logo3d-container:active {

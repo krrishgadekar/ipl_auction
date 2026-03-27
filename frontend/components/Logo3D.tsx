@@ -13,9 +13,8 @@ function LogoModel() {
         if (groupRef.current) {
             // Slow continuous rotation
             groupRef.current.rotation.y += delta * 0.4;
-            
-            // Entrance pop animation: smoothly scale up to 1.65 (bigger logo)
-            groupRef.current.scale.lerp(new THREE.Vector3(1.5, 1.5, 1.5), delta * 4.5);
+
+            groupRef.current.scale.lerp(new THREE.Vector3(2.2, 2.2, 2.2), delta * 4.5);
         }
     });
 
@@ -36,10 +35,10 @@ function LoadingFallback() {
 
 export default function Logo3D({ className = "logo3d-container" }: { className?: string }) {
     return (
-        <div className={className} style={{ width: className === 'logo3d-container' ? undefined : '100%', height: className === 'logo3d-container' ? undefined : '100%', position: 'relative' }}>
+        <div className={className} style={{ width: className === 'logo3d-container' ? undefined : '100%', height: className === 'logo3d-container' ? undefined : '100%' }}>
             <Suspense fallback={<LoadingFallback />}>
                 <Canvas
-                    camera={{ position: [0, 0, 6.5], fov: 40 }}
+                    camera={{ position: [0, 0, 7.5], fov: 45 }}
                     gl={{ antialias: true, alpha: true }}
                     dpr={[1, 1.5]}
                     style={{ background: 'transparent' }}
@@ -47,7 +46,7 @@ export default function Logo3D({ className = "logo3d-container" }: { className?:
                     <ambientLight intensity={0.6} />
                     <directionalLight position={[5, 5, 5]} intensity={1.5} />
                     <directionalLight position={[-3, 2, -2]} intensity={0.5} />
-                    
+
                     <PresentationControls
                         global
                         rotation={[0, 0, 0]}
@@ -61,7 +60,8 @@ export default function Logo3D({ className = "logo3d-container" }: { className?:
 
                     <Sparkles count={60} scale={4} size={1.8} speed={0.4} opacity={0.6} color="#2dd4a0" />
                     
-                    <Environment preset="city" />
+                    <pointLight position={[0, 0, 5]} intensity={1} color="#ffffff" />
+                    <pointLight position={[0, 0, -5]} intensity={0.5} color="#2dd4a0" />
                 </Canvas>
             </Suspense>
         </div>

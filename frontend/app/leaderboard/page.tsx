@@ -74,27 +74,10 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.12, duration: 0.5 }}
-            className={`relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${isWinner ? 'ring-2 ring-yellow-500/50' : ''}`}
-            style={{
-                background: isWinner
-                    ? 'linear-gradient(135deg, rgba(80,55,0,0.3) 0%, rgba(10,22,40,0.85) 40%, rgba(10,22,40,0.95) 100%)'
-                    : 'rgba(10,22,40,0.7)',
-                border: `1px solid ${isWinner ? 'rgba(212,175,55,0.4)' : 'rgba(43,181,204,0.15)'}`,
-                boxShadow: isWinner ? rankInfo.glow : 'none',
-            }}
+            className={`relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${isWinner ? 'winner-banner-gold-white' : 'premium-glass-card'}`}
             onClick={() => setExpanded(!expanded)}
         >
-            {/* Winner shimmer */}
-            {isWinner && (
-                <div
-                    className="absolute inset-0 pointer-events-none z-0"
-                    style={{
-                        background: 'linear-gradient(105deg, transparent 40%, rgba(212,175,55,0.08) 45%, transparent 50%)',
-                        backgroundSize: '200% 100%',
-                        animation: 'shimmer 3s infinite',
-                    }}
-                />
-            )}
+
 
             {/* Main row */}
             <div className="relative z-10 flex items-center gap-4 p-5">
@@ -115,9 +98,9 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                     <div className="flex items-center gap-2">
                         <span className="text-2xl">{entry.teamName.charAt(0)}</span>
                         <h3
-                            className="font-black text-lg truncate"
+                            className={`font-black text-lg truncate ${isWinner ? 'champion-text-dark' : ''}`}
                             style={{
-                                color: isWinner ? '#f5d569' : '#e8f0f8',
+                                color: isWinner ? undefined : '#e8f0f8',
                                 fontFamily: "'Cinzel', serif",
                             }}
                         >
@@ -126,20 +109,20 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                         <span
                             className="text-xs px-2 py-0.5 rounded-full font-bold"
                             style={{
-                                background: '#2bb5cc30',
-                                color: '#2bb5cc',
-                                border: '1px solid #2bb5cc50',
+                                background: isWinner ? 'rgba(212,175,55,0.2)' : '#2bb5cc30',
+                                color: isWinner ? '#f5d569' : '#2bb5cc',
+                                border: `1px solid ${isWinner ? 'rgba(212,175,55,0.4)' : '#2bb5cc50'}`,
                             }}
                         >
                             {entry.brandKey || entry.teamName.slice(0, 3).toUpperCase()}
                         </span>
                     </div>
                     <div className="flex items-center gap-4 mt-1">
-                        <span className="text-xs" style={{ color: 'rgba(122,148,176,0.7)' }}>
-                            ©️ {entry.captain?.name || 'N/A'}
+                        <span className="text-xs champion-accessory-label">
+                            ©️ <span className="champion-accessory-info">{entry.captain?.name || 'N/A'}</span>
                         </span>
-                        <span className="text-xs" style={{ color: 'rgba(122,148,176,0.5)' }}>
-                            VC: {entry.viceCaptain?.name || 'N/A'}
+                        <span className="text-xs champion-accessory-label">
+                            VC: <span className="champion-accessory-info">{entry.viceCaptain?.name || 'N/A'}</span>
                         </span>
                     </div>
                 </div>
@@ -147,16 +130,15 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                 {/* Total Score */}
                 <div className="flex-shrink-0 text-right">
                     <div
-                        className="font-black text-3xl"
+                        className={`font-black text-3xl ${isWinner ? 'champion-text-dark' : ''}`}
                         style={{
-                            color: isWinner ? '#d4af37' : '#2bb5cc',
+                            color: isWinner ? undefined : '#2bb5cc',
                             fontFamily: "'Cinzel', serif",
-                            textShadow: isWinner ? '0 0 30px rgba(212,175,55,0.5)' : 'none',
                         }}
                     >
                         {entry.score.finalScore.toFixed(1)}
                     </div>
-                    <div className="text-xs" style={{ color: 'rgba(122,148,176,0.5)' }}>
+                    <div className="text-xs champion-accessory-label">
                         TOTAL PTS
                     </div>
                 </div>
@@ -209,12 +191,16 @@ function LeaderboardCard({ entry, index }: { entry: LeaderboardEntry; index: num
                                                     {p.nationality === 'OVERSEAS' ? '🌍' : ''}
                                                 </span>
                                                 <span
-                                                    className="flex-1 text-sm font-medium truncate"
-                                                    style={{ color: isCaptain ? '#f5d569' : isVC ? '#7eeaf5' : '#c8d8e8' }}
+                                                    className={`flex-1 text-sm truncate ${isWinner ? 'font-black' : 'font-medium'}`}
+                                                    style={{ 
+                                                        color: isWinner 
+                                                            ? '#1a1200' 
+                                                            : (isCaptain ? '#f5d569' : isVC ? '#7eeaf5' : 'rgba(255, 255, 255, 0.7)') 
+                                                    }}
                                                 >
                                                     {p.name}
-                                                    {isCaptain && <span className="ml-1 text-xs font-bold text-yellow-400">(C)</span>}
-                                                    {isVC && <span className="ml-1 text-xs font-bold text-cyan-400">(VC)</span>}
+                                                    {isCaptain && <span className={`ml-1 text-xs font-bold ${isWinner ? 'text-[#1a1200]' : 'text-yellow-400'}`}>(C)</span>}
+                                                    {isVC && <span className={`ml-1 text-xs font-bold ${isWinner ? 'text-[#1a1200]' : 'text-cyan-400'}`}>(VC)</span>}
                                                 </span>
                                                 <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(4,11,20,0.6)', color: 'rgba(122,148,176,0.7)' }}>
                                                     {p.category}
@@ -269,7 +255,7 @@ export default function LeaderboardPage() {
     if (loading) return <Loader />;
 
     return (
-        <div className="min-h-screen animated-gradient-bg relative overflow-hidden">
+        <div className="min-h-screen animated-gradient-bg relative">
             <FloatingParticles />
 
             <div className="relative z-10 max-w-5xl mx-auto px-6 py-8">
@@ -291,20 +277,16 @@ export default function LeaderboardPage() {
                         ← Back to Home
                     </Link>
                     <h1
-                        className="font-black tracking-wide"
+                        className="font-black tracking-wide metallic-gold-text"
                         style={{
-                            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                            fontFamily: "'Cinzel', serif",
-                            background: 'linear-gradient(135deg, #d4af37 0%, #f5d569 50%, #d4af37 100%)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            textShadow: 'none',
+                            fontSize: 'clamp(2rem, 5vw, 4rem)',
+                            lineHeight: 1.2,
                         }}
                     >
                         🏆 FINAL STANDINGS
                     </h1>
                     <p className="mt-2" style={{ color: 'rgba(122,148,176,0.6)' }}>
-                        IPL 2026 Mock Auction — Official Scored Formula
+                        IPL 2026 Final Auction Results
                     </p>
                 </motion.div>
 
@@ -314,45 +296,30 @@ export default function LeaderboardPage() {
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ delay: 0.3, type: 'spring' }}
-                        className="mb-8 rounded-2xl p-6 text-center relative overflow-hidden"
-                        style={{
-                            background: 'linear-gradient(135deg, rgba(80,55,0,0.4), rgba(30,18,0,0.6))',
-                            border: '2px solid rgba(212,175,55,0.4)',
-                            boxShadow: '0 0 60px rgba(212,175,55,0.2)',
-                        }}
+                        className="mb-8 rounded-2xl p-8 text-center relative overflow-hidden winner-banner-gold-white"
                     >
-                        <div className="absolute inset-0 pointer-events-none" style={{
-                            background: 'linear-gradient(105deg, transparent 35%, rgba(212,175,55,0.1) 40%, transparent 45%)',
-                            backgroundSize: '200% 100%',
-                            animation: 'shimmer 2.5s infinite',
-                        }} />
+
                         <div className="relative z-10">
                             <div className="text-5xl mb-2">🏆</div>
-                            <div className="text-lg tracking-widest mb-1" style={{ color: 'rgba(212,175,55,0.7)' }}>
+                            <div className="text-lg tracking-widest mb-1 champion-accessory-label">
                                 CHAMPION
                             </div>
                             <div className="flex items-center justify-center gap-3">
-                                <span className="text-3xl">{winner.teamName.charAt(0)}</span>
+                                <span className="text-3xl" style={{ color: '#1a1200' }}>{winner.teamName.charAt(0)}</span>
                                 <h2
-                                    className="font-black text-3xl"
-                                    style={{ fontFamily: "'Cinzel', serif", color: '#f5d569' }}
+                                    className="font-black text-4xl champion-text-dark"
                                 >
                                     {winner.teamName}
                                 </h2>
                             </div>
                             <div
-                                className="mt-2 font-black text-5xl"
-                                style={{
-                                    fontFamily: "'Cinzel', serif",
-                                    color: '#d4af37',
-                                    textShadow: '0 0 40px rgba(212,175,55,0.6)',
-                                }}
+                                className="mt-3 font-black text-6xl champion-text-dark-glow"
                             >
                                 {winner.score.finalScore.toFixed(1)} PTS
                             </div>
-                            <div className="mt-2 flex items-center justify-center gap-6 text-sm" style={{ color: 'rgba(212,175,55,0.6)' }}>
-                                <span>©️ {winner.captain?.name}</span>
-                                <span>VC: {winner.viceCaptain?.name}</span>
+                            <div className="mt-2 flex items-center justify-center gap-6 text-sm champion-accessory-label">
+                                <span>©️ <span className="champion-accessory-info">{winner.captain?.name}</span></span>
+                                <span>VC: <span className="champion-accessory-info">{winner.viceCaptain?.name}</span></span>
                             </div>
                         </div>
                     </motion.div>
