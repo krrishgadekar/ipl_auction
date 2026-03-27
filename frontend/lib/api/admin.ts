@@ -64,6 +64,10 @@ export async function advanceToNextObject() {
     return fetchAdmin('/next-item', { method: 'POST' });
 }
 
+export async function stepBackToPreviousObject() {
+    return fetchAdmin('/prev-item', { method: 'POST' });
+}
+
 export async function selectSequence(sequenceId: number) {
     return fetchAdmin('/select-sequence', { method: 'POST', body: JSON.stringify({ sequenceId }) });
 }
@@ -120,4 +124,12 @@ export async function fineTeam(teamId: string, amount: number, reason: string) {
 
 export async function togglePowerCard(teamId: string, type: string, isUsed: boolean) {
     return fetchAdmin('/toggle-powercard', { method: 'POST', body: JSON.stringify({ teamId, type, isUsed }) });
+}
+
+export async function markItemUnsold(itemId: string, itemType: 'FRANCHISE' | 'POWERCARD') {
+    return fetchAdmin('/unsold-item', { method: 'POST', body: JSON.stringify({ itemId, itemType }) });
+}
+
+export async function addPurse(teamId: string, amount: number, reason: string) {
+    return fetchAdmin('/add-purse', { method: 'POST', body: JSON.stringify({ teamId, amount, reason }) });
 }

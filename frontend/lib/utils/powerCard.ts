@@ -6,6 +6,7 @@ export const POWER_CARD_IMAGES: Record<string, string> = {
     bidFreezer: '/power_cards/BID_FREEZER.png',
     godsEye: '/power_cards/GODS_EYE.png',
     mulligan: '/power_cards/SECOND_CHANCE.png', // SECOND_CHANCE is the new name for Mulligan asset
+    rightToMatch: '/power_cards/RIGHT_TO_MATCH.png',
 };
 
 /**
@@ -15,7 +16,7 @@ export const POWER_CARD_IMAGES: Record<string, string> = {
 export function getPowerCardImage(cardKey: string, shortName?: string): string {
     // Handle Right to Match (RTM) - franchise specific
     if (cardKey === 'rtm' || cardKey === 'rightToMatch') {
-        if (!shortName) return '/power_cards/FINAL_STRIKE.png'; // Fallback
+        if (!shortName) return '/power_cards/RIGHT_TO_MATCH.png'; // Generic RTM fallback
         return `/power_cards/${shortName.toLowerCase()}_rtm.png`;
     }
 

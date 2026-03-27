@@ -459,54 +459,8 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
 
             <div className="max-w-7xl mx-auto p-6 relative z-10 flex flex-col gap-10">
 
-                {/* Live Power Card Auction Banner */}
-                <AnimatePresence>
-                    {auctionState?.phase === 'POWER_CARD_PHASE' && auctionState?.currentItemId && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: -20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-600/20 to-orange-900/40 border border-amber-500/30 p-8 shadow-[0_0_50px_rgba(245,158,11,0.15)] backdrop-blur-xl"
-                        >
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[80px] -mr-32 -mt-32" />
-                            
-                            <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
-                                <div className="w-32 h-44 shrink-0 rounded-xl bg-black/40 border border-white/10 p-4 shadow-2xl transform hover:rotate-2 transition-transform duration-500">
-                                    <img 
-                                        src={getPowerCardImage(auctionState?.currentItemId || '')} 
-                                        alt={auctionState?.currentItemId || ''}
-                                        className="w-full h-full object-contain"
-                                    />
-                                </div>
-                                
-                                <div className="flex-1 text-center md:text-left">
-                                    <div className="flex items-center gap-3 justify-center md:justify-start mb-3">
-                                        <span className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 text-[10px] font-black uppercase tracking-[0.2em]">⚡ Live Auction ⚡</span>
-                                        <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 text-[10px] font-bold uppercase tracking-widest">Power Card</span>
-                                    </div>
-                                    <h2 className="text-4xl font-black text-white mb-3" style={{ fontFamily: "'Cinzel', serif" }}>
-                                        {getPowerCardName(auctionState.currentItemId)}
-                                    </h2>
-                                    <p className="text-[#bcdce6]/60 text-sm max-w-xl leading-relaxed">
-                                        A strategic asset is on the block. Bidding is active. Use your team purse to secure this advantage for the upcoming rounds.
-                                    </p>
-                                </div>
-                                
-                                <div className="shrink-0 bg-black/40 backdrop-blur-lg border border-white/10 rounded-2xl p-6 text-center min-w-[200px]">
-                                    <p className="text-[10px] text-[#7a9ab0] uppercase tracking-widest font-bold mb-1">Current Highest Bid</p>
-                                    <div className="text-4xl font-black text-amber-500 flex items-baseline justify-center gap-2" style={{ fontFamily: "'Cinzel', serif" }}>
-                                        <span className="text-lg">₹</span>
-                                        {auctionState?.currentBid || '1.0'}
-                                        <span className="text-lg font-bold">CR</span>
-                                    </div>
-                                    <div className="mt-4 pt-4 border-t border-white/5">
-                                        <p className="text-[9px] text-white/30 uppercase font-bold tracking-tighter">Bidding controlled by Admin</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                {/* Live Power Card Auction Banner Removed */}
+
 
                 {/* Budget Bar */}
                 <ScrollReveal className="p-6 rounded-2xl bg-[#0a1628]/60 border border-[#2bb5cc]/10 backdrop-blur-xl">
@@ -731,57 +685,62 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                                                 <div className="mt-6 p-6 rounded-2xl bg-white/5 border border-white/10">
                                                                     <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-6 border-b border-white/5 pb-2">Technical Analysis • Stats</div>
                                                                     
-                                                                    <div className="grid grid-cols-5 gap-4">
-                                                                        {/* Header Row */}
-                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Rating</div>
-                                                                        {player.category.toLowerCase().includes('bat') || player.category.toLowerCase().includes('wk') ? (
-                                                                            <>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Scoring</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Impact</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Cons.</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Exp.</div>
-                                                                            </>
-                                                                        ) : player.category.toLowerCase().includes('bowl') ? (
-                                                                            <>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Wickets</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Economy</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Eff.</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">-</div>
-                                                                            </>
-                                                                        ) : (
-                                                                            <>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Batting</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Bowling</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Vers.</div>
-                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">-</div>
-                                                                            </>
-                                                                        )}
+                                                                    {(() => {
+                                                                        const cat = player.category?.toLowerCase() || '';
+                                                                        const isBatOrWk = cat.includes('bat') || cat.includes('wicket') || cat.includes('wk');
+                                                                        const isBowl = cat.includes('bowl');
+                                                                        const colsClass = isBatOrWk ? 'grid-cols-5' : 'grid-cols-4';
 
-                                                                        {/* Value Row */}
-                                                                        <div className="text-3xl font-black italic text-[#2dd4a0] text-center">{player.rating}</div>
-                                                                        {player.category.toLowerCase().includes('bat') || player.category.toLowerCase().includes('wk') ? (
-                                                                            <>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_scoring}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_impact}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_consistency}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_experience}</div>
-                                                                            </>
-                                                                        ) : player.category.toLowerCase().includes('bowl') ? (
-                                                                            <>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_wicket_taking}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_economy}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_efficiency}</div>
-                                                                                <div className="text-3xl font-black italic text-center text-white/10">-</div>
-                                                                            </>
-                                                                        ) : (
-                                                                            <>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_batting}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_bowling}</div>
-                                                                                <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_versatility}</div>
-                                                                                <div className="text-3xl font-black italic text-center text-white/10">-</div>
-                                                                            </>
-                                                                        )}
-                                                                    </div>
+                                                                        return (
+                                                                            <div className={`grid ${colsClass} gap-4`}>
+                                                                                {/* Header Row */}
+                                                                                <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Rating</div>
+                                                                                {isBatOrWk ? (
+                                                                                    <>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Scoring</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Impact</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Cons.</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Exp.</div>
+                                                                                    </>
+                                                                                ) : isBowl ? (
+                                                                                    <>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Wickets</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Economy</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Eff.</div>
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Batting</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Bowling</div>
+                                                                                        <div className="text-[10px] font-bold uppercase text-white/40 tracking-widest text-center">Vers.</div>
+                                                                                    </>
+                                                                                )}
+
+                                                                                {/* Value Row */}
+                                                                                <div className="text-3xl font-black italic text-[#2dd4a0] text-center">{player.rating || '-'}</div>
+                                                                                {isBatOrWk ? (
+                                                                                    <>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_scoring || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_impact || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_consistency || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_experience || '-'}</div>
+                                                                                    </>
+                                                                                ) : isBowl ? (
+                                                                                    <>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_wicket_taking || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_economy || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_efficiency || '-'}</div>
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_batting || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_bowling || '-'}</div>
+                                                                                        <div className="text-3xl font-black italic text-center" style={{ color: config.textColor }}>{player.sub_versatility || '-'}</div>
+                                                                                    </>
+                                                                                )}
+                                                                            </div>
+                                                                        );
+                                                                    })()}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -822,7 +781,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                     <div className="flex justify-center mb-3">
                                         <div className="relative w-24 h-32 flex items-center justify-center">
                                             <Image
-                                                src={getPowerCardImage(key, team.shortName)}
+                                                src={getPowerCardImage(key, team.logo ? team.logo.split('/').pop()?.split('.')[0] : undefined)}
                                                 alt={card.name}
                                                 fill
                                                 className="object-contain drop-shadow-[0_0_10px_rgba(43,181,204,0.4)]"
@@ -881,7 +840,7 @@ export default function TeamDashboard({ params }: { params: Promise<{ id: string
                                             <td className="py-3 px-5 text-sm text-[#7a9ab0] font-mono">{i + 1}</td>
                                             <td className="py-3 px-3">
                                                 <div className="flex items-center gap-3">
-                                                    <img src={t.logo} alt={t.shortName} className="w-8 h-8 object-contain drop-shadow-md" />
+                                                    <img src={t.logo || '/auction_logo.jpg'} alt={t.shortName} className="w-8 h-8 object-contain drop-shadow-md" onError={(e) => { (e.target as HTMLImageElement).src = '/auction_logo.jpg'; }} />
                                                     <div>
                                                         <span className={`font-bold text-sm ${isMyTeam ? 'text-[#2bb5cc]' : 'text-[#e8ecf1]'}`}>{t.name}</span>
                                                         {isMyTeam && <span className="ml-2 text-[8px] px-1.5 py-0.5 rounded bg-[#2bb5cc]/20 text-[#2bb5cc] font-black uppercase">You</span>}

@@ -79,21 +79,25 @@ async function validateTop11(teamId, playerIds, captainId, viceCaptainId) {
 
     // 2. All selected must be in team's squad
     const squad = await prisma.teamPlayer.findMany({
-        where: { team_id: teamId },
+        where: { team_id: String(teamId) },
         include: { player: true },
     });
-    const squadPlayerIds = new Set(squad.map(tp => tp.player_id));
-    const invalid = (playerIds || []).filter(id => !squadPlayerIds.has(id));
+    const squadPlayerIds = new Set(squad.map(tp => Number(tp.player.rank)));
+    const invalid = (playerIds || []).filter(id => !squadPlayerIds.has(Number(id)));
     if (invalid.length > 0) {
         errors.push(`Players not in squad: ${invalid.join(', ')}`);
     }
 
     // 3. Captain / Vice-Captain
+    const capIdNum = Number(captainId);
+    const vcIdNum = Number(viceCaptainId);
+    const selectedNums = (playerIds || []).map(Number);
+
     if (!captainId) errors.push('Captain must be selected');
-    else if (!playerIds.includes(captainId)) errors.push('Captain must be in Top 11');
+    else if (!selectedNums.includes(capIdNum)) errors.push('Captain must be in Top 11');
 
     if (!viceCaptainId) errors.push('Vice-Captain must be selected');
-    else if (!playerIds.includes(viceCaptainId)) errors.push('Vice-Captain must be in Top 11');
+    else if (!selectedNums.includes(vcIdNum)) errors.push('Vice-Captain must be in Top 11');
 
     if (captainId && viceCaptainId && captainId === viceCaptainId) {
         errors.push('Captain and Vice-Captain must be different');

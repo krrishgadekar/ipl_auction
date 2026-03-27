@@ -192,7 +192,7 @@ router.post('/bid', async (req, res) => {
 router.post('/sell', async (req, res) => {
     try {
         const { playerId, teamId, pricePaid } = req.body;
-        const result = await auctionService.sellPlayer(playerId, teamId, pricePaid);
+        const result = await auctionService.sellPlayer(playerId, teamId, pricePaid, true);
         const team = await prisma.team.findUnique({ where: { id: teamId } });
         const player = await prisma.player.findUnique({ where: { id: playerId } });
 
@@ -324,6 +324,38 @@ router.post('/toggle-powercard', async (req, res) => {
 });
 
 
+/**
+ * POST /api/admin/auction/unsold-item
+ * Mark a franchise or powercard as unsold and re-queue it.
+ * Body: { itemId, itemType: 'FRANCHISE' | 'POWERCARD' }
+ */
+router.post('/unsold-item', async (req, res) => {
+    try {
+        const { itemId, itemType } = req.body;
+        const result = await auctionService.markItemUnsold(itemId, itemType);
+        req.io.emit('ITEM_UNSOLD', { itemId, itemType });
+        req.io.emit('STATE_SYNC');
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
+ * POST /api/admin/auction/add-purse
+ * Manually add purse to a team. Body: { teamId, amount, reason }
+ */
+router.post('/add-purse', async (req, res) => {
+    try {
+        const { teamId, amount, reason } = req.body;
+        const result = await auctionService.addPurse(teamId, amount, reason);
+        req.io.emit('STATE_SYNC');
+        req.io.emit('PURSE_UPDATED', { teamId, purse_remaining: result.newPurse });
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
 
 // ── Riddle Player Configuration ──────────────────────────────
 

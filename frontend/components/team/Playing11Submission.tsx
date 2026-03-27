@@ -6,10 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Squad validation rules (mirroring scoringService.js)
 const SQUAD_RULES = {
     total: 15,
-    BAT: { min: 3 },
-    BOWL: { min: 3 },
-    AR: { min: 2 },
-    WK: { min: 2 },
+    BAT: { min: 3, max: 5 },
+    BOWL: { min: 5, max: 8 },
+    AR: { min: 3, max: 6 },
+    WK: { min: 1, max: 2 },
     overseas: { min: 2, max: 5 },
 };
 
@@ -60,12 +60,20 @@ function validateSquad(players: Player[]): { valid: boolean; errors: string[] } 
 
     if (counts.BAT < SQUAD_RULES.BAT.min)
         errors.push(`Minimum ${SQUAD_RULES.BAT.min} Batsmen required (have ${counts.BAT})`);
+    if (counts.BAT > SQUAD_RULES.BAT.max)
+        errors.push(`Maximum ${SQUAD_RULES.BAT.max} Batsmen allowed (have ${counts.BAT})`);
     if (counts.BOWL < SQUAD_RULES.BOWL.min)
         errors.push(`Minimum ${SQUAD_RULES.BOWL.min} Bowlers required (have ${counts.BOWL})`);
+    if (counts.BOWL > SQUAD_RULES.BOWL.max)
+        errors.push(`Maximum ${SQUAD_RULES.BOWL.max} Bowlers allowed (have ${counts.BOWL})`);
     if (counts.AR < SQUAD_RULES.AR.min)
         errors.push(`Minimum ${SQUAD_RULES.AR.min} All-Rounders required (have ${counts.AR})`);
+    if (counts.AR > SQUAD_RULES.AR.max)
+        errors.push(`Maximum ${SQUAD_RULES.AR.max} All-Rounders allowed (have ${counts.AR})`);
     if (counts.WK < SQUAD_RULES.WK.min)
         errors.push(`Minimum ${SQUAD_RULES.WK.min} Wicketkeepers required (have ${counts.WK})`);
+    if (counts.WK > SQUAD_RULES.WK.max)
+        errors.push(`Maximum ${SQUAD_RULES.WK.max} Wicketkeepers allowed (have ${counts.WK})`);
     if (counts.OVERSEAS < SQUAD_RULES.overseas.min || counts.OVERSEAS > SQUAD_RULES.overseas.max) {
         errors.push(`Overseas players must be between ${SQUAD_RULES.overseas.min}–${SQUAD_RULES.overseas.max} (have ${counts.OVERSEAS})`);
     }
@@ -129,10 +137,29 @@ export default function Playing11Submission({ teamId, squadCount, purchasedPlaye
             setError('Please select both a Captain and a Vice-Captain.');
             return;
         }
+
+        const selectedPlayersList = purchasedPlayers.filter(p => selectedIds.includes(p.rank));
+        let wkCount = 0;
+        let osCount = 0;
+        selectedPlayersList.forEach(p => {
+            if (normCategory(p.category) === 'WK') wkCount++;
+            if (p.nationality === 'OVERSEAS' || p.nationality === 'Overseas') osCount++;
+        });
+
+        if (wkCount < 1) {
+            setError('Playing XI must include at least 1 Wicketkeeper.');
+            return;
+        }
+        if (osCount > 4) {
+            setError(`Playing XI can include a maximum of 4 Overseas players (you selected ${osCount}).`);
+            return;
+        }
+
         setLoading(true);
         try {
             await lockLineup(teamId, selectedIds.map(String), String(captainId), String(vcId));
             setSuccessMessage('Playing XI successfully locked!');
+            window.alert('✅ Squad locked successfully! You can close this modal.');
             setTimeout(() => {
                 setIsOpen(false);
                 if (onSuccess) onSuccess();

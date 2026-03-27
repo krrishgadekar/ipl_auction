@@ -138,7 +138,7 @@ async function logAudit(tx, action, details) {
 // CORE: SELL_PLAYER — Atomic DB Transaction
 // ═══════════════════════════════════════════════════════════════
 
-async function sellPlayer(playerId, teamId, pricePaid) {
+async function sellPlayer(playerId, teamId, pricePaid, isAdminOverride = false) {
     return await prisma.$transaction(async (tx) => {
         // 1. Validate auction phase
         const auctionState = await tx.auctionState.findUnique({ where: { id: 1 } });
@@ -154,9 +154,14 @@ async function sellPlayer(playerId, teamId, pricePaid) {
             throw new Error('Player is either already sold or not in this auction');
         }
 
-        // 3. Load team
+        // 3. Load team & player
         const team = await tx.team.findUnique({ where: { id: teamId } });
         if (!team) throw new Error('Team not found');
+
+        const player = await tx.player.findUnique({ where: { id: playerId } });
+        if (!player) throw new Error('Player not found');
+
+        const playerCategory = mapRoleToCategory(player.role);
 
         // 4. Validate team purse >= bid
         const purseRemaining = Number(team.purse_remaining);
@@ -164,26 +169,23 @@ async function sellPlayer(playerId, teamId, pricePaid) {
             throw new Error(`Insufficient purse: ₹${purseRemaining} CR remaining, bid is ₹${pricePaid} CR`);
         }
 
-        // 5. Validate squad size
-        if (team.squad_count >= MAX_SQUAD_SIZE) {
-            throw new Error(`Team already has maximum ${MAX_SQUAD_SIZE} players`);
-        }
+        if (!isAdminOverride) {
+            // 5. Validate squad size
+            if (team.squad_count >= MAX_SQUAD_SIZE) {
+                throw new Error(`Team already has maximum ${MAX_SQUAD_SIZE} players`);
+            }
 
-        // 6. Load player and validate
-        const player = await tx.player.findUnique({ where: { id: playerId } });
-        if (!player) throw new Error('Player not found');
+            // 7. Overseas limit
+            if (player.nationality === 'OVERSEAS' && team.overseas_count >= MAX_OVERSEAS) {
+                throw new Error(`Team already has maximum ${MAX_OVERSEAS} overseas players`);
+            }
 
-        // 7. Overseas limit
-        if (player.nationality === 'OVERSEAS' && team.overseas_count >= MAX_OVERSEAS) {
-            throw new Error(`Team already has maximum ${MAX_OVERSEAS} overseas players`);
-        }
-
-        // 8. Role composition check
-        const roleCounts = await getTeamRoleCounts(tx, teamId);
-        const playerCategory = mapRoleToCategory(player.role);
-        const roleError = wouldViolateRoleLimits(roleCounts, playerCategory, team.squad_count);
-        if (roleError) {
-            throw new Error(roleError);
+            // 8. Role composition check
+            const roleCounts = await getTeamRoleCounts(tx, teamId);
+            const roleError = wouldViolateRoleLimits(roleCounts, playerCategory, team.squad_count);
+            if (roleError) {
+                throw new Error(roleError);
+            }
         }
 
         // 9. Validate pricePaid >= base_price
@@ -1129,9 +1131,89 @@ async function togglePowerCardStatus(teamId, type, isUsed) {
     });
 }
 
+// ═══════════════════════════════════════════════════════════════
+// MARK ITEM UNSOLD — for Franchises & Power Cards
+// Pushes the unsold item back to the end of the current sequence.
+// ═══════════════════════════════════════════════════════════════
+
+async function markItemUnsold(itemId, itemType) {
+    return await prisma.$transaction(async (tx) => {
+        const state = await tx.auctionState.findUnique({ where: { id: 1 } });
+
+        if (itemType === 'FRANCHISE' && state.phase !== 'FRANCHISE_PHASE') {
+            throw new Error(`Cannot mark franchise unsold in phase: ${state.phase}`);
+        }
+        if (itemType === 'POWERCARD' && state.phase !== 'POWER_CARD_PHASE') {
+            throw new Error(`Cannot mark powercard unsold in phase: ${state.phase}`);
+        }
+
+        // Reset auction state for next item
+        await tx.auctionState.update({
+            where: { id: 1 },
+            data: {
+                current_item_id: null,
+                current_bid: null,
+                highest_bidder_id: null,
+                bid_history: [],
+            }
+        });
+
+        // Push item back to end of current sequence
+        if (state.current_sequence_id) {
+            const sequence = await tx.auctionSequence.findUnique({
+                where: { id: state.current_sequence_id }
+            });
+            if (sequence) {
+                let currentItems = Array.isArray(sequence.sequence_items) ? sequence.sequence_items : [];
+                currentItems.push(itemId);
+                await tx.auctionSequence.update({
+                    where: { id: sequence.id },
+                    data: { sequence_items: currentItems }
+                });
+            }
+        }
+
+        await logAudit(tx, 'MARK_ITEM_UNSOLD', { itemId, itemType });
+
+        return { success: true, message: `${itemType} marked as unsold and re-queued` };
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ADD PURSE — Increment team purse (admin error correction)
+// ═══════════════════════════════════════════════════════════════
+
+async function addPurse(teamId, amount, reason) {
+    return await prisma.$transaction(async (tx) => {
+        const team = await tx.team.findUnique({ where: { id: teamId } });
+        if (!team) throw new Error('Team not found');
+
+        const updated = await tx.team.update({
+            where: { id: teamId },
+            data: { purse_remaining: { increment: amount } },
+        });
+
+        await logAudit(tx, 'ADD_PURSE', {
+            teamId,
+            teamName: team.name,
+            amount,
+            reason,
+            newPurse: Number(updated.purse_remaining),
+        });
+
+        return {
+            success: true,
+            teamId,
+            newPurse: Number(updated.purse_remaining),
+        };
+    });
+}
+
 export default {
     sellPlayer,
     markUnsold,
+    markItemUnsold,
+    addPurse,
     assignPlayer,
     usePowerCard,
 
@@ -1157,3 +1239,4 @@ export default {
     deductPurse,
     togglePowerCardStatus,
 };
+

@@ -54,37 +54,17 @@ export default function TeamAvatar({ team, size = 40, className = '' }: TeamAvat
         );
     }
 
-    // 3. WhatsApp-style Placeholder (Silhouette)
-    const colorIdx = typeof team.id === 'string' ? team.id.charCodeAt(0) % TEAM_COLORS.length : Number(team.id || 0) % TEAM_COLORS.length;
-    const accentColor = TEAM_COLORS[colorIdx];
-
+    // 3. IPL Auction Logo Placeholder (before franchise assignment)
     return (
         <div 
-            className={`flex-shrink-0 rounded-xl flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-[#1a2a3a] to-[#0a1628] border border-white/5 shadow-inner ${className}`}
+            className={`relative flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-[#1a2a3a] to-[#0a1628] border border-white/10 p-1 ${className}`}
             style={{ width: size, height: size }}
         >
-            {/* Background Glow */}
-            <div 
-                className="absolute inset-0 opacity-10" 
-                style={{ background: accentColor }}
+            <img 
+                src="/auction_logo.jpg" 
+                alt={team.shortName || team.name || 'IPL Auction'} 
+                className="w-full h-full object-contain drop-shadow-sm" 
             />
-
-            {/* Silhouette SVG */}
-            <svg 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="1.5"
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className="text-white/20 w-3/4 h-3/4"
-            >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-            </svg>
-
-            {/* Subtle Initial Overlaid (Optional, let's keep it clean like WhatsApp) */}
-            {/* <span className="absolute bottom-1 right-1 text-[8px] font-black opacity-20 text-white uppercase">{team.shortName?.[0]}</span> */}
         </div>
     );
 }
