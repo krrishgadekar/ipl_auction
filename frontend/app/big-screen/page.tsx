@@ -329,8 +329,8 @@ export default function BigScreenPage() {
                                                 <h3 className="text-white/40 text-xs font-black tracking-[0.6em] uppercase mb-4">
                                                     {auctionState.riddleClue?.title || player.riddleTitle || "Mystery Player"}
                                                 </h3>
-                                                <h2 className="text-white font-black italic uppercase tracking-tighter leading-tight"
-                                                    style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}>
+                                                <h2 className="text-white font-black italic uppercase tracking-tighter leading-tight max-h-[45vh] overflow-y-auto"
+                                                    style={{ fontSize: 'clamp(1rem, 2.5vw, 1.8rem)' }}>
                                                     &quot;{auctionState.riddleClue?.question || player.riddleQuestion || "Mystery awaits..."}&quot;
                                                 </h2>
                                                 <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, repeat: Infinity }}

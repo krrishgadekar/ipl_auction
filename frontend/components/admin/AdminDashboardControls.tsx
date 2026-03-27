@@ -7,9 +7,9 @@ import FinalTeamPanel from './FinalTeamPanel';
 import { 
     setPhase, setAuctionDay, advanceToNextObject, 
     assignFranchise, assignPlayer, deassignPlayer,
-    assignPowerCard, deassignPowerCard, markUnsold,
+    assignPowerCard, deassignPowerCard, markUnsold, markItemUnsold,
     unveilRiddlePlayer, sellPlayer, getAllSequences, selectSequence,
-    getAllFranchises, fineTeam, togglePowerCard
+    getAllFranchises, fineTeam, togglePowerCard, addPurse
 } from '@/lib/api/admin';
 import { getPowerCardImage, getPowerCardName } from '@/lib/utils/powerCard';
 import PokemonPlayerCard from '../team/PokemonPlayerCard';
@@ -90,6 +90,18 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
         if (!reason) return;
 
         withLoading(() => fineTeam(teamId, amount, reason));
+    };
+
+    const handleAddPurse = (teamId: string, teamName: string) => {
+        const amountStr = prompt(`Enter amount (₹ CR) to ADD to ${teamName}:`, '0.5');
+        if (!amountStr) return;
+        const amount = parseFloat(amountStr);
+        if (isNaN(amount) || amount <= 0) return;
+        
+        const reason = prompt(`Reason for purse addition on ${teamName}:`, 'Error correction');
+        if (!reason) return;
+
+        withLoading(() => addPurse(teamId, amount, reason));
     };
 
     const handleTogglePowerCard = (teamId: string, type: string, currentUsed: boolean) => {
@@ -313,13 +325,18 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                     </button>
                     <button 
                         onClick={() => {
-                            if (!state.currentPlayer) return;
-                            const pid = state.currentPlayer.id || state.currentPlayer.rank?.toString();
-                            if (!pid) return;
-                            if (!window.confirm(`Mark ${state.currentPlayer.name || state.currentPlayer.player} as UNSOLD?`)) return;
-                            withLoading(() => markUnsold(pid));
+                            if (state.currentPlayer) {
+                                const pid = state.currentPlayer.id || state.currentPlayer.rank?.toString();
+                                if (!pid) return;
+                                if (!window.confirm(`Mark ${state.currentPlayer.name || state.currentPlayer.player} as UNSOLD?`)) return;
+                                withLoading(() => markUnsold(pid));
+                            } else if (state.currentItemId) {
+                                const itemType = phase === 'FRANCHISE_PHASE' ? 'FRANCHISE' : 'POWERCARD';
+                                if (!window.confirm(`Mark current ${itemType} as UNSOLD and re-queue?`)) return;
+                                withLoading(() => markItemUnsold(state.currentItemId!, itemType as any));
+                            }
                         }}
-                        disabled={loading || !state.currentPlayer}
+                        disabled={loading || (!state.currentPlayer && !state.currentItemId)}
                         className="px-8 py-5 bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 rounded-xl font-black shadow-lg transform transition-all active:scale-95 text-lg disabled:opacity-30"
                     >
                         ✗ UNSOLD
@@ -429,6 +446,13 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                                                 <div className={`font-black text-lg ${team.budgetRemaining < 10 ? 'text-red-400' : 'text-green-400'}`}>
                                                     ₹{team.budgetRemaining} <span className="text-[10px] opacity-40">CR</span>
                                                 </div>
+                                                <button 
+                                                    onClick={() => handleAddPurse(team.id.toString(), team.name)}
+                                                    className="p-1.5 bg-green-500/10 hover:bg-green-500/30 rounded-lg text-green-500/60 hover:text-green-500 border border-green-500/20 hover:border-green-500/50 transition-all flex items-center justify-center text-lg"
+                                                    title="Add Purse"
+                                                >
+                                                    ➕
+                                                </button>
                                                 <button 
                                                     onClick={() => handleFineTeam(team.id.toString(), team.name)}
                                                     className="p-1.5 bg-red-500/10 hover:bg-red-500/30 rounded-lg text-red-500/60 hover:text-red-500 border border-red-500/20 hover:border-red-500/50 transition-all flex items-center justify-center text-lg"

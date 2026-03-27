@@ -68,14 +68,7 @@ export function validateTop11(
     });
 
     const rules = TOP11_COMPOSITION;
-    if (counts.BAT !== rules.BAT.required)
-        errors.push(`Need ${rules.BAT.required} Batsmen (have ${counts.BAT})`);
-    if (counts.BOWL !== rules.BOWL.required)
-        errors.push(`Need ${rules.BOWL.required} Bowlers (have ${counts.BOWL})`);
-    if (counts.WK !== rules.WK.required)
-        errors.push(`Need ${rules.WK.required} Wicketkeeper (have ${counts.WK})`);
-    if (counts.AR !== rules.AR.required)
-        errors.push(`Need ${rules.AR.required} All-rounders (have ${counts.AR})`);
+    // Removed rigid role restrictions (BAT, BOWL, WK, AR) to allow any combination of 11 valid squad players.
 
     // Captain / VC
     if (!captainRank)

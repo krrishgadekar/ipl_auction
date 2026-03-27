@@ -133,6 +133,7 @@ export default function Playing11Submission({ teamId, squadCount, purchasedPlaye
         try {
             await lockLineup(teamId, selectedIds.map(String), String(captainId), String(vcId));
             setSuccessMessage('Playing XI successfully locked!');
+            window.alert('✅ Squad locked successfully! You can close this modal.');
             setTimeout(() => {
                 setIsOpen(false);
                 if (onSuccess) onSuccess();
