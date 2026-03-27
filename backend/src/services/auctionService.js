@@ -15,8 +15,8 @@ const POWER_CARD_COST = 1; // 1 CR per card
 const ROLE_LIMITS = {
     BAT: { min: 3, max: 5 },
     BOWL: { min: 5, max: 8 },
-    AR: { min: 3, max: 5 },
-    WK: { min: 2, max: 4 },
+    AR: { min: 3, max: 6 },
+    WK: { min: 1, max: 2 },
 };
 
 /**
@@ -85,19 +85,7 @@ function wouldViolateRoleLimits(currentCounts, playerCategory, currentSquadCount
         return `Team already has maximum ${ROLE_LIMITS[playerCategory].max} ${playerCategory} players`;
     }
 
-    // Check if remaining slots can satisfy minimum role requirements
-    const newSquadCount = currentSquadCount + 1;
-    const slotsLeft = MAX_SQUAD_SIZE - newSquadCount;
-
-    let minStillNeeded = 0;
-    for (const [role, limits] of Object.entries(ROLE_LIMITS)) {
-        const deficit = limits.min - simulated[role];
-        if (deficit > 0) minStillNeeded += deficit;
-    }
-
-    if (minStillNeeded > slotsLeft) {
-        return `Cannot add another ${playerCategory}: remaining ${slotsLeft} slots insufficient to fill mandatory role minimums`;
-    }
+    return null;
 
     return null;
 }
@@ -169,23 +157,21 @@ async function sellPlayer(playerId, teamId, pricePaid, isAdminOverride = false) 
             throw new Error(`Insufficient purse: ₹${purseRemaining} CR remaining, bid is ₹${pricePaid} CR`);
         }
 
-        if (!isAdminOverride) {
-            // 5. Validate squad size
-            if (team.squad_count >= MAX_SQUAD_SIZE) {
-                throw new Error(`Team already has maximum ${MAX_SQUAD_SIZE} players`);
-            }
+        // 5. Validate squad size
+        if (team.squad_count >= MAX_SQUAD_SIZE) {
+            throw new Error(`Team already has maximum ${MAX_SQUAD_SIZE} players`);
+        }
 
-            // 7. Overseas limit
-            if (player.nationality === 'OVERSEAS' && team.overseas_count >= MAX_OVERSEAS) {
-                throw new Error(`Team already has maximum ${MAX_OVERSEAS} overseas players`);
-            }
+        // 7. Overseas limit
+        if (player.nationality === 'OVERSEAS' && team.overseas_count >= MAX_OVERSEAS) {
+            throw new Error(`Team already has maximum ${MAX_OVERSEAS} overseas players`);
+        }
 
-            // 8. Role composition check
-            const roleCounts = await getTeamRoleCounts(tx, teamId);
-            const roleError = wouldViolateRoleLimits(roleCounts, playerCategory, team.squad_count);
-            if (roleError) {
-                throw new Error(roleError);
-            }
+        // 8. Role composition check
+        const roleCounts = await getTeamRoleCounts(tx, teamId);
+        const roleError = wouldViolateRoleLimits(roleCounts, playerCategory, team.squad_count);
+        if (roleError) {
+            throw new Error(roleError);
         }
 
         // 9. Validate pricePaid >= base_price
@@ -664,6 +650,109 @@ async function advanceToNextInSequence() {
             item: currentItem,
             type: sequence.type,
             sequencePosition: nextIndex + 1,
+            totalInSequence: items.length,
+        };
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SEQUENCE: Step backward to previous item in active sequence
+// ═══════════════════════════════════════════════════════════════
+
+async function stepBackInSequence() {
+    return await prisma.$transaction(async (tx) => {
+        const state = await tx.auctionState.findUnique({ where: { id: 1 } });
+
+        if (!state.current_sequence_id) {
+            throw new Error('No auction sequence selected.');
+        }
+
+        const sequence = await tx.auctionSequence.findUnique({
+            where: { id: state.current_sequence_id }
+        });
+        if (!sequence) throw new Error('Selected sequence not found');
+
+        let targetIndex = state.current_sequence_index - 2;
+        if (targetIndex < 0) {
+            throw new Error('Already at the beginning of the sequence.');
+        }
+
+        const items = sequence.sequence_items;
+
+        if (sequence.type === 'PLAYER') {
+            if (state.phase !== 'LIVE') throw new Error('Player sequences can only be run in LIVE phase');
+            
+            let foundPlayer = null;
+            while (targetIndex >= 0) {
+                const rank = Number(items[targetIndex]);
+                const player = await tx.player.findUnique({ where: { rank } });
+                if (player) {
+                    const ap = await tx.auctionPlayer.findUnique({ where: { player_id: player.id } });
+                    if (ap && ap.status === 'UNSOLD') {
+                        foundPlayer = player;
+                        break;
+                    }
+                }
+                targetIndex--;
+            }
+
+            if (!foundPlayer) {
+                throw new Error('No previous unsold players found. Earlier players may have already been sold.');
+            }
+
+            await tx.auctionState.update({
+                where: { id: 1 },
+                data: {
+                    current_player_id: foundPlayer.id,
+                    current_item_id: null,
+                    current_bid: Number(foundPlayer.base_price),
+                    highest_bidder_id: null,
+                    current_sequence_index: targetIndex + 1,
+                    bid_frozen_team_id: null,
+                }
+            });
+
+            await logAudit(tx, 'STEP_BACK_PLAYER', {
+                playerId: foundPlayer.id,
+                playerName: foundPlayer.name,
+                sequencePosition: targetIndex + 1,
+            });
+
+            return {
+                success: true,
+                finished: false,
+                item: foundPlayer,
+                type: 'PLAYER',
+                sequencePosition: targetIndex + 1,
+                totalInSequence: items.length,
+            };
+        }
+
+        const currentItem = items[targetIndex];
+        
+        await tx.auctionState.update({
+            where: { id: 1 },
+            data: {
+                current_player_id: null,
+                current_item_id: String(currentItem),
+                current_bid: sequence.type === 'FRANCHISE' ? 3 : (sequence.type === 'POWER_CARD' ? 1 : 0),
+                highest_bidder_id: null,
+                current_sequence_index: targetIndex + 1,
+            }
+        });
+
+        await logAudit(tx, 'STEP_BACK_SEQUENCE_ITEM', {
+            type: sequence.type,
+            item: currentItem,
+            sequencePosition: targetIndex + 1,
+        });
+
+        return {
+            success: true,
+            finished: false,
+            item: currentItem,
+            type: sequence.type,
+            sequencePosition: targetIndex + 1,
             totalInSequence: items.length,
         };
     });
@@ -1219,6 +1308,7 @@ export default {
 
     updateAuctionPhase,
     advanceToNextInSequence,
+    stepBackInSequence,
     selectSequence,
     placeBid,
     assignFranchise,

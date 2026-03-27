@@ -19,10 +19,10 @@ const TOP11_RULES = {
 /** Full 15-player squad constraints (Step 1) */
 const SQUAD_RULES = {
     total: 15,
-    BAT: { min: 3, ideal: 5 },
-    BOWL: { min: 3, ideal: 5 },
-    AR: { min: 2, ideal: 3 },
-    WK: { min: 2, ideal: 2 },
+    BAT: { min: 3, max: 5, ideal: 4 },
+    BOWL: { min: 5, max: 8, ideal: 6 },
+    AR: { min: 3, max: 6, ideal: 4 },
+    WK: { min: 1, max: 2, ideal: 2 },
     overseas: { min: 2, max: 5, ideal: 3 },
 };
 
@@ -57,10 +57,14 @@ async function validateSquad(teamId) {
     });
 
     if (counts.BAT < SQUAD_RULES.BAT.min) errors.push(`Min ${SQUAD_RULES.BAT.min} BAT required (have ${counts.BAT})`);
+    if (counts.BAT > SQUAD_RULES.BAT.max) errors.push(`Max ${SQUAD_RULES.BAT.max} BAT allowed (have ${counts.BAT})`);
     if (counts.BOWL < SQUAD_RULES.BOWL.min) errors.push(`Min ${SQUAD_RULES.BOWL.min} BOWL required (have ${counts.BOWL})`);
+    if (counts.BOWL > SQUAD_RULES.BOWL.max) errors.push(`Max ${SQUAD_RULES.BOWL.max} BOWL allowed (have ${counts.BOWL})`);
     if (counts.AR < SQUAD_RULES.AR.min) errors.push(`Min ${SQUAD_RULES.AR.min} AR required (have ${counts.AR})`);
+    if (counts.AR > SQUAD_RULES.AR.max) errors.push(`Max ${SQUAD_RULES.AR.max} AR allowed (have ${counts.AR})`);
     if (counts.WK < SQUAD_RULES.WK.min) errors.push(`Min ${SQUAD_RULES.WK.min} WK required (have ${counts.WK})`);
-    
+    if (counts.WK > SQUAD_RULES.WK.max) errors.push(`Max ${SQUAD_RULES.WK.max} WK allowed (have ${counts.WK})`);
+
     if (counts.OVERSEAS < SQUAD_RULES.overseas.min || counts.OVERSEAS > SQUAD_RULES.overseas.max) {
         errors.push(`Overseas players must be between ${SQUAD_RULES.overseas.min}–${SQUAD_RULES.overseas.max} (have ${counts.OVERSEAS})`);
     }
@@ -79,25 +83,33 @@ async function validateTop11(teamId, playerIds, captainId, viceCaptainId) {
 
     // 2. All selected must be in team's squad
     const squad = await prisma.teamPlayer.findMany({
-        where: { team_id: String(teamId) },
+        where: { team_id: teamId },
         include: { player: true },
     });
-    const squadPlayerIds = new Set(squad.map(tp => Number(tp.player.rank)));
-    const invalid = (playerIds || []).filter(id => !squadPlayerIds.has(Number(id)));
+    const squadPlayerIds = new Set(squad.map(tp => tp.player_id));
+    const invalid = (playerIds || []).filter(id => !squadPlayerIds.has(id));
     if (invalid.length > 0) {
         errors.push(`Players not in squad: ${invalid.join(', ')}`);
     }
 
-    // 3. Captain / Vice-Captain
-    const capIdNum = Number(captainId);
-    const vcIdNum = Number(viceCaptainId);
-    const selectedNums = (playerIds || []).map(Number);
+    // Role composition for Top 11
+    let wkCount = 0;
+    let osCount = 0;
+    const selectedPlayers = squad.filter(tp => (playerIds || []).includes(tp.player_id)).map(tp => tp.player);
+    selectedPlayers.forEach(p => {
+        if (p.category === 'WK') wkCount++;
+        if (p.nationality === 'OVERSEAS') osCount++;
+    });
 
+    if (wkCount < 1) errors.push('Top 11 must include at least 1 Wicketkeeper');
+    if (osCount > 4) errors.push(`Top 11 can include maximum 4 Overseas players (selected ${osCount})`);
+
+    // 3. Captain / Vice-Captain
     if (!captainId) errors.push('Captain must be selected');
-    else if (!selectedNums.includes(capIdNum)) errors.push('Captain must be in Top 11');
+    else if (!playerIds.includes(captainId)) errors.push('Captain must be in Top 11');
 
     if (!viceCaptainId) errors.push('Vice-Captain must be selected');
-    else if (!selectedNums.includes(vcIdNum)) errors.push('Vice-Captain must be in Top 11');
+    else if (!playerIds.includes(viceCaptainId)) errors.push('Vice-Captain must be in Top 11');
 
     if (captainId && viceCaptainId && captainId === viceCaptainId) {
         errors.push('Captain and Vice-Captain must be different');
@@ -126,7 +138,7 @@ function calcBaseScore(top11Players) {
  * SquadBalanceBonus = max(0, 30 - Penalty × 4)
  */
 function calcBalanceBonus(squadCounts) {
-    const penalty = 
+    const penalty =
         Math.abs(squadCounts.BAT - SQUAD_RULES.BAT.ideal) +
         Math.abs(squadCounts.BOWL - SQUAD_RULES.BOWL.ideal) +
         Math.abs(squadCounts.AR - SQUAD_RULES.AR.ideal) +
@@ -137,13 +149,12 @@ function calcBalanceBonus(squadCounts) {
 }
 
 /**
- * EfficiencyBonus (max 15):
- * TotalSpent = 120 - purse_remaining
- * EfficiencyBonus = max(0, 15 - |TotalSpent - 110| × 0.3)
+ * EfficiencyBonus:
+ * Rewards saving budget (purse_remaining).
+ * Formula: 1 point per 1 Cr saved.
  */
 function calcEfficiencyBonus(purseRemaining) {
-    const totalSpent = 120 - Number(purseRemaining);
-    return Math.max(0, 15 - Math.abs(totalSpent - 110) * 0.3);
+    return Number(purseRemaining);
 }
 
 /**
@@ -220,7 +231,7 @@ async function calculateLeaderboard() {
     for (const team of teams) {
         // Step 1: Validate Squad
         const squadValidation = await validateSquad(team.id);
-        
+
         // Resolve Top 11 (if submitted)
         const sel = team.top11_selection;
         let players = [];
@@ -234,7 +245,7 @@ async function calculateLeaderboard() {
             });
             captain = players.find(p => p.id === sel.captain_id);
             vc = players.find(p => p.id === sel.vice_captain_id);
-            
+
             const top11Validation = await validateTop11(team.id, sel.player_ids, sel.captain_id, sel.vice_captain_id);
             selectionErrors = top11Validation.errors;
         } else {
@@ -332,7 +343,7 @@ async function calculateLeaderboard() {
             entry.rank = 999;
             return;
         }
-        if (i > 0 && entry.score.finalScore === entries[i - 1].score.finalScore && entries[i-1].status === 'ACTIVE') {
+        if (i > 0 && entry.score.finalScore === entries[i - 1].score.finalScore && entries[i - 1].status === 'ACTIVE') {
             entry.rank = entries[i - 1].rank;
         } else {
             entry.rank = currentRank;

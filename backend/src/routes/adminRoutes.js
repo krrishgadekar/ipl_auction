@@ -151,6 +151,25 @@ router.post('/next-item', async (req, res) => {
 });
 
 /**
+ * POST /api/admin/auction/prev-item
+ * Step back to the previous item in the selected sequence
+ */
+router.post('/prev-item', async (req, res) => {
+    try {
+        const result = await auctionService.stepBackInSequence();
+        if (result.finished) {
+            req.io.emit('AUCTION_FINISHED', result);
+        } else {
+            const eventName = result.type === 'PLAYER' ? 'PLAYER_ANNOUNCED' : 'ITEM_ANNOUNCED';
+            req.io.emit(eventName, result);
+        }
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
  * POST /api/admin/auction/assign-player
  * Manually assign a specific player. Body: { playerId: uuid } or { rank: number }
  */
@@ -191,8 +210,9 @@ router.post('/bid', async (req, res) => {
  */
 router.post('/sell', async (req, res) => {
     try {
-        const { playerId, teamId, pricePaid } = req.body;
-        const result = await auctionService.sellPlayer(playerId, teamId, pricePaid, true);
+        const { playerId, teamId, pricePaid, isAdminOverride } = req.body;
+        const override = isAdminOverride === true;
+        const result = await auctionService.sellPlayer(playerId, teamId, pricePaid, override);
         const team = await prisma.team.findUnique({ where: { id: teamId } });
         const player = await prisma.player.findUnique({ where: { id: playerId } });
 
