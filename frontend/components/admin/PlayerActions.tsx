@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { Team } from '@/lib/api/teams';
 import { Player, getAllPlayers } from '@/lib/api/players';
-import { advanceToNextObject, sellPlayer, markUnsold } from '@/lib/api/admin';
+import { advanceToNextObject, stepBackToPreviousObject, sellPlayer, markUnsold } from '@/lib/api/admin';
 
 // Composition rules from rulebook §5
 const COMPOSITION_MAX: Record<string, number> = {
@@ -56,6 +56,18 @@ export default function PlayerActions({
             await advanceToNextObject();
         } catch (error) {
             console.error('Failed to set next player:', error);
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    const handlePrevPlayer = async () => {
+        setProcessing(true);
+        try {
+            await stepBackToPreviousObject();
+        } catch (error: any) {
+            console.error('Failed to set prev player:', error);
+            alert(`Cannot go back: ${error.message || error}`);
         } finally {
             setProcessing(false);
         }
@@ -119,8 +131,9 @@ export default function PlayerActions({
             await sellPlayer(playerId, team.id.toString(), currentBid);
             // Auto-advance to next player after a delay
             setTimeout(() => handleNextPlayer(), 2000);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to mark player as sold:', error);
+            alert(`Purchase Failed: ${error.message || error}`);
         } finally {
             setProcessing(false);
         }
@@ -196,15 +209,25 @@ export default function PlayerActions({
                     ✗ Mark as UNSOLD
                 </button>
 
-                {/* Next Player */}
-                <button
-                    onClick={handleNextPlayer}
-                    disabled={processing}
-                    className="w-full py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: 'linear-gradient(135deg, #0e4d5e, #1a8a9e)', color: '#fff', boxShadow: '0 4px 20px rgba(43,181,204,0.2)', fontFamily: "'Cinzel', serif" }}
-                >
-                    → Next Player
-                </button>
+                {/* Navigation Buttons */}
+                <div className="flex gap-3">
+                    <button
+                        onClick={handlePrevPlayer}
+                        disabled={processing}
+                        className="flex-1 py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontFamily: "'Cinzel', serif" }}
+                    >
+                        ← Back
+                    </button>
+                    <button
+                        onClick={handleNextPlayer}
+                        disabled={processing}
+                        className="flex-1 py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{ background: 'linear-gradient(135deg, #0e4d5e, #1a8a9e)', color: '#fff', boxShadow: '0 4px 20px rgba(43,181,204,0.2)', fontFamily: "'Cinzel', serif" }}
+                    >
+                        Next →
+                    </button>
+                </div>
             </div>
 
             {/* Player Counter */}

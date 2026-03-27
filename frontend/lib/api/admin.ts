@@ -64,6 +64,10 @@ export async function advanceToNextObject() {
     return fetchAdmin('/next-item', { method: 'POST' });
 }
 
+export async function stepBackToPreviousObject() {
+    return fetchAdmin('/prev-item', { method: 'POST' });
+}
+
 export async function selectSequence(sequenceId: number) {
     return fetchAdmin('/select-sequence', { method: 'POST', body: JSON.stringify({ sequenceId }) });
 }
