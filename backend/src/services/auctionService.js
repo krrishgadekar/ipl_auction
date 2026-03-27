@@ -154,9 +154,14 @@ async function sellPlayer(playerId, teamId, pricePaid, isAdminOverride = false) 
             throw new Error('Player is either already sold or not in this auction');
         }
 
-        // 3. Load team
+        // 3. Load team & player
         const team = await tx.team.findUnique({ where: { id: teamId } });
         if (!team) throw new Error('Team not found');
+
+        const player = await tx.player.findUnique({ where: { id: playerId } });
+        if (!player) throw new Error('Player not found');
+
+        const playerCategory = mapRoleToCategory(player.role);
 
         // 4. Validate team purse >= bid
         const purseRemaining = Number(team.purse_remaining);
@@ -177,7 +182,6 @@ async function sellPlayer(playerId, teamId, pricePaid, isAdminOverride = false) 
 
             // 8. Role composition check
             const roleCounts = await getTeamRoleCounts(tx, teamId);
-            const playerCategory = mapRoleToCategory(player.role);
             const roleError = wouldViolateRoleLimits(roleCounts, playerCategory, team.squad_count);
             if (roleError) {
                 throw new Error(roleError);
