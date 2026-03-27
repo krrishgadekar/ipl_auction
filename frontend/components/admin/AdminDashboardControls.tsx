@@ -5,7 +5,7 @@ import { AuctionState } from '@/lib/api/auction';
 import { type Player } from '@/lib/api/players';
 import FinalTeamPanel from './FinalTeamPanel';
 import { 
-    setPhase, setAuctionDay, advanceToNextObject, 
+    setPhase, setAuctionDay, advanceToNextObject, stepBackToPreviousObject,
     assignFranchise, assignPlayer, deassignPlayer,
     assignPowerCard, deassignPowerCard, markUnsold, markItemUnsold,
     unveilRiddlePlayer, sellPlayer, getAllSequences, selectSequence,
@@ -316,6 +316,14 @@ export default function AdminDashboardControls({ teams, state, allPlayers }: Adm
                 </div>
 
                 <div className="flex gap-4">
+                    <button 
+                        onClick={() => withLoading(() => stepBackToPreviousObject())}
+                        disabled={loading}
+                        className="py-5 px-6 bg-white/5 hover:bg-white/10 text-white/70 border border-white/20 rounded-xl font-black shadow-lg transform transition-all hover:scale-[1.01] active:scale-95 text-xl disabled:opacity-30 flex items-center justify-center"
+                        title="Step Back to Previous Item"
+                    >
+                        <span>⏮️</span>
+                    </button>
                     <button 
                         onClick={() => withLoading(() => advanceToNextObject())}
                         disabled={loading}
